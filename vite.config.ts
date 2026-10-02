@@ -1,5 +1,22 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-// In development the admin server (npm run admin, port 3001) is reached through the same address as the site.
-const admin = { target: "http://localhost:3001", changeOrigin: false };
-export default defineConfig({ plugins: [react()], server: { proxy: { "/api": admin, "/admin": admin, "/uploads": admin } } });
+// Admin is now part of the Vite build (admin/index.html) and uses Supabase.
+// Public site proxies to the old Node server only for backwards compatibility during dev.
+const legacy = { target: "http://localhost:3001", changeOrigin: false };
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: "index.html",
+        admin: "admin/index.html"
+      }
+    }
+  },
+  server: {
+    proxy: {
+      "/api": legacy,
+      "/uploads": legacy
+    }
+  }
+});

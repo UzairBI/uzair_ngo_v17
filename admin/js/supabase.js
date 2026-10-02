@@ -2,20 +2,14 @@
 // Uses the same URL and publishable key as the public site (src/lib/supabase.ts).
 // All data access is protected by Row Level Security (RLS).
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { createClient } from "@supabase/supabase-js";
 
-// Read Supabase config from window (injected by index.html and populated by Vite during build)
-const url = typeof window !== "undefined" && window.VITE_SUPABASE_URL ? window.VITE_SUPABASE_URL : "";
-const key = typeof window !== "undefined" && window.VITE_SUPABASE_PUBLISHABLE_KEY ? window.VITE_SUPABASE_PUBLISHABLE_KEY : "";
+// Read Supabase config from Vite environment variables (same as public site)
+export const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+export const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 
-// Strip template placeholders for development
-export const supabaseUrl = url && !url.includes("__") ? url : "";
-export const supabaseKey = key && !key.includes("__") ? key : "";
-
-if (!supabaseUrl || !supabaseKey || supabaseUrl.includes("__") || supabaseKey.includes("__")) {
-  throw new Error(`Supabase URL and publishable key are required in environment variables.
-Found URL: ${supabaseUrl ? "yes" : "no"}
-Found Key: ${supabaseKey ? "yes" : "no"}
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error(`Supabase configuration is missing.
 Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in .env`);
 }
 
@@ -42,8 +36,11 @@ export async function getCurrentAdmin() {
     .from("admin_profiles")
     .select("*")
     .eq("id", user.id)
+    .eq("is_active", true)
     .single();
-  if (error) throw new AuthError("Admin profile not found");
+  if (error || !data) throw new AuthError("This account is not an admin, or has been deactivated");
+  // Update last login time
+  await supabase.from("admin_profiles").update({ last_login_at: new Date().toISOString() }).eq("id", user.id).catch(() => {});
   return { ...data, email: user.email };
 }
 
