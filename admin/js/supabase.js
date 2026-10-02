@@ -39,8 +39,10 @@ export async function getCurrentAdmin() {
     .eq("is_active", true)
     .single();
   if (error || !data) throw new AuthError("This account is not an admin, or has been deactivated");
-  // Update last login time
-  await supabase.from("admin_profiles").update({ last_login_at: new Date().toISOString() }).eq("id", user.id).catch(() => {});
+  // Update last login time (fire-and-forget)
+  try {
+    await supabase.from("admin_profiles").update({ last_login_at: new Date().toISOString() }).eq("id", user.id);
+  } catch { /* logging only */ }
   return { ...data, email: user.email };
 }
 

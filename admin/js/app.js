@@ -20,7 +20,7 @@ const pages = {
 const app = document.getElementById("app");
 let signedIn = false;
 
-function loginView() {
+function loginView(authError = null) {
   signedIn = false; window.onhashchange = null;
   const box = h("div"), email = h("input", { type: "email", autocomplete: "email", required: true, placeholder: "Email" }), pw = h("input", { type: "password", autocomplete: "current-password", required: true });
   const btn = h("button", { type: "submit" }, "Sign in");
@@ -28,18 +28,19 @@ function loginView() {
     e.preventDefault(); btn.disabled = true; btn.textContent = "Signing in…";
     const ok = await run(box, () => signIn(email.value, pw.value));
     btn.disabled = false; btn.textContent = "Sign in"; pw.value = ""; if (ok) start();
-  } }, h("h1", null, "Admin sign in"), box, field("Email", email), field("Password", pw), btn, h("p", { class: "mut" }, "Powered by Supabase Auth"));
+  } }, h("h1", null, "Admin sign in"), authError ? msg("err", authError) : box, field("Email", email), field("Password", pw), btn, h("p", { class: "mut" }, "Powered by Supabase Auth"));
   app.replaceChildren(h("div", { class: "login" }, form));
   email.focus();
 }
 
-// Listen for auth state changes globally
+// Listen for auth state changes globally (ignore INITIAL_SESSION to avoid double rendering)
 onAuthStateChange((event, session) => {
   if (event === "SIGNED_OUT") {
     signedIn = false;
     loginView();
   } else if (event === "SIGNED_IN" && !signedIn) {
-    start();
+    // Don't start here yet; wait for getCurrentAdmin to verify it's actually an admin
+    // The form submission will call start() after a successful login
   }
 });
 
@@ -65,10 +66,16 @@ async function start() {
   // "needs attention" counters next to the menu items - fetch from Supabase
   const badges = async () => {
     try {
-      const { data: pendingRequests } = await supabase.from("document_requests").select("id", { count: "exact" }).eq("status", "new");
-      const { data: pendingVolunteers } = await supabase.from("volunteers").select("id", { count: "exact" }).eq("status", "pending");
-      const { data: pendingDonations } = await supabase.from("donations").select("id", { count: "exact" }).eq("status", "pending");
-      const counts = { pendingRequests: pendingRequests?.length || 0, pendingVolunteers: pendingVolunteers?.length || 0, pendingDonations: pendingDonations?.length || 0 };
+      const [reqs, vols, dons] = await Promise.all([
+        supabase.from("document_requests").select("id", { count: "exact", head: true }).eq("status", "new"),
+        supabase.from("volunteers").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("donations").select("id", { count: "exact", head: true }).eq("status", "pending")
+      ]);
+      const counts = {
+        pendingRequests: reqs.count || 0,
+        pendingVolunteers: vols.count || 0,
+        pendingDonations: dons.count || 0
+      };
       links.forEach((a) => {
         let n = 0;
         if (a.dataset.k === "requests") n = counts.pendingRequests;
