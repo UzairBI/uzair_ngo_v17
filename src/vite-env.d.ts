@@ -6,4 +6,6 @@ interface ImportMetaEnv {
   readonly VITE_LIVE_DATA_URL?: string;
   readonly VITE_API_URL?: string;
   readonly VITE_PLAUSIBLE_DOMAIN?: string;
+  readonly VITE_SUPABASE_URL?: string;
+  readonly VITE_SUPABASE_PUBLISHABLE_KEY?: string;
 }

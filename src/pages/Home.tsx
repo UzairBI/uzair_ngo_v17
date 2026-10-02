@@ -24,6 +24,8 @@ const heroWords = ["Communities", "Education", "Women", "Villages", "Students", 
 /** Hero heading colour. Applied to each part separately (not to the whole <h1>) so the rotating word renders correctly in Safari. */
 const heroInk = "text-white";
 const heroAccent = "text-sky-300";
+/** Images already shown elsewhere on this page, so Latest Stories never repeats them. */
+const usedImages = ["field-3.jpg", "field-6.jpg", "field-9.jpg"];
 const heroImages = homeHeroSlides.map((s) => s.src);
 const heroFocus = Object.fromEntries(homeHeroSlides.map((s) => [s.src, s.focus]));
 
@@ -46,7 +48,7 @@ export default function Home() {
         </div>
         <div aria-hidden="true" className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-[#04132b]/95 via-[#06244d]/45 to-transparent md:block" />
 
-        <div className="container-site pb-10 pt-5 font-hero md:pb-14 md:pt-32"><div className="max-w-[720px]">
+        <div className="container-site pb-10 pt-5 font-hero md:py-14"><div className="max-w-[720px]">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-dark shadow-sm backdrop-blur sm:text-sm">
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-brand" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16" />
@@ -222,11 +224,10 @@ export default function Home() {
               )}
               <Link to={nextEvents.length ? "/events" : "/media"} className="btn btn-primary mt-4">{nextEvents.length ? t("Events Calendar") : t("Explore the gallery")}</Link>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {[["field-3.jpg", "Women Empowerment", "Community outreach with women and children"],
-                ["field-6.jpg", "Social Relief", "Community nutrition and family support"],
-                ["field-9.jpg", "Education", "Community learning and child welfare"]].map(([f, c, tt]) => (
-                <Link to="/media" key={f} className="group relative block overflow-hidden rounded-2xl last:col-span-2 sm:last:col-span-1">
+                ["field-6.jpg", "Social Relief", "Community nutrition and family support"]].map(([f, c, tt]) => (
+                <Link to="/media" key={f} className="group relative block overflow-hidden rounded-2xl">
                   <Img file={f} alt={tt} className="h-44 w-full transition group-hover:scale-105 sm:h-56" />
                   <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-3 text-xs text-white"><b className="block">{c}</b>{tt}</span>
                 </Link>
@@ -235,8 +236,8 @@ export default function Home() {
           </div>
 
           <Reveal><h3 className="mt-14 font-serif text-2xl font-bold">{t("Latest Stories")}</h3></Reveal>
-          <div className="mt-5 grid gap-5 md:grid-cols-3">
-            {posts.slice(0, 3).map((p, i) => (
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            {posts.filter((p) => !usedImages.includes(p.image)).slice(0, 3).map((p, i) => (
               <Reveal key={p.slug} delay={i * 90}>
                 <Link to={`/news/${p.slug}`} className="group block h-full overflow-hidden rounded-2xl border bg-white transition hover:shadow-lg">
                   <Img file={p.image} alt={p.title} className="h-40 w-full transition duration-500 group-hover:scale-105" />
