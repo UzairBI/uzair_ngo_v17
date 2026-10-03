@@ -190,6 +190,8 @@ export async function updateDocumentRequest(id, data) {
   return result;
 }
 export async function deleteDocumentRequest(id) {
+  const { data: atts } = await supabase.from("request_attachments").select("storage_path").eq("request_id", id);
+  if (atts?.length) await supabase.storage.from("request-files").remove(atts.map((a) => a.storage_path));
   const { error } = await supabase.from("document_requests").delete().eq("id", id);
   if (error) throw error;
 }
@@ -240,6 +242,8 @@ export async function updateEvent(id, data) {
   return result;
 }
 export async function deleteEvent(id) {
+  const { data: images } = await supabase.from("event_images").select("storage_path").eq("event_id", id);
+  if (images?.length) await supabase.storage.from("event-images").remove(images.map((img) => img.storage_path));
   const { error } = await supabase.from("events").delete().eq("id", id);
   if (error) throw error;
 }
