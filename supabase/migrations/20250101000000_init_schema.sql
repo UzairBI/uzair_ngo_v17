@@ -145,7 +145,7 @@ create table events (
   id bigint primary key generated always as identity,
   title text not null,
   event_date date not null,
-  event_time time,
+  event_time text, -- free text, e.g. "10:00 AM - 2:00 PM" (not a single clock time)
   place text,
   description text,
   published boolean not null default false,
