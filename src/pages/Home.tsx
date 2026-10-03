@@ -53,7 +53,7 @@ export default function Home() {
         </div>
         <div aria-hidden="true" className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-[#04132b]/95 via-[#06244d]/45 to-transparent md:block" />
 
-        <div className="container-site pb-10 pt-[var(--hero-pad)] font-hero md:py-14"><div className="max-w-[720px] max-md:flex max-md:flex-col max-md:items-start">
+        <div className="container-site pb-10 pt-[calc(var(--hero-pad)_-_4svh)] font-hero md:py-14"><div className="max-w-[720px] max-md:flex max-md:flex-col max-md:items-start">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-dark shadow-sm backdrop-blur sm:text-sm">
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-brand" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16" />
