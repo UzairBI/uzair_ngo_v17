@@ -1,5 +1,6 @@
 import { site } from "../data/site";
 import { API_BASE } from "../hooks/useLiveData";
+import { supabase, supabaseConfigured } from "./supabase";
 
 export type SubmitResult = "sent" | "mailto";
 interface Opts {
@@ -10,6 +11,7 @@ interface Opts {
 }
 
 const ENDPOINTS: Record<string, string> = { document_requests: "/api/public/document-requests", volunteers: "/api/public/volunteers" };
+const KIND_TO_KIND: Record<string, string> = { "Contact message": "contact", "Newsletter subscription": "newsletter", "CSR enquiry": "csr" };
 
 /** Returns the server reply when saved, null when the server is not reachable (so the email fallback can take over). Throws when the server rejects the data. */
 async function saveToServer(path: string, data: Record<string, string>): Promise<{ reference?: string } | null> {
@@ -22,9 +24,36 @@ async function saveToServer(path: string, data: Record<string, string>): Promise
   return null; // 404 / 5xx: server missing or failing
 }
 
+/** Saves straight to Supabase via SECURITY DEFINER RPC functions (see supabase/migrations). Returns null on any failure so the email fallback can take over. */
+async function saveToSupabase(kind: string, opts: Opts, data: Record<string, string>): Promise<{ reference?: string } | null> {
+  if (!supabaseConfigured || !supabase) return null;
+  try {
+    if (opts.table === "volunteers") {
+      const { error } = await supabase.rpc("submit_volunteer", { p_name: data.name, p_phone: data.phone, p_email: data.email || null, p_area: data.area || null, p_message: data.message || null });
+      return error ? null : {};
+    }
+    if (opts.table === "document_requests") {
+      const { data: ref, error } = await supabase.rpc("submit_document_request", {
+        p_request_type: data.request_type, p_document_type: data.document_type, p_name: data.name, p_email: data.email, p_phone: data.phone, p_purpose: data.purpose,
+        p_financial_year: data.financial_year || null, p_delivery: data.delivery || null, p_delivery_address: data.delivery_address || null,
+        p_organisation: data.organisation || null, p_message: data.message || null
+      });
+      return error ? null : { reference: (ref as unknown as string) || undefined };
+    }
+    const formKind = KIND_TO_KIND[kind] || (kind.startsWith("Event registration") ? "event_registration" : null);
+    if (!formKind) return null;
+    const { error } = await supabase.rpc("submit_form", {
+      p_kind: formKind, p_name: data.name || null, p_email: data.email || null, p_phone: data.phone || null,
+      p_organisation: data.company || data.organisation || null, p_message: data.message || null,
+      p_data: data.event || data.date ? { event: data.event, date: data.date } : {}
+    });
+    return error ? null : {};
+  } catch { return null; }
+}
+
 /**
  * Sends a form. What happens, in order:
- *  1. DATABASE  - if `opts.table` is given, the row is saved by the server (POST /api/public/...) into server/data.db.
+ *  1. DATABASE  - the site's own server (POST /api/public/...) if it's running, then Supabase (RPC functions) if configured.
  *  2. EMAIL     - Web3Forms (VITE_WEB3FORMS_KEY) or any JSON endpoint such as Formspree (VITE_FORM_ENDPOINT).
  *                 If the database saved the row, a failed email is ignored; otherwise the email must succeed.
  *  3. FALLBACK  - with nothing configured, the visitor's email app opens, addressed to the Samiti.
@@ -38,6 +67,10 @@ export async function submitForm(kind: string, data: Record<string, string>, opt
   const path = opts.table ? ENDPOINTS[opts.table] : undefined;
   if (path) {
     const reply = await saveToServer(path, data);
+    if (reply) { saved = true; opts.onSaved?.(reply); }
+  }
+  if (!saved) {
+    const reply = await saveToSupabase(kind, opts, data);
     if (reply) { saved = true; opts.onSaved?.(reply); }
   }
 
