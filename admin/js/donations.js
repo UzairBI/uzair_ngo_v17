@@ -60,16 +60,18 @@ function detail(d, reload) {
   const box = h("div"), el = h("div");
   const status = h("select", { onchange: async () => { if (await run(box, () => updateDonation(d.id, { status: status.value }), "Status updated.")) reload(); } },
     ["pending", "success", "failed", "refunded", "cancelled"].map((s) => h("option", { value: s, selected: s === d.status }, s)));
-  el.append(box, h("p", null, h("b", null, d.receipt_no), " · ", tag(d.status), " · ", d.mode, " / ", d.method || "-"),
+  el.append(box, ...[
+    h("p", null, h("b", null, d.receipt_no), " · ", tag(d.status), " · ", d.mode, " / ", d.method || "-"),
     h("p", null, inr(d.amount), " from ", d.donor_name || "(unknown)", d.donor_email ? ` <${d.donor_email}>` : "", " on ", fmtDate(d.donated_at)),
-    d.gateway_payment_id && h("p", { class: "mut" }, `Gateway: ${d.gateway} · ${d.gateway_payment_id} · gateway status: ${d.gateway_status}${d.gateway_error ? " · " + d.gateway_error : ""}`),
+    d.gateway_payment_id ? h("p", { class: "mut" }, `Gateway: ${d.gateway} · ${d.gateway_payment_id} · gateway status: ${d.gateway_status}${d.gateway_error ? " · " + d.gateway_error : ""}`) : null,
     h("div", { class: "row" }, "Status:", status),
     h("h2", null, "Receipts & certificates"),
     !d.donor_pan ? msg("info", "Donor PAN is empty. Add it (Edit) to include it on an 80G certificate.") : null,
     h("div", { class: "row" },
       h("button", { class: "ghost", onclick: () => printReceipt(d, "receipt") }, "Print receipt"),
       h("button", { class: "ghost", onclick: () => printReceipt(d, "tax") }, "Print 80G certificate")),
-    h("div", { class: "row" }, h("button", { class: "ghost", onclick: () => { close(); openDonationForm(reload, d); } }, "Edit details")));
+    h("div", { class: "row" }, h("button", { class: "ghost", onclick: () => { close(); openDonationForm(reload, d); } }, "Edit details"))
+  ].filter(Boolean));
   const close = modal("Donation", el);
 }
 
