@@ -1,12 +1,13 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ways } from "../data/content";
-import { darpanId, site } from "../data/site";
+import { site } from "../data/site";
 import { posts } from "../data/news";
 import { useTitle } from "../hooks/useTitle";
 import { useLiveData, todayLocal } from "../hooks/useLiveData";
 import { useLang } from "../i18n/LangContext";
 import Img from "../components/Img";
-import { homeHeroSlides } from "../data/slideshows";
+import { homeHeroSlides, homeHeroOpening } from "../data/slideshows";
 import BackgroundSlideshow from "../components/BackgroundSlideshow";
 import RotatingWords from "../components/RotatingWords";
 import ProjectSlider from "../components/ProjectSlider";
@@ -17,6 +18,7 @@ import CountUp from "../components/CountUp";
 import Testimonials from "../components/Testimonials";
 import CampaignProgress from "../components/CampaignProgress";
 import IndiaNetworkMap from "../components/IndiaNetworkMap";
+import SupportersArc from "../components/SupportersArc";
 import { fmtDate } from "./News";
 import DonateButton from "../components/DonateButton";
 
@@ -30,11 +32,17 @@ const heroImages = homeHeroSlides.map((s) => s.src);
 const heroFocus = Object.fromEntries(homeHeroSlides.map((s) => [s.src, s.focus]));
 
 export default function Home() {
+  const [showSlideshow, setShowSlideshow] = useState(false);
   useTitle(undefined, "Community health, education, women empowerment, tree plantation and disaster relief.");
   const { t } = useLang();
   const { stats, campaigns, events } = useLiveData();
   const today = todayLocal();
   const nextEvents = events.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 2);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSlideshow(true), 4000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>
@@ -43,7 +51,12 @@ export default function Home() {
           From md up: the photos fill the whole hero behind the text. */}
       <section className="relative isolate overflow-hidden bg-[#061a36] pb-20 text-white md:flex md:min-h-[540px] md:items-center md:pb-24">
         <div aria-hidden="true" className="relative h-[min(88vw,400px)] md:absolute md:inset-0 md:-z-20 md:h-auto">
-          <BackgroundSlideshow images={heroImages} imgClassNames={heroFocus} fallback={heroImages[0]} effect="shift" interval={5000} duration={1100} />
+          <div className={`absolute inset-0 transition-opacity duration-500 ${showSlideshow ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <img src={homeHeroOpening.src} alt="" className={`h-full w-full object-cover ${homeHeroOpening.focus}`} />
+          </div>
+          <div className={`absolute inset-0 transition-opacity duration-500 ${showSlideshow ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <BackgroundSlideshow images={heroImages} imgClassNames={heroFocus} fallback={heroImages[0]} effect="shift" interval={5000} duration={1100} />
+          </div>
           <div className="absolute inset-x-0 bottom-0 z-10 h-20 bg-gradient-to-t from-[#061a36] to-transparent md:hidden" />
         </div>
         <div aria-hidden="true" className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-[#04132b]/95 via-[#06244d]/45 to-transparent md:block" />
@@ -64,7 +77,7 @@ export default function Home() {
             <span className="block"><span className={`hero-ink ${heroInk}`}>{t("in Rural India")}</span></span>
           </h1>
           <p className="mt-5 max-w-[620px] text-base font-medium leading-relaxed text-white/90 md:text-lg">
-            {site.name} {t("is dedicated to sustainable grassroots upliftment—providing quality education to children, health camps, women's skill training, and emergency relief across Madhya Pradesh.")}
+            {site.name} {t("is dedicated to sustainable grassroots upliftment providing quality education to children, health camps, women's skill training, and emergency relief across India.")}
           </p>
           <div className="mt-8 flex max-w-xs flex-col gap-3 min-[480px]:max-w-none min-[480px]:flex-row min-[480px]:flex-wrap min-[480px]:gap-4 sm:mt-9">
             <DonateButton to="/donate" size="lg">{t("Support Our Cause")}</DonateButton>
@@ -114,7 +127,7 @@ export default function Home() {
             <p className="eyebrow">{t("Chairman's Message")}</p>
             <blockquote className="h2 mt-2 font-quote font-medium italic">“Selfless service and inclusive education pave the path to true social empowerment.”</blockquote>
             <p className="mt-4 text-ink/70">Welcome to {site.name}. Established with a deep commitment to social justice, our mission is to ensure no child is deprived of learning and no family is left without accessible healthcare. Through transparent governance and relentless field activity, we bridge the gap between resources and grassroots need.</p>
-            <p className="mt-4 text-sm"><Link to="/about#founder" className="font-semibold text-brand">{t("Read Founder Message")}</Link> | Darpan: {darpanId}</p>
+            <Link to="/about#founder" className="btn btn-brand mt-5">{t("Read Founder Message")}</Link>
           </Reveal>
         </div>
       </section>
@@ -255,6 +268,17 @@ export default function Home() {
           <Reveal><p className="eyebrow">{t("Where we work")}</p><h2 className="h2 mb-6 mt-2">{t("Our Field Presence")}</h2></Reveal>
           <IndiaNetworkMap />
         </div>
+      </section>
+
+      {/* Supporters & partners */}
+      <section className="bg-brand-light py-16">
+        <div className="container-site text-center">
+          <Reveal>
+            <h2 className="h2 text-brand-dark">{t("Our Supporters & Partners")}</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-ink/70">{t("We are grateful to our valuable supporters and partners who help us make a difference in society.")}</p>
+          </Reveal>
+        </div>
+        <div className="mt-8"><SupportersArc /></div>
       </section>
 
       {/* CTA */}

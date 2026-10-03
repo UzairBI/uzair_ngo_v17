@@ -33,7 +33,7 @@ export default function Header() {
                     <div className="invisible absolute left-1/2 top-full min-w-[230px] -translate-x-1/2 pt-3 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
                       <div className="rounded-2xl border bg-white py-3 shadow-xl">
                         {item.children.map((c) => (
-                          <Link key={c.href} to={c.href} className="block px-5 py-2 text-center text-sm text-ink transition hover:bg-brand-light hover:text-brand-dark">{t(c.label)}</Link>
+                          <Link key={c.href} to={c.href} onClick={() => setSub(null)} className="block px-5 py-2 text-center text-sm text-ink transition hover:bg-brand-light hover:text-brand-dark">{t(c.label)}</Link>
                         ))}
                       </div>
                     </div>
@@ -54,7 +54,7 @@ export default function Header() {
             {nav.map((item) => (
               <div key={item.label}>
                 <div className="flex items-center justify-center">
-                  <Link to={item.href} className="px-5 py-3 text-[15px] font-medium">{t(item.label)}</Link>
+                  <Link to={item.href} onClick={() => setOpen(false)} className="px-5 py-3 text-[15px] font-medium">{t(item.label)}</Link>
                   {item.children && (
                     <button className="h-10 w-10 text-xl" aria-label={`Expand ${item.label}`} aria-expanded={sub === item.label}
                       onClick={() => setSub(sub === item.label ? null : item.label)}>{sub === item.label ? "−" : "+"}</button>
@@ -62,7 +62,7 @@ export default function Header() {
                 </div>
                 {item.children && sub === item.label && (
                   <div className="mx-4 rounded-2xl bg-brand-light py-1">
-                    {item.children.map((c) => <Link key={c.href} to={c.href} className="block px-6 py-2.5 text-sm">{t(c.label)}</Link>)}
+                    {item.children.map((c) => <Link key={c.href} to={c.href} onClick={() => setOpen(false)} className="block px-6 py-2.5 text-sm">{t(c.label)}</Link>)}
                   </div>
                 )}
               </div>

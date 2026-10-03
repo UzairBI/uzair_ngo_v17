@@ -25,12 +25,14 @@ export const featuredImages = [
  * the first value pair is for phones (photo on top of the text), the `md:` pair is for wider screens (photo behind the text).
  */
 export const homeHeroSlides = [
-  { src: "/images/home/hero-slide-01.jpg", focus: "object-[88%_center] md:object-[100%_60%]" },
   { src: "/images/home/hero-slide-02.jpg", focus: "object-[90%_center] md:object-[center_65%]" },
   { src: "/images/home/hero-slide-03.jpg", focus: "object-[58%_center] md:object-[center_40%]" },
   { src: "/images/home/hero-slide-04.jpg", focus: "object-[100%_center] md:object-[center_50%]" },
-  { src: "/images/home/hero-slide-05.jpg", focus: "object-[80%_center] md:object-[center_20%]" }
+  { src: "/images/home/hero-slide-05.jpg", focus: "object-[80%_center] md:object-[center_20%]" },
+  { src: "/images/home/hero-slide-01.jpg", focus: "object-[88%_center] md:object-[100%_60%]" }
 ];
+
+export const homeHeroOpening = { src: "/images/home/hero-slide-opening.jpg", focus: "object-[88%_center] md:object-[100%_60%]" };
 
 /**
  * DONATION SET. Donate page only, completely separate from the featured set.

@@ -34,7 +34,7 @@ export const hi: Record<string, string> = {
   "News & Events": "समाचार और कार्यक्रम", "Latest Field Updates & Upcoming Drives": "ताज़ा फ़ील्ड अपडेट और आगामी अभियान",
   "View All Media & Events →": "सभी मीडिया और कार्यक्रम देखें →", "Explore the gallery": "गैलरी देखें",
   "Latest Stories": "ताज़ा कहानियाँ", "Read more": "और पढ़ें", "Upcoming events": "आगामी कार्यक्रम",
-  "Where we work": "हम कहाँ काम करते हैं", "Our Field Presence": "हमारी क्षेत्रीय उपस्थिति",
+  "Where we work": "हम कहाँ काम करते हैं", "Our Field Presence": "हमारी क्षेत्रीय उपस्थिति", "Our Supporters & Partners": "हमारे सहयोगी और साझेदार", "We are grateful to our valuable supporters and partners who help us make a difference in society.": "हम अपने उन सभी सहयोगियों और साझेदारों के आभारी हैं जो समाज में बदलाव लाने में हमारी मदद करते हैं।", "Tap a place to see it on the map": "नक्शे पर देखने के लिए किसी स्थान पर टैप करें", "View all of India": "पूरा भारत देखें",
   "Sagar, Madhya Pradesh": "सागर, मध्य प्रदेश", "Our headquarters and the heart of every field programme": "हमारा मुख्यालय और हर क्षेत्रीय कार्यक्रम का केंद्र",
   "Scroll to explore": "देखने के लिए स्क्रॉल करें",
   "Take Action Today": "आज ही कदम उठाएँ", "Together, we can create stronger and more self-reliant communities.": "साथ मिलकर हम अधिक सशक्त और आत्मनिर्भर समुदाय बना सकते हैं।",

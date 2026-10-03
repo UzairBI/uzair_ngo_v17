@@ -5,6 +5,8 @@ interface Props {
   images: string[];
   /** Time each image stays on screen, in ms. */
   interval?: number;
+  /** Time the first image stays before cycling starts, in ms. If omitted, uses `interval`. */
+  initialInterval?: number;
   /** Crossfade length, in ms. */
   duration?: number;
   /** Optional image shown underneath while the slides load (keeps the original look, no blank flash). */
@@ -33,10 +35,11 @@ const load = (src: string) => new Promise<string | null>((resolve) => {
  * Background slideshow with a smooth crossfade (or a sideways shift). Fills its positioned parent and never changes its size,
  * so text on top stays still. Missing files are skipped; motion stops for visitors who prefer reduced motion.
  */
-export default function BackgroundSlideshow({ images, interval = 5000, duration = 1200, fallback, className = "", imgClassName = "", imgClassNames = {}, effect = "fade", overlayClassName }: Props) {
+export default function BackgroundSlideshow({ images, interval = 5000, initialInterval, duration = 1200, fallback, className = "", imgClassName = "", imgClassNames = {}, effect = "fade", overlayClassName }: Props) {
   const [slides, setSlides] = useState<string[]>([]);
   // index = slide fading in / on screen (-1 before the first one appears); prev = slide still showing underneath it
   const [{ index, prev }, setPos] = useState({ index: -1, prev: -1 });
+  const [hasStartedCycle, setHasStartedCycle] = useState(false);
   const key = images.join("|");
 
   // preload every image first, so a slide is never shown half-loaded
@@ -53,7 +56,7 @@ export default function BackgroundSlideshow({ images, interval = 5000, duration 
   // first slide fades in one frame after it is mounted
   useEffect(() => {
     if (!slides.length) return;
-    const id = requestAnimationFrame(() => requestAnimationFrame(() => setPos({ index: 0, prev: -1 })));
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setPos({ index: 0, prev: slides.length - 1 })));
     return () => cancelAnimationFrame(id);
   }, [slides]);
 
@@ -61,9 +64,20 @@ export default function BackgroundSlideshow({ images, interval = 5000, duration 
   useEffect(() => {
     if (slides.length < 2) return;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+
+    // If initialInterval is set, use it for the first transition, then switch to regular interval
+    if (initialInterval && index === 0 && !hasStartedCycle) {
+      const id = window.setTimeout(() => {
+        setPos((p) => ({ prev: p.index, index: (p.index + 1) % slides.length }));
+        setHasStartedCycle(true);
+      }, initialInterval);
+      return () => window.clearTimeout(id);
+    }
+
+    // Regular cycling with the standard interval
     const id = window.setInterval(() => setPos((p) => ({ prev: p.index, index: (p.index + 1) % slides.length })), interval);
     return () => window.clearInterval(id);
-  }, [slides, interval]);
+  }, [slides, interval, initialInterval, index, hasStartedCycle]);
 
   // once the fade has finished, the slide underneath can be hidden
   useEffect(() => {
