@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { stats as defaultStats, type Stat } from "../data/content";
+import { supabase, supabaseConfigured } from "../lib/supabase";
 
 export interface Campaign { id: string; title: string; text: string; goal: number; raised: number; cause?: string; sample?: boolean }
 export interface EventItem { id: string; title: string; date: string; time?: string; place: string; text: string; images?: string[]; sample?: boolean }
@@ -16,13 +17,23 @@ export const todayLocal = () => { const d = new Date(); return `${d.getFullYear(
 /** Sample entries are shown while developing but hidden on the published site. */
 const visible = <T extends { sample?: boolean }>(list: T[] = []) => (import.meta.env.DEV ? list : list.filter((x) => !x.sample));
 
-/** Events published in the admin panel. Empty list if the admin server is not running. */
+/** Events published in the admin panel. Tries the site's own server first (self-hosted deployments), then Supabase. */
 async function fetchAdminEvents(): Promise<EventItem[]> {
   try {
     const r = await fetch(`${API_BASE}/api/public/events`, { cache: "no-store" });
-    if (!r.ok) return [];
-    const list = (await r.json()) as EventItem[];
-    return Array.isArray(list) ? list.map((e) => ({ ...e, images: e.images?.map((u) => API_BASE + u) })) : [];
+    if (r.ok) {
+      const list = (await r.json()) as EventItem[];
+      if (Array.isArray(list) && list.length) return list.map((e) => ({ ...e, images: e.images?.map((u) => API_BASE + u) }));
+    }
+  } catch { /* server not running: fall through to Supabase */ }
+  if (!supabaseConfigured || !supabase) return [];
+  try {
+    const { data, error } = await supabase.from("events").select("id, title, event_date, event_time, place, description, event_images(storage_path, position)").eq("published", true).order("event_date");
+    if (error || !data) return [];
+    return data.map((e) => ({
+      id: String(e.id), title: e.title, date: e.event_date, time: e.event_time || undefined, place: e.place || "", text: e.description || "",
+      images: (e.event_images || []).sort((a, b) => a.position - b.position).map((img) => supabase!.storage.from("event-images").getPublicUrl(img.storage_path).data.publicUrl)
+    }));
   } catch { return []; }
 }
 async function fetchFile(): Promise<Partial<Live>> {
@@ -62,11 +73,27 @@ export function useLiveData(): Live & { loaded: boolean } {
 }
 
 export interface AdminProject { id: string; name: string; area?: string; location?: string; description?: string; status: string; beneficiaries: number }
-/** Projects added in the admin panel and marked "show on website". Empty list if the admin server is not reachable. */
+/** Projects added in the admin panel and marked "show on website". Tries the site's own server first, then Supabase. */
+async function fetchAdminProjects(): Promise<AdminProject[]> {
+  try {
+    const r = await fetch(`${API_BASE}/api/public/projects`, { cache: "no-store" });
+    if (r.ok) {
+      const list = await r.json();
+      if (Array.isArray(list) && list.length) return list;
+    }
+  } catch { /* server not running: fall through to Supabase */ }
+  if (!supabaseConfigured || !supabase) return [];
+  try {
+    const { data, error } = await supabase.from("projects").select("id, name, area, location, description, status, beneficiaries").eq("published", true).order("created_at", { ascending: false });
+    if (error || !data) return [];
+    return data.map((p) => ({ ...p, id: String(p.id), area: p.area || undefined, location: p.location || undefined, description: p.description || undefined }));
+  } catch { return []; }
+}
+/** Projects added in the admin panel and marked "show on website". Empty list if neither source is reachable. */
 export function useAdminProjects(): AdminProject[] {
   const [list, setList] = useState<AdminProject[]>([]);
   useRefresh(() => {
-    fetch(`${API_BASE}/api/public/projects`, { cache: "no-store" }).then((r) => (r.ok ? r.json() : [])).then((l) => setList(Array.isArray(l) ? l : [])).catch(() => { /* keep what is shown */ });
+    fetchAdminProjects().then(setList).catch(() => { /* keep what is shown */ });
   });
   return list;
 }
