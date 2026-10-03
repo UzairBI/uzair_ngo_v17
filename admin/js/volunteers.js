@@ -1,18 +1,18 @@
-import { api } from "./api.js";
-import { h, fmtDate, field, modal, run, tag, dataTable, confirmDialog, toast, busy, validate, rules } from "./ui.js";
+import { getVolunteers, createVolunteer, updateVolunteer, deleteVolunteer } from "./data.js";
+import { h, fmtDate, field, modal, tag, dataTable, confirmDialog, toast, busy, validate, rules } from "./ui.js";
 
 const STATUSES = ["pending", "active", "inactive"];
 
 export default async () => {
   const wrap = h("div");
   const setStatus = async (v, status) => {
-    try { await api(`/volunteers/${v.id}`, { method: "PATCH", body: { status } }); toast(`${v.name || "Volunteer"} is now ${status}.`); }
+    try { await updateVolunteer(v.id, { status }); toast(`${v.name || "Volunteer"} is now ${status}.`); }
     catch (e) { toast(e.message, "err"); }
     load();
   };
   const remove = async (v) => {
     if (!await confirmDialog({ title: "Delete volunteer?", text: `${v.name || "This volunteer"} will be removed permanently.`, ok: "Delete", danger: true })) return false;
-    try { await api(`/volunteers/${v.id}`, { method: "DELETE" }); toast("Volunteer deleted."); load(); return true; } catch (e) { toast(e.message, "err"); return false; }
+    try { await deleteVolunteer(v.id); toast("Volunteer deleted."); load(); return true; } catch (e) { toast(e.message, "err"); return false; }
   };
   const actions = (r, after) => [
     r.status !== "active" && h("button", { class: "sm", onclick: () => { after?.(); setStatus(r, "active"); } }, r.status === "pending" ? "Approve" : "Activate"),
@@ -42,14 +42,16 @@ export default async () => {
     empty: "No volunteers yet. Sign-ups from the website Get Involved form arrive here as “pending”.",
     tools: [h("button", { onclick: () => add() }, "+ Add volunteer")]
   });
-  async function load() { list.loading(); try { list.set(await api("/volunteers")); } catch (e) { list.error(e.message); } }
+  async function load() { list.loading(); try { list.set(await getVolunteers()); } catch (e) { list.error(e.message); } }
   const add = () => {
-    const b = h("div"), save = h("button", { type: "submit" }, "Add active volunteer");
+    const save = h("button", { type: "submit" }, "Add active volunteer");
     const f = h("form", { novalidate: true, onsubmit: async (e) => {
       e.preventDefault();
       if (!validate(f, { name: rules.required("Name", 120), phone: rules.phone, email: rules.email, area: rules.max("Area of interest", 80) })) return;
-      if (await busy(save, () => run(b, () => api("/volunteers", { method: "POST", body: Object.fromEntries(new FormData(f)) })))) { close(); toast("Volunteer added."); load(); }
-    } }, b,
+      try {
+        if (await busy(save, () => createVolunteer({ ...Object.fromEntries(new FormData(f)), status: "active" }))) { close(); toast("Volunteer added."); load(); }
+      } catch (e) { toast(e.message, "err"); }
+    } },
       field("Name *", h("input", { name: "name", required: true, maxlength: "120" })), h("div", { class: "grid2" }, field("Phone", h("input", { name: "phone", inputmode: "tel" })), field("Email", h("input", { name: "email", type: "email" }))),
       field("Area of interest", h("input", { name: "area", maxlength: "80" })),
       h("div", { class: "row end" }, h("button", { type: "button", class: "ghost", onclick: () => close() }, "Cancel"), save));

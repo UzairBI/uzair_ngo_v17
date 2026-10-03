@@ -1,4 +1,4 @@
-import { api } from "./api.js";
+import { getDashboardData } from "./data.js";
 import { h, inr, tag, timeAgo, monthLabel, barChart, statBars, statCard, panel, emptyState } from "./ui.js";
 import { openDonationForm } from "./donations.js";
 import { openProjectForm } from "./projects.js";
@@ -9,7 +9,7 @@ const TYPE = { donation: "Donation", volunteer: "Volunteer", request: "Request" 
 const greeting = () => { const hr = new Date().getHours(); return hr < 12 ? "Good Morning" : hr < 17 ? "Good Afternoon" : "Good Evening"; };
 
 export default async ({ me, go, reload }) => {
-  const d = await api("/dashboard"), c = d.counts;
+  const d = await getDashboardData(), c = d.counts;
   const ongoing = d.ongoingProjects.website + d.ongoingProjects.added;
 
   // things waiting for an admin
@@ -26,7 +26,7 @@ export default async ({ me, go, reload }) => {
     : emptyState("No donations, volunteer sign-ups or document requests yet. They appear here as soon as they arrive.");
   const activity = d.activity.length
     ? h("ul", { class: "feed" }, d.activity.map((a) => h("li", null, h("span", { class: `dot act-${a.action}`, "aria-hidden": "true" }),
-        h("div", { class: "grow" }, a.summary, h("div", { class: "mut" }, a.admin_id || "")), h("div", { class: "feed-r mut" }, timeAgo(a.created_at)))))
+        h("div", { class: "grow" }, a.summary, h("div", { class: "mut" }, a.admin_label || "")), h("div", { class: "feed-r mut" }, timeAgo(a.created_at)))))
     : emptyState("Admin changes (projects, donations, volunteers, events…) will be listed here.");
 
   const projStatus = [
@@ -37,14 +37,14 @@ export default async ({ me, go, reload }) => {
   ];
 
   return h("div", null,
-    h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, `${greeting()}, ${me.adminId} 👋`), h("p", { class: "mut" }, `Here's an overview of your impact and activities · live from the database · updated ${new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`)),
+    h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, `${greeting()}, ${me.display_name || me.email} 👋`), h("p", { class: "mut" }, `Here's an overview of your impact and activities · live from the database · updated ${new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`)),
       h("button", { class: "ghost", onclick: reload }, "Refresh")),
     h("div", { class: "row" },
       h("button", { onclick: () => openProjectForm(null, () => go("projects")) }, "+ Add project"),
       h("button", { onclick: () => go("broadcast") }, "Broadcast message"),
       h("button", { onclick: () => openDonationForm(() => go("donations")) }, "Record offline donation")),
     h("div", { class: "status-strip" },
-      h("span", { class: `chip ${d.mailReady ? "ok" : "bad"}` }, d.mailReady ? "● Email sending is on" : "● Email is off (set SMTP in .env)"),
+      h("span", { class: "chip" }, "● Email sending requires a backend (not available on this deployment)"),
       todo.length ? todo : h("span", { class: "chip ok" }, "✓ Nothing waiting for approval")),
     h("div", { class: "cards" },
       statCard("Total funds raised", inr(d.funds.total), `Online ${inr(d.funds.online)} · Offline ${inr(d.funds.offline)}`, { href: "#/donations" }),

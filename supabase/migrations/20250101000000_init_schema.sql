@@ -4,7 +4,23 @@
 
 -- ===== SETUP: ENABLE FEATURES =====
 create extension if not exists "uuid-ossp";
-create extension if not exists "pgtrgm"; -- trigram search for names
+create extension if not exists "pg_trgm"; -- trigram search for names
+
+-- ===== TABLES =====
+
+-- Admin profiles: linked to auth.users, holds the role and status.
+-- Created before the helper functions below because is_admin() (a `language sql`
+-- function) is validated against the catalog at CREATE FUNCTION time, so the
+-- table it references must already exist.
+create table admin_profiles (
+  id uuid primary key references auth.users on delete cascade,
+  display_name text not null,
+  role text not null default 'admin' check (role in ('admin', 'editor', 'viewer')),
+  is_active boolean not null default true,
+  last_login_at timestamptz,
+  created_at timestamptz not null default now()
+);
+alter table admin_profiles enable row level security;
 
 -- ===== HELPER FUNCTIONS =====
 
@@ -25,19 +41,6 @@ begin
   return new;
 end;
 $$ language plpgsql;
-
--- ===== TABLES =====
-
--- Admin profiles: linked to auth.users, holds the role and status.
-create table admin_profiles (
-  id uuid primary key references auth.users on delete cascade,
-  display_name text not null,
-  role text not null default 'admin' check (role in ('admin', 'editor', 'viewer')),
-  is_active boolean not null default true,
-  last_login_at timestamptz,
-  created_at timestamptz not null default now()
-);
-alter table admin_profiles enable row level security;
 
 -- Donors: normalizes donor details so receipts show the original info.
 create table donors (

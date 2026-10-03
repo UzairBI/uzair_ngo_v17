@@ -1,24 +1,25 @@
-import { api } from "./api.js";
-import { h, field, modal, run, tag, fmtDate, dataTable, confirmDialog, toast, busy, validate, rules, emptyState } from "./ui.js";
+import { getProjects, createProject, updateProject, deleteProject, getWebsitePortfolio } from "./data.js";
+import { h, field, modal, tag, fmtDate, dataTable, confirmDialog, toast, busy, validate, rules } from "./ui.js";
 
 const STATUSES = ["planned", "ongoing", "completed"];
 const statusTag = (s) => tag(s === "ongoing" ? "active" : s === "completed" ? "completed" : "pending", s);
 const AREA_NAMES = { "child-education": "Child education", "health-nutrition": "Health & nutrition", "women-empowerment": "Women empowerment", environment: "Environment", "social-welfare": "Social welfare" };
 const distinct = (rows, key) => [...new Set(rows.map((r) => r[key]).filter(Boolean))].sort().map((v) => [v, AREA_NAMES[v] || v]);
-const body = (p, patch = {}) => ({ name: p.name, area: p.area, location: p.location, description: p.description, beneficiaries: p.beneficiaries, status: p.status, published: p.published, ...patch });
 
 /** Add / edit form (also used by the dashboard quick action). `done` runs after a successful save or delete. */
 export function openProjectForm(p, done) {
-  p = p || {}; const box = h("div");
+  p = p || {};
   const save = h("button", { type: "submit" }, p.id ? "Save changes" : "Add project");
   const f = h("form", { novalidate: true, onsubmit: async (ev) => {
     ev.preventDefault();
     if (!validate(f, { name: rules.required("Project name", 160), area: rules.max("Area", 80), location: rules.max("Location", 120),
       beneficiaries: rules.wholeNumber("Beneficiaries"), description: rules.max("Description", 2000) })) return;
-    const b = Object.fromEntries(new FormData(f)); b.published = f.published.checked; b.beneficiaries = b.beneficiaries || 0;
-    const saved = await busy(save, () => run(box, () => api(p.id ? `/projects/${p.id}` : "/projects", { method: p.id ? "PATCH" : "POST", body: b })));
-    if (saved) { close(); toast(p.id ? "Project saved." : "Project added."); done?.(saved); }
-  } }, box,
+    const b = Object.fromEntries(new FormData(f)); b.published = f.published.checked; b.beneficiaries = Number(b.beneficiaries) || 0;
+    try {
+      const saved = await busy(save, () => (p.id ? updateProject(p.id, b) : createProject(b)));
+      close(); toast(p.id ? "Project saved." : "Project added."); done?.(saved);
+    } catch (e) { toast(e.message, "err"); }
+  } },
     h("div", { class: "grid2" },
       field("Project name *", h("input", { name: "name", required: true, maxlength: "160", value: p.name || "" })),
       field("Area / category (e.g. Child education)", h("input", { name: "area", maxlength: "80", list: "proj-areas", value: p.area || "" })),
@@ -34,11 +35,11 @@ export function openProjectForm(p, done) {
 
 async function remove(p, done) {
   if (!await confirmDialog({ title: "Delete project?", text: `“${p.name}” will be removed from the admin and from the website. This cannot be undone.`, ok: "Delete project", danger: true })) return false;
-  try { await api(`/projects/${p.id}`, { method: "DELETE" }); toast("Project deleted."); done?.(); return true; }
+  try { await deleteProject(p.id); toast("Project deleted."); done?.(); return true; }
   catch (e) { toast(e.message, "err"); return false; }
 }
 async function setStatus(p, status, done) {
-  try { await api(`/projects/${p.id}`, { method: "PATCH", body: body(p, { status }) }); toast(`Status changed to ${status}.`); done?.(); }
+  try { await updateProject(p.id, { status }); toast(`Status changed to ${status}.`); done?.(); }
   catch (e) { toast(e.message, "err"); done?.(); }
 }
 
@@ -64,10 +65,9 @@ function portfolioView(p) {
 
 export default async () => {
   const wrap = h("div");
-  let rows = [];
   const load = async () => {
     added.loading();
-    try { rows = await api("/projects"); added.set(rows); tabs.querySelector("[data-t=added] .count").textContent = rows.length; }
+    try { const rows = await getProjects(); added.set(rows); tabs.querySelector("[data-t=added] .count").textContent = rows.length; }
     catch (e) { added.error(e.message); }
   };
   const statusSel = (r) => h("select", { class: "inline-sel", "aria-label": `Status of ${r.name}`, onchange: (e) => setStatus(r, e.target.value, load) }, STATUSES.map((s) => h("option", { value: s, selected: s === r.status }, s)));
@@ -106,7 +106,7 @@ export default async () => {
     sort: { i: 0, dir: "asc" }, onRow: portfolioView, empty: "The website portfolio could not be read."
   });
 
-  const panes = { added: added.el, site: h("div", null, h("p", { class: "msg info" }, "Read-only: these 15 programmes come from the website file src/data/portfolio.ts."), site.el) };
+  const panes = { added: added.el, site: h("div", null, h("p", { class: "msg info" }, "Read-only: these programmes come from the website file src/data/portfolio.ts."), site.el) };
   const body = h("div");
   const tabs = h("div", { class: "tabs", role: "tablist" }, [["added", "Added in admin"], ["site", "Website portfolio"]].map(([k, l]) =>
     h("button", { type: "button", role: "tab", "data-t": k, class: "tab", onclick: () => show(k) }, l, " ", h("span", { class: "count" }, "…"))));
@@ -115,7 +115,7 @@ export default async () => {
   wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Projects"),
     h("p", { class: "mut" }, "Projects added here appear on the website Projects page under “Latest projects” (unless hidden)."))), tabs, body);
   show("added");
-  api("/portfolio").then((p) => { site.set(p); tabs.querySelector("[data-t=site] .count").textContent = p.length; }).catch((e) => site.error(e.message));
+  getWebsitePortfolio().then((p) => { site.set(p); tabs.querySelector("[data-t=site] .count").textContent = p.length; }).catch((e) => site.error(e.message));
   await load();
   return wrap;
 };

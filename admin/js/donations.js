@@ -1,10 +1,32 @@
-import { api } from "./api.js";
+import { getDonations, createDonation, updateDonation } from "./data.js";
 import { h, inr, tag, fmtDate, field, modal, run, msg, dataTable, toast, busy, validate, rules } from "./ui.js";
 
 const METHODS = ["Cash", "Cheque", "Bank transfer / NEFT", "UPI (direct)", "Demand draft", "Other"];
 const sel = (name, opts, val) => h("select", { name }, opts.map((o) => h("option", { value: o, selected: o === val }, o)));
 const inp = (name, extra = {}) => h("input", { name, ...extra });
 const today = () => new Date().toISOString().slice(0, 10);
+
+function printReceipt(d, type) {
+  const w = window.open("", "_blank", "noopener,width=720,height=900");
+  if (!w) return toast("Allow pop-ups to print receipts.", "err");
+  const title = type === "tax" ? "80G Tax Certificate" : "Donation Receipt";
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${title} ${d.receipt_no}</title>
+    <style>body{font-family:system-ui,sans-serif;max-width:640px;margin:40px auto;color:#111}h1{font-size:20px}table{width:100%;border-collapse:collapse;margin-top:16px}td{padding:6px 0;border-bottom:1px solid #eee}td:first-child{color:#666;width:40%}</style></head>
+    <body><h1>Sahara Jan Kalyan Samiti</h1><h2>${title}</h2>
+    <table>
+      <tr><td>Receipt no.</td><td>${d.receipt_no}</td></tr>
+      <tr><td>Date</td><td>${fmtDate(d.donated_at)}</td></tr>
+      <tr><td>Donor name</td><td>${d.donor_name || "—"}</td></tr>
+      <tr><td>Amount</td><td>${inr(d.amount)}</td></tr>
+      <tr><td>Mode</td><td>${d.mode}${d.method ? " · " + d.method : ""}</td></tr>
+      ${d.donor_pan ? `<tr><td>PAN</td><td>${d.donor_pan}</td></tr>` : ""}
+      ${d.donor_address ? `<tr><td>Address</td><td>${d.donor_address}</td></tr>` : ""}
+      ${d.purpose ? `<tr><td>Purpose</td><td>${d.purpose}</td></tr>` : ""}
+    </table>
+    <p style="margin-top:32px;color:#666;font-size:13px">This is a system-generated ${title.toLowerCase()}.</p>
+    <script>window.onload=()=>window.print()</script></body></html>`);
+  w.document.close();
+}
 
 /** Record (or edit) a donation. Used by the dashboard quick action too. */
 export function openDonationForm(done, existing) {
@@ -20,7 +42,7 @@ export function openDonationForm(done, existing) {
       donor_pan: (v) => (v && !/^[A-Z]{5}[0-9]{4}[A-Z]$/i.test(v) ? "PAN must look like ABCDE1234F" : null)
     })) return;
     const body = Object.fromEntries(new FormData(f));
-    const ok = await busy(save, () => run(box, () => api(e.id ? `/donations/${e.id}` : "/donations", { method: e.id ? "PATCH" : "POST", body: { ...body, status: e.status || "success" } })));
+    const ok = await busy(save, () => run(box, () => (e.id ? updateDonation(e.id, { ...body, status: e.status || "success" }) : createDonation({ ...body, status: "success" }))));
     if (ok) { close(); toast(e.id ? "Donation updated." : "Donation recorded."); done?.(); }
   } },
     box, h("div", { class: "grid2" },
@@ -36,21 +58,17 @@ export function openDonationForm(done, existing) {
 
 function detail(d, reload) {
   const box = h("div"), el = h("div");
-  const open = (type) => window.open(`/api/donations/${d.id}/receipt${type ? "?type=tax" : ""}`, "_blank", "noopener");
-  const send = (type) => run(box, () => api(`/donations/${d.id}/send-receipt`, { method: "POST", body: { type } }), "Email sent.").then(() => reload());
-  const status = h("select", { onchange: async () => { if (await run(box, () => api(`/donations/${d.id}`, { method: "PATCH", body: { status: status.value } }), "Status updated.")) reload(); } },
+  const status = h("select", { onchange: async () => { if (await run(box, () => updateDonation(d.id, { status: status.value }), "Status updated.")) reload(); } },
     ["pending", "success", "failed", "refunded", "cancelled"].map((s) => h("option", { value: s, selected: s === d.status }, s)));
   el.append(box, h("p", null, h("b", null, d.receipt_no), " · ", tag(d.status), " · ", d.mode, " / ", d.method || "-"),
     h("p", null, inr(d.amount), " from ", d.donor_name || "(unknown)", d.donor_email ? ` <${d.donor_email}>` : "", " on ", fmtDate(d.donated_at)),
     d.gateway_payment_id && h("p", { class: "mut" }, `Gateway: ${d.gateway} · ${d.gateway_payment_id} · gateway status: ${d.gateway_status}${d.gateway_error ? " · " + d.gateway_error : ""}`),
     h("div", { class: "row" }, "Status:", status),
     h("h2", null, "Receipts & certificates"),
-    d.tax.ok ? null : msg("info", `Tax certificate unavailable: ${d.tax.reason}`),
-    d.tax.ok && !d.donor_pan ? msg("info", "Donor PAN is empty. Add it (Edit) before issuing an 80G certificate.") : null,
+    !d.donor_pan ? msg("info", "Donor PAN is empty. Add it (Edit) to include it on an 80G certificate.") : null,
     h("div", { class: "row" },
-      h("button", { class: "ghost", onclick: () => open(false) }, "View receipt"), h("button", { class: "ghost", disabled: !d.donor_email, onclick: () => send("receipt") }, "Email receipt"),
-      d.tax.ok && h("button", { class: "ghost", onclick: () => open(true) }, "View tax certificate"), d.tax.ok && h("button", { disabled: !d.donor_email, onclick: () => send("tax") }, "Email tax certificate")),
-    d.receipt_sent_at && h("p", { class: "mut" }, "Last receipt emailed: " + fmtDate(d.receipt_sent_at)),
+      h("button", { class: "ghost", onclick: () => printReceipt(d, "receipt") }, "Print receipt"),
+      h("button", { class: "ghost", onclick: () => printReceipt(d, "tax") }, "Print 80G certificate")),
     h("div", { class: "row" }, h("button", { class: "ghost", onclick: () => { close(); openDonationForm(reload, d); } }, "Edit details")));
   const close = modal("Donation", el);
 }
@@ -58,6 +76,14 @@ function detail(d, reload) {
 const STATUSES = ["success", "pending", "failed", "refunded", "cancelled"];
 export default async () => {
   const wrap = h("div");
+  const exportCsv = () => {
+    const rows = list.rows;
+    const lines = [["Date", "Receipt", "Donor", "Email", "Amount", "Mode", "Method", "Purpose", "Status"],
+      ...rows.map((r) => [r.donated_at, r.receipt_no, r.donor_name || "", r.donor_email || "", r.amount, r.mode, r.method || "", r.purpose || "", r.status])];
+    const csv = lines.map((l) => l.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+    const a = h("a", { href: URL.createObjectURL(new Blob([csv], { type: "text/csv" })), download: `donations-${today()}.csv` });
+    document.body.append(a); a.click(); a.remove();
+  };
   const list = dataTable({
     columns: [
       { label: "Date", cell: (r) => fmtDate(r.donated_at), sort: (r) => r.donated_at + String(r.id).padStart(9, "0"), firstDir: "desc" },
@@ -76,9 +102,9 @@ export default async () => {
     summary: (rows) => { const ok = rows.filter((r) => r.status === "success" && r.currency === "INR");
       return h("p", { class: "mut" }, `${rows.length} donation record(s) · ${inr(ok.reduce((t, r) => t + Number(r.amount), 0))} raised from ${ok.length} successful`); },
     empty: "No donations yet. Online payments appear automatically; record cheques, cash and bank transfers with “+ Record offline donation”.",
-    tools: [h("button", { onclick: () => openDonationForm(load) }, "+ Record offline donation"), h("a", { class: "btn ghost", href: "/api/donations.csv" }, "Export CSV")]
+    tools: [h("button", { onclick: () => openDonationForm(load) }, "+ Record offline donation"), h("button", { class: "btn ghost", onclick: exportCsv }, "Export CSV")]
   });
-  async function load() { list.loading(); try { list.set(await api("/donations")); } catch (e) { list.error(e.message); } }
+  async function load() { list.loading(); try { list.set(await getDonations()); } catch (e) { list.error(e.message); } }
   wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Donations & finance"), h("p", { class: "mut" }, "Click a row for receipts, tax certificates and status."))), list.el);
   await load(); return wrap;
 };

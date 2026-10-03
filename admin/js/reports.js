@@ -1,4 +1,4 @@
-import { api } from "./api.js";
+import { getReports } from "./data.js";
 import { h, inr, monthLabel, barChart, statBars, statCard, panel, dataTable, spinner, msg } from "./ui.js";
 
 const short = (v) => (v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : v >= 1000 ? `₹${Math.round(v / 1000)}k` : `₹${Math.round(v)}`);
@@ -11,7 +11,7 @@ export default async () => {
 
   async function load() {
     body.replaceChildren(spinner("Calculating…"));
-    let r; try { r = await api(`/reports?months=${period.value}`); } catch (e) { return body.replaceChildren(msg("err", e.message)); }
+    let r; try { r = await getReports(period.value); } catch (e) { return body.replaceChildren(msg("err", e.message)); }
     const t = r.totals, chart = (key, opts) => barChart(r.series.map((m) => ({ label: monthLabel(m.month), title: monthLabel(m.month, true), value: m[key] })), opts);
     const csv = () => {
       const lines = [["Month", "Raised (INR)", "Donations", "Volunteer sign-ups", "Document requests", "Projects added"], ...r.series.map((m) => [m.month, m.raised, m.donations, m.volunteers, m.requests, m.projects])];
