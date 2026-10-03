@@ -21,8 +21,8 @@ export default function About() {
     <>
       <PageHero images={aboutImages} eyebrow={`About ${site.name}`} title="Community Progress Built on Integrity & Action." text="Working alongside rural and urban families to create practical, inclusive pathways to healthcare, education, livelihoods, and environmental protection." />
       <section id="founder" className="container-site grid gap-8 py-12 sm:grid-cols-[220px_1fr] md:grid-cols-[280px_1fr] md:gap-10 md:py-16 lg:grid-cols-[320px_1fr]">
-        <div>
-          <Img file="founder-chairman.jpeg" alt="Founder Chairman" className="aspect-[4/5] w-full max-w-[260px] rounded-3xl sm:max-w-none" />
+        <div className="max-sm:text-center">
+          <Img file="founder-chairman.jpeg" alt="Founder Chairman" className="aspect-[4/5] w-full max-w-[260px] rounded-3xl max-sm:mx-auto sm:max-w-none" />
           <h3 className="mt-4 font-serif text-xl font-bold">{site.chairman}</h3>
           <p className="text-sm text-brand-dark">Founder Chairman & CEO</p>
           <p className="text-sm text-ink/70">25+ years in social development and community empowerment</p>

@@ -39,9 +39,8 @@ export const homeHeroOpening = { src: "/images/home/hero-slide-opening.jpg", foc
  * Use VERTICAL (portrait) photos here: the photo area on the Donate page is tall.
  */
 export const donationImages = [
-  "/images/donation/donate-v1.jpg",
-  "/images/donation/donate-v2.jpg",
-  "/images/donation/donate-v3.jpg"
+  "/images/donation/donate-v1.jpg"
+  // one photo stays still. Add more lines (e.g. donate-v2.jpg, donate-v3.jpg) and they scroll upwards in a loop.
 ];
 
 /** ONE fixed photo per inner page (no slideshow). Blue banner at the top of inner pages (a blue overlay is always kept on top of these). */

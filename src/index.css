@@ -234,6 +234,14 @@ button:not(.btn):not(.dbtn):not(.btn-light):not(:disabled):active { transform: s
 @media (prefers-reduced-motion: no-preference) { .v-marquee { animation: v-marquee calc(var(--n, 3) * 9s) linear infinite; } }
 @keyframes v-marquee { from { transform: translateY(0); } to { transform: translateY(-50%); } }
 
+/* ===== Home: supporter logos, one straight line moving right to left (pauses on hover) ===== */
+@media (prefers-reduced-motion: no-preference) {
+  .h-marquee { animation: h-marquee calc(var(--n, 15) * 4.5s) linear infinite; }
+  .h-marquee:hover, .h-marquee:focus-within { animation-play-state: paused; }
+}
+@media (prefers-reduced-motion: reduce) { .h-marquee-box { overflow-x: auto; } }
+@keyframes h-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
 /* =====================================================================
    PHONES
    ===================================================================== */

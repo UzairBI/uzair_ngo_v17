@@ -10,7 +10,14 @@ export default function Header() {
   const [sub, setSub] = useState<string | null>(null);
   const { pathname } = useLocation();
   const { t } = useLang();
-  useEffect(() => { setOpen(false); setSub(null); }, [pathname]);
+  useEffect(() => { setOpen(false); }, [pathname]);
+  // the full-page menu always opens with its sections closed, and the page behind it must not scroll
+  useEffect(() => {
+    if (!open) { setSub(null); return; }
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-40 bg-white shadow-[0_6px_24px_-12px_rgba(11,79,156,.35)]">
@@ -49,25 +56,40 @@ export default function Header() {
           </button>
         </div>
 
+        {/* Phones / tablets: the menu is a full page. The arrow on a section opens its options underneath it, like the dropdowns on desktop. */}
         {open && (
-          <nav id="mobile-nav" aria-label="Mobile" className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-t py-3 text-center text-ink shadow-xl lg:hidden">
-            {nav.map((item) => (
-              <div key={item.label}>
-                <div className="flex items-center justify-center">
-                  <Link to={item.href} onClick={() => setOpen(false)} className="px-5 py-3 text-[15px] font-medium">{t(item.label)}</Link>
-                  {item.children && (
-                    <button className="h-10 w-10 text-xl" aria-label={`Expand ${item.label}`} aria-expanded={sub === item.label}
-                      onClick={() => setSub(sub === item.label ? null : item.label)}>{sub === item.label ? "−" : "+"}</button>
+          <nav id="mobile-nav" aria-label="Mobile" className="fixed inset-0 z-50 flex flex-col bg-white text-ink lg:hidden">
+            <div className="flex h-16 shrink-0 items-center justify-between border-b px-3 sm:h-[72px] sm:px-6">
+              <Link to="/" onClick={() => setOpen(false)} aria-label={`${site.name} home`} className="flex h-11 items-center">
+                <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-8 w-auto max-w-[150px] object-contain sm:h-10 sm:max-w-[190px]" />
+              </Link>
+              <button className="flex h-11 w-11 items-center justify-center rounded-full text-ink" aria-label="Close menu" onClick={() => setOpen(false)}>
+                <span className="block text-2xl leading-none">✕</span>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-3 sm:px-8">
+              {nav.map((item) => (
+                <div key={item.label} className="border-b border-ink/10">
+                  <div className="flex min-h-[3.5rem] items-center justify-between gap-3">
+                    <Link to={item.href} onClick={() => setOpen(false)} className="flex-1 py-3 text-lg font-semibold">{t(item.label)}</Link>
+                    {item.children && (
+                      <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand-dark" aria-label={`${sub === item.label ? "Hide" : "Show"} ${item.label} options`} aria-expanded={sub === item.label}
+                        onClick={() => setSub(sub === item.label ? null : item.label)}>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" className={`h-5 w-5 transition-transform duration-200 ${sub === item.label ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                      </button>
+                    )}
+                  </div>
+                  {item.children && sub === item.label && (
+                    <div className="mb-3 rounded-2xl bg-brand-light py-2">
+                      {item.children.map((c) => <Link key={c.href} to={c.href} onClick={() => setOpen(false)} className="block px-5 py-3 text-[15px] font-medium">{t(c.label)}</Link>)}
+                    </div>
                   )}
                 </div>
-                {item.children && sub === item.label && (
-                  <div className="mx-4 rounded-2xl bg-brand-light py-1">
-                    {item.children.map((c) => <Link key={c.href} to={c.href} onClick={() => setOpen(false)} className="block px-6 py-2.5 text-sm">{t(c.label)}</Link>)}
-                  </div>
-                )}
-              </div>
-            ))}
-            <div className="px-4 pb-1 pt-3"><DonateButton to="/donate" full>{t("Donate")}</DonateButton></div>
+              ))}
+            </div>
+
+            <div className="shrink-0 border-t px-4 py-3"><DonateButton to="/donate" full>{t("Donate")}</DonateButton></div>
           </nav>
         )}
       </div>

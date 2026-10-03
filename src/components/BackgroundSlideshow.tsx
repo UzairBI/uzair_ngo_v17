@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   /** Image paths in display order (see src/data/slideshows.ts). */
@@ -7,6 +7,8 @@ interface Props {
   interval?: number;
   /** Time the first image stays before cycling starts, in ms. If omitted, uses `interval`. */
   initialInterval?: number;
+  /** Time the `fallback` image stays on screen before the first slide comes in, in ms. */
+  startDelay?: number;
   /** Crossfade length, in ms. */
   duration?: number;
   /** Optional image shown underneath while the slides load (keeps the original look, no blank flash). */
@@ -35,11 +37,12 @@ const load = (src: string) => new Promise<string | null>((resolve) => {
  * Background slideshow with a smooth crossfade (or a sideways shift). Fills its positioned parent and never changes its size,
  * so text on top stays still. Missing files are skipped; motion stops for visitors who prefer reduced motion.
  */
-export default function BackgroundSlideshow({ images, interval = 5000, initialInterval, duration = 1200, fallback, className = "", imgClassName = "", imgClassNames = {}, effect = "fade", overlayClassName }: Props) {
+export default function BackgroundSlideshow({ images, interval = 5000, initialInterval, startDelay = 0, duration = 1200, fallback, className = "", imgClassName = "", imgClassNames = {}, effect = "fade", overlayClassName }: Props) {
   const [slides, setSlides] = useState<string[]>([]);
   // index = slide fading in / on screen (-1 before the first one appears); prev = slide still showing underneath it
   const [{ index, prev }, setPos] = useState({ index: -1, prev: -1 });
   const [hasStartedCycle, setHasStartedCycle] = useState(false);
+  const mountedAt = useRef(performance.now());
   const key = images.join("|");
 
   // preload every image first, so a slide is never shown half-loaded
@@ -53,16 +56,20 @@ export default function BackgroundSlideshow({ images, interval = 5000, initialIn
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
-  // first slide fades in one frame after it is mounted
+  // first slide fades in one frame after it is mounted (or once `startDelay` has passed since the page opened)
   useEffect(() => {
     if (!slides.length) return;
-    const id = requestAnimationFrame(() => requestAnimationFrame(() => setPos({ index: 0, prev: slides.length - 1 })));
-    return () => cancelAnimationFrame(id);
+    let raf = 0;
+    // "shift": nothing is underneath except the fallback, which slides out by itself
+    const show = () => { raf = requestAnimationFrame(() => requestAnimationFrame(() => setPos({ index: 0, prev: effect === "shift" ? -1 : slides.length - 1 }))); };
+    const timer = window.setTimeout(show, Math.max(0, startDelay - (performance.now() - mountedAt.current)));
+    return () => { window.clearTimeout(timer); cancelAnimationFrame(raf); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slides]);
 
   // advance every `interval` ms (not for visitors who prefer reduced motion)
   useEffect(() => {
-    if (slides.length < 2) return;
+    if (slides.length < 2 || index < 0) return;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
 
     // If initialInterval is set, use it for the first transition, then switch to regular interval
@@ -88,7 +95,7 @@ export default function BackgroundSlideshow({ images, interval = 5000, initialIn
 
   return (
     <div aria-hidden="true" className={`bg-slideshow ${effect === "shift" ? "is-shift" : ""} ${className}`} style={{ ["--slide-fade" as string]: `${duration}ms` }}>
-      {fallback && <img src={fallback} alt="" className={`bg-slide is-base ${imgClassName} ${imgClassNames[fallback] ?? ""}`} />}
+      {fallback && <img src={fallback} alt="" className={`bg-slide ${effect === "shift" && index >= 0 ? "is-prev" : "is-base"} ${imgClassName} ${imgClassNames[fallback] ?? ""}`} />}
       {slides.map((src, i) => (
         <img key={src} src={src} alt="" decoding="async"
           className={`bg-slide ${imgClassName} ${imgClassNames[src] ?? ""} ${i === index ? "is-active" : i === prev ? "is-prev" : ""}`} />

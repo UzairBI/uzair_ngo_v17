@@ -45,8 +45,9 @@ export default function Donate() {
       {/* photo: full height of the page on large screens, a banner on phones */}
       <div className="relative h-64 bg-ink sm:h-80 lg:h-auto">
         <div className="relative h-full w-full overflow-hidden lg:sticky lg:top-[85px] lg:h-[calc(100vh-85px)]">
-          <div aria-hidden="true" className="v-marquee absolute inset-x-0 top-0 flex flex-col" style={{ ["--n" as string]: donationSlides.length }}>
-            {[...donationSlides, ...donationSlides].map((src, i) => (
+          {/* one photo = it stays still; two or more = they scroll upwards in a loop */}
+          <div aria-hidden="true" className={`${donationSlides.length > 1 ? "v-marquee" : ""} absolute inset-x-0 top-0 flex flex-col`} style={{ ["--n" as string]: donationSlides.length }}>
+            {(donationSlides.length > 1 ? [...donationSlides, ...donationSlides] : donationSlides).map((src, i) => (
               <img key={i} src={src} alt="" decoding="async" loading={i < 2 ? "eager" : "lazy"} className="h-64 w-full shrink-0 object-cover sm:h-80 lg:h-[calc(100vh-85px)]" />
             ))}
           </div>
