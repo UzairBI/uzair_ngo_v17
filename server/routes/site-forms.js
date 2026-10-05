@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import { db, eq } from "../db.js";
 import { httpError, readBody } from "../http.js";
 import { rateLimit } from "../ratelimit.js";
-import { need, str, isEmail, oneOf } from "../util.js";
+import { need, str, isEmail, isPhone, oneOf } from "../util.js";
 
 async function body(req) {
   if (!/^application\/json/i.test(req.headers["content-type"] || "")) throw httpError(415, "Send JSON");
@@ -12,7 +12,7 @@ async function body(req) {
   if (!b || typeof b !== "object" || Array.isArray(b)) throw httpError(400, "Invalid request");
   return b;
 }
-const phone = (v) => { const s = need(v, "Phone", 30); if (!/^[\d+()\-.\s]{7,30}$/.test(s)) throw httpError(400, "Phone number looks invalid"); return s; };
+const phone = (v) => { const s = need(v, "Phone", 30); if (!isPhone(s)) throw httpError(400, "Phone number looks invalid"); return s; };
 const email = (v, required) => { const s = required ? need(v, "Email", 160) : str(v, 160); if (!isEmail(s)) throw httpError(400, "Email looks invalid"); return s; };
 const newRef = () => `REQ-${new Date().getFullYear()}-${crypto.randomBytes(4).toString("hex").slice(0, 6).toUpperCase()}`;
 
