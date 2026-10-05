@@ -59,6 +59,10 @@
       "time": "10:00 AM - 2:00 PM",
       "place": "Village venue to be announced",
       "text": "Replace this sample with a real, verified drive. Samples are hidden on the live site.",
+      "images": [
+        "/assets/images/field-3.jpg",
+        "/assets/images/field-6.jpg"
+      ],
       "sample": true
     }
   ]
