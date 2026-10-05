@@ -1,5 +1,6 @@
 import { getVolunteers, createVolunteer, updateVolunteer, deleteVolunteer, volunteerPhotoUrl, setVolunteerPhoto, removeVolunteerPhoto } from "./data.js";
 import { h, fmtDate, field, modal, tag, dataTable, confirmDialog, toast, busy, validate, rules } from "./ui.js";
+import teamPane from "./team.js";
 
 const STATUSES = ["pending", "active", "inactive"];
 const MAX_MB = 5;
@@ -80,7 +81,7 @@ export default async () => {
   });
   async function load() {
     list.loading();
-    try { list.set(await getVolunteers()); }
+    try { const rows = await getVolunteers(); list.set(rows); count("volunteers", rows.length); }
     catch (e) { list.error(e.message); }
   }
   const add = () => {
@@ -107,7 +108,20 @@ export default async () => {
       h("div", { class: "row end" }, h("button", { type: "button", class: "ghost", onclick: () => close() }, "Cancel"), saveBtn));
     const close = modal("Add volunteer", f);
   };
-  wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Volunteers"),
-    h("p", { class: "mut" }, "Sign-ups from the website Get Involved form arrive as “pending”; approve them to count them as active. Active volunteers marked “Show on website” appear by name (and photo) on the About Us page under “Our Volunteers”. Click a volunteer to add a photo."))), list.el);
+  // two tabs: the team (executive committee + management) and the volunteers. "#/volunteers/signups" opens the volunteers.
+  const count = (k, n) => (tabs.querySelector(`[data-t=${k}] .count`).textContent = n);
+  const panes = {
+    team: teamPane((n) => count("team", n)),
+    volunteers: h("div", null,
+      h("p", { class: "mut" }, "Sign-ups from the website Get Involved form arrive as “pending”; approve them to count them as active. Active volunteers marked “Show on website” appear by name (and photo) on the About Us page under “Our Volunteers”. Click a volunteer to add a photo."),
+      list.el)
+  };
+  const body = h("div");
+  const tabs = h("div", { class: "tabs", role: "tablist" }, [["team", "Team"], ["volunteers", "Volunteers"]].map(([k, l]) =>
+    h("button", { type: "button", role: "tab", "data-t": k, class: "tab", onclick: () => show(k) }, l, " ", h("span", { class: "count" }, "…"))));
+  const show = (k) => { tabs.querySelectorAll(".tab").forEach((t) => { const on = t.dataset.t === k; t.classList.toggle("on", on); t.setAttribute("aria-selected", String(on)); }); body.replaceChildren(panes[k]); };
+  wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Team & Volunteers"),
+    h("p", { class: "mut" }, "The executive committee, management team and volunteers shown on the website About Us page."))), tabs, body);
+  show(/^#\/volunteers\/signups/.test(location.hash) ? "volunteers" : "team");
   await load(); return wrap;
 };

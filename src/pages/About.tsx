@@ -3,7 +3,8 @@ import { partners } from "../data/portfolio";
 import { legalIds, site } from "../data/site";
 import { useLang } from "../i18n/LangContext";
 import { useTitle } from "../hooks/useTitle";
-import { useState } from "react";
+import { supabase, supabaseConfigured } from "../lib/supabase";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Img from "../components/Img";
 import PageHero from "../components/PageHero";
@@ -15,8 +16,27 @@ function CopyId({ value }: { value: string }) {
   return <button className="-ml-2 px-2 py-2 text-xs font-semibold text-brand" onClick={() => { navigator.clipboard?.writeText(value); setOk(true); setTimeout(() => setOk(false), 1500); }}>{ok ? "Copied" : "Copy ID"}</button>;
 }
 
+interface TeamMember { id?: number; team: string; name: string; post: string; role?: string }
+const defaultTeam: TeamMember[] = [...committee.map((m) => ({ ...m, team: "committee" })), ...team.map((m) => ({ ...m, team: "management" }))];
+
+/** Executive committee + management team from the admin panel (table team_members). Falls back to the lists in src/data/content.ts. */
+function useTeam(): TeamMember[] {
+  const [list, setList] = useState<TeamMember[]>(defaultTeam);
+  useEffect(() => {
+    if (!supabaseConfigured || !supabase) return;
+    let alive = true;
+    supabase.from("team_members").select("id, team, name, post, role").eq("published", true)
+      .order("sort_order").order("id")
+      .then(({ data, error }) => { if (alive && !error && data) setList(data); });
+    return () => { alive = false; };
+  }, []);
+  return list;
+}
+
 export default function About() {
   const { t } = useLang();
+  const people = useTeam();
+  const management = people.filter((m) => m.team === "management");
   useTitle("About Us - Founder, Mission & Committee");
   return (
     <>
@@ -98,14 +118,15 @@ export default function About() {
 
       <section id="committee" className="container-site py-16">
         <p className="eyebrow">Executive Committee</p><h2 className="h2 mt-2">Our Executive Committee</h2>
-                <Img file="executive-committee.jpg" alt="Executive committee structure" className="mt-6 h-auto w-full rounded-2xl !object-contain" />
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {committee.map((m, i) => <div key={i} className="rounded-2xl border p-5"><h4 className="font-semibold">{m.name}</h4><p className="text-sm text-brand-dark">{m.post}</p><p className="text-xs text-ink/60">Executive Committee</p></div>)}
+          {people.filter((m) => m.team === "committee").map((m, i) => <div key={m.id ?? i} className="rounded-2xl border p-5"><h4 className="font-semibold">{m.name}</h4><p className="text-sm text-brand-dark">{m.post}</p><p className="text-xs text-ink/60">Executive Committee</p></div>)}
         </div>
-        <h3 id="team" className="mt-14 font-serif text-2xl font-bold">Management Team</h3>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {team.map((m) => <div key={m.name} className="rounded-2xl border bg-white p-5"><h4 className="font-semibold">{m.name}</h4><p className="text-sm text-brand-dark">{m.post}</p><p className="mt-2 text-xs text-ink/70">{m.role}</p></div>)}
-        </div>
+        {management.length > 0 && <>
+          <h3 id="team" className="mt-14 font-serif text-2xl font-bold">Management Team</h3>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {management.map((m, i) => <div key={m.id ?? i} className="rounded-2xl border bg-white p-5"><h4 className="font-semibold">{m.name}</h4><p className="text-sm text-brand-dark">{m.post}</p>{m.role && <p className="mt-2 text-xs text-ink/70">{m.role}</p>}</div>)}
+          </div>
+        </>}
         <VolunteerWall />
       </section>
 

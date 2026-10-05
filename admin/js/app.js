@@ -18,7 +18,7 @@ import { adminPhotoUrl } from "./data.js";
 // [label, page, badge key from Supabase dashboard query]
 const pages = {
   dashboard: ["Dashboard", dashboard], reports: ["Analytics", reports], projects: ["Projects", projects],
-  donations: ["Donations", donations], volunteers: ["Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter],
+  donations: ["Donations", donations], volunteers: ["Team & Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter],
   requests: ["Document requests", requests], events: ["Events", events], videos: ["Video Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], broadcast: ["Broadcast", broadcast],
   admins: ["Admins & activity", admins]
 };

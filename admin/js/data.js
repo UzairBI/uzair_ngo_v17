@@ -29,7 +29,7 @@ function monthly(all, months) {
 function recentSubmissions(all, limit = 10) {
   const items = [
     ...all.donations.map((d) => ({ type: "donation", at: d.created_at, title: `Donation ₹${Number(d.amount).toLocaleString("en-IN")}`, sub: `${d.donor_name || "Unknown donor"} · ${d.mode}${d.method ? " · " + d.method : ""}`, status: d.status, page: "donations" })),
-    ...all.volunteers.map((v) => ({ type: "volunteer", at: v.created_at, title: `Volunteer: ${v.name || "Unnamed"}`, sub: v.area || "Volunteer sign-up", status: v.status, page: "volunteers" })),
+    ...all.volunteers.map((v) => ({ type: "volunteer", at: v.created_at, title: `Volunteer: ${v.name || "Unnamed"}`, sub: v.area || "Volunteer sign-up", status: v.status, page: "volunteers/signups" })),
     ...all.requests.map((r) => ({ type: "request", at: r.created_at, title: `Request ${r.reference || "#" + r.id}`, sub: [r.name, r.document_type].filter(Boolean).join(" · "), status: reqStatus(r.status), page: "requests" }))
   ];
   return items.sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, limit);
@@ -232,6 +232,27 @@ export async function removeVolunteerPhoto(v) {
   const saved = await updateVolunteer(v.id, { photo_path: null });
   if (v.photo_path) await supabase.storage.from("volunteer-photos").remove([v.photo_path]);
   return saved;
+}
+
+// Team (website About Us -> Our Executive Committee and Management Team). Listed in website order: block, then sort_order.
+export async function getTeamMembers() {
+  const { data, error } = await supabase.from("team_members").select("*").order("team").order("sort_order").order("id");
+  if (error) throw error;
+  return data || [];
+}
+export async function createTeamMember(data) {
+  const { data: result, error } = await supabase.from("team_members").insert([data]).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function updateTeamMember(id, data) {
+  const { data: result, error } = await supabase.from("team_members").update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function deleteTeamMember(id) {
+  const { error } = await supabase.from("team_members").delete().eq("id", id);
+  if (error) throw error;
 }
 
 // Newsletter subscribers: searched, filtered and paged in the database (the list can grow far past one page of rows).

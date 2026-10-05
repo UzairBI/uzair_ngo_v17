@@ -14,7 +14,7 @@ export default async ({ me, go, reload }) => {
 
   // things waiting for an admin
   const todo = [
-    c.volunteers.pending && h("a", { href: "#/volunteers", class: "chip warn" }, `${c.volunteers.pending} volunteer sign-up(s) awaiting approval`),
+    c.volunteers.pending && h("a", { href: "#/volunteers/signups", class: "chip warn" }, `${c.volunteers.pending} volunteer sign-up(s) awaiting approval`),
     d.pendingRequests && h("a", { href: "#/requests", class: "chip warn" }, `${d.pendingRequests} document request(s) pending`),
     d.funds.pending && h("a", { href: "#/donations", class: "chip warn" }, `${d.funds.pending} donation(s) with pending payment`)
   ].filter(Boolean);
@@ -50,7 +50,7 @@ export default async ({ me, go, reload }) => {
       statCard("Total funds raised", inr(d.funds.total), `Online ${inr(d.funds.online)} · Offline ${inr(d.funds.offline)}`, { href: "#/donations" }),
       statCard("Raised this month", inr(d.funds.thisMonth), d.funds.pending ? `${d.funds.pending} payment(s) pending` : "No pending payments", { href: "#/reports" }),
       statCard("Donation records", n(c.donations.records), `${n(c.donations.success)} successful · ${n(c.donations.pending)} pending · ${n(c.donations.failed + c.donations.cancelled + c.donations.refunded)} other`, { href: "#/donations" }),
-      statCard("Volunteers", n(c.volunteers.total), `${n(c.volunteers.active)} active · ${n(c.volunteers.pending)} pending · ${n(c.volunteers.inactive)} inactive`, { href: "#/volunteers", tone: c.volunteers.pending ? "attn" : "" }),
+      statCard("Volunteers", n(c.volunteers.total), `${n(c.volunteers.active)} active · ${n(c.volunteers.pending)} pending · ${n(c.volunteers.inactive)} inactive`, { href: "#/volunteers/signups", tone: c.volunteers.pending ? "attn" : "" }),
       statCard("Total projects", n(c.projects.website.total + c.projects.added.total), `${n(c.projects.website.total)} on website portfolio · ${n(c.projects.added.total)} added here`, { href: "#/projects" }),
       statCard("Active projects", n(ongoing), `${n(c.projects.website.completed + c.projects.added.completed)} completed · ${n(c.projects.added.planned)} planned`, { href: "#/projects" }),
       statCard("Beneficiary reach", n(d.reach.website + d.reach.added), `Website figure ${n(d.reach.website)} + ${n(d.reach.added)} from added projects`),
