@@ -8,6 +8,7 @@
  *
  * See IMAGES.md in the project root for sizes and folder details.
  */
+import { nav } from "./navigation";
 
 /** FEATURED SET (4 photos). A separate reusable set (not used by the Home hero any more). NEVER used on the donation page. */
 export const featuredImages = [
@@ -39,8 +40,11 @@ export const homeHeroOpening = { src: "/images/home/hero-slide-opening.jpg", foc
  * Use VERTICAL (portrait) photos here: the photo area on the Donate page is tall.
  */
 export const donationImages = [
-  "/images/donation/donate-v1.jpg"
-  // one photo stays still. Add more lines (e.g. donate-v2.jpg, donate-v3.jpg) and they scroll upwards in a loop.
+  "/images/donation/donate-slide-01.jpg",
+  "/images/donation/donate-slide-02.jpg",
+  "/images/donation/donate-slide-03.jpg",
+  "/images/donation/donate-slide-04.jpg"
+  // one photo stays still. Two or more slide in from the right, one after the other, in a loop. Order here = order on screen.
 ];
 
 /** ONE fixed photo per inner page (no slideshow). Blue banner at the top of inner pages (a blue overlay is always kept on top of these). */
@@ -49,3 +53,23 @@ export const projectsImages = ["/images/projects/projects-hero.jpg"];
 export const mediaImages = ["/images/media/media-hero.jpg"];
 export const transparencyImages = ["/images/transparency/transparency-hero.jpg"];
 export const contactImages = ["/images/contact/contact-hero.jpg"];
+
+/**
+ * Banner photo of each MAIN MENU section, keyed by the section's link in src/data/navigation.ts.
+ * Every page that belongs to a section (its own sub-pages, and the pages listed in its dropdown) shows the same photo.
+ */
+export const sectionBanners: Record<string, string[]> = {
+  "/about": aboutImages,
+  "/projects": projectsImages,
+  "/media": mediaImages,
+  "/transparency": transparencyImages,
+  "/contact": contactImages
+};
+
+/** Banner photo for a page address: the photo of the main menu section the page sits under (none = plain blue banner). */
+export function bannerFor(pathname: string): string[] | undefined {
+  const root = `/${pathname.split("/")[1] ?? ""}`;
+  // "/projects/health-nutrition" -> "/projects"; "/news/some-story" -> "/news", which the menu lists under "/media"
+  const section = nav.find((n) => n.href === root) ?? nav.find((n) => n.children?.some((c) => c.href.split(/[?#]/)[0] === root));
+  return section && sectionBanners[section.href];
+}

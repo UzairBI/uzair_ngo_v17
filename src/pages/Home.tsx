@@ -13,7 +13,7 @@ import ProjectSlider from "../components/ProjectSlider";
 import Wave from "../components/Wave";
 import ImpactCalculator from "../components/ImpactCalculator";
 import Reveal from "../components/Reveal";
-import CountUp from "../components/CountUp";
+import { ImpactDashboard, KeyFigures } from "../components/ImpactShowcase";
 import Testimonials from "../components/Testimonials";
 import CampaignProgress from "../components/CampaignProgress";
 import IndiaNetworkMap from "../components/IndiaNetworkMap";
@@ -33,7 +33,7 @@ const heroFocus = Object.fromEntries([homeHeroOpening, ...homeHeroSlides].map((s
 export default function Home() {
   useTitle(undefined, "Community health, education, women empowerment, tree plantation and disaster relief.");
   const { t } = useLang();
-  const { stats, campaigns, events } = useLiveData();
+  const { campaigns, events } = useLiveData();
   const today = todayLocal();
   const nextEvents = events.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 2);
 
@@ -53,7 +53,7 @@ export default function Home() {
         </div>
         <div aria-hidden="true" className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-[#04132b]/95 via-[#06244d]/45 to-transparent md:block" />
 
-        <div className="container-site pb-10 pt-[calc(var(--hero-pad)_-_6svh)] font-hero md:py-14"><div className="max-w-[720px] max-md:flex max-md:flex-col max-md:items-start">
+        <div className="container-site pb-10 pt-[calc(var(--hero-pad)_-_5svh)] font-hero md:py-14"><div className="max-w-[720px] max-md:flex max-md:flex-col max-md:items-start">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-dark shadow-sm backdrop-blur sm:text-sm">
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-brand" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16" />
@@ -86,41 +86,43 @@ export default function Home() {
 
       {/* Impact dashboard */}
       <section id="impact" className="bg-brand-light py-12 md:py-14">
-        <div className="container-site">
-          <Reveal>
-            <p className="eyebrow">{t("Live impact dashboard")}</p>
-            <h2 className="h2 mt-2 max-w-2xl">{t("A quick view of the people, communities and green spaces moving forward.")}</h2>
-            <p className="mt-2 text-xs font-semibold text-brand-dark">● {t("Field reports active")}</p>
-          </Reveal>
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
-            {stats.map((s, i) => (
-              <Reveal key={s.label} delay={i * 90}>
-                <div tabIndex={0} className="impact-card group relative h-full cursor-pointer rounded-2xl bg-white p-4 shadow-sm ring-1 ring-transparent sm:p-5">
-                  <p className="text-xs text-ink/50 transition-colors group-hover:text-brand">0{i + 1}</p>
-                  <p className="mt-1 text-lg font-bold leading-snug text-brand-dark sm:text-xl"><CountUp stat={s} /></p>
-                  <p className="mt-0.5 text-[13px] leading-snug text-ink/70 sm:text-sm">{t(s.label)}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
+        <ImpactDashboard />
       </section>
 
-      {/* Founder */}
-      <section className="py-16">
-        <div className="container-site grid items-center gap-8 sm:grid-cols-[220px_1fr] md:grid-cols-[280px_1fr] md:gap-10 lg:grid-cols-[360px_1fr]">
-          <Reveal className="max-sm:text-center">
-            <Img file="founder-chairman.jpeg" alt="Founder Chairman & CEO" className="aspect-[4/5] w-full max-w-[260px] rounded-3xl max-sm:mx-auto sm:max-w-none" />
-            <h3 className="mt-4 font-serif text-xl font-bold">{site.chairman}</h3>
-            <p className="text-sm text-brand-dark">{t("Founder Chairman & CEO")}</p>
-            <p className="mt-1 text-sm text-ink/70">25+ years in social development and community empowerment</p>
-          </Reveal>
-          <Reveal delay={120}>
-            <p className="eyebrow">{t("Chairman's Message")}</p>
-            <blockquote className="h2 mt-2 font-quote font-medium italic">“Selfless service and inclusive education pave the path to true social empowerment.”</blockquote>
-            <p className="mt-4 text-ink/70">Welcome to {site.name}. Established with a deep commitment to social justice, our mission is to ensure no child is deprived of learning and no family is left without accessible healthcare. Through transparent governance and relentless field activity, we bridge the gap between resources and grassroots need.</p>
-            <Link to="/about#founder" className="btn btn-brand mt-5">{t("Read Founder Message")}</Link>
-          </Reveal>
+      {/* Founder: message on the left, portrait card on the right (over a soft blue shape and a faded field photo), key figures underneath */}
+      <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#f3f8fe] via-white to-[#eef5fd] py-14 md:py-20">
+        <div aria-hidden="true" className="absolute inset-y-0 right-0 -z-10 hidden w-[46%] [mask-image:linear-gradient(to_right,transparent,black_55%)] lg:block">
+          <img src="/assets/images/field-9.jpg" alt="" loading="lazy" decoding="async" className="h-full w-full object-cover opacity-45" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#dbeafe]/75 to-[#bfdbfe]/55" />
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#eef5fd] to-transparent" />
+        </div>
+
+        <div className="container-site">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_.8fr] lg:gap-10">
+            <Reveal>
+              <p className="eyebrow flex items-center gap-4 tracking-[.2em]">{t("Chairman's Message")}<span aria-hidden="true" className="h-px w-12 bg-brand/50" /></p>
+              <blockquote className="mt-5 font-[Merriweather,Georgia,serif] text-[1.7rem] font-bold leading-[1.25] text-ink sm:text-4xl lg:text-[2.7rem] lg:leading-[1.22]">“Selfless service and inclusive education pave the path to true social empowerment.”</blockquote>
+              <p className="mt-6 max-w-2xl leading-relaxed text-ink/70 md:text-lg">Welcome to {site.name}. Established with a deep commitment to social justice, our mission is to ensure no child is deprived of learning and no family is left without accessible healthcare. Through transparent governance and relentless field activity, we bridge the gap between resources and grassroots need.</p>
+              <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-5">
+                <Link to="/about#founder" className="btn btn-brand !rounded-xl !px-7 !py-3.5">{t("Read Founder Message")} <span aria-hidden="true">→</span></Link>
+              </div>
+            </Reveal>
+
+            <Reveal delay={120} className="max-lg:order-first">
+              <div className="relative mx-auto w-full max-w-[300px] pb-16 sm:max-w-[340px] lg:ml-auto lg:mr-6 lg:max-w-[380px]">
+                <div aria-hidden="true" className="absolute -left-[26%] top-[14%] -z-10 h-[78%] w-[120%] rounded-[46%_54%_52%_48%/55%_45%_55%_45%] bg-gradient-to-br from-[#93c5fd] via-[#60a5fa] to-[#3b82f6] opacity-80" />
+                <Img file="founder-chairman.jpeg" alt="Founder Chairman & CEO" className="aspect-[4/5] w-full rounded-[28px] border-[5px] border-white shadow-[0_24px_50px_-20px_rgba(11,61,122,.45)]" />
+                <div className="absolute bottom-0 left-[-8%] right-[12%] rounded-2xl bg-white px-6 py-5 shadow-[0_18px_40px_-18px_rgba(11,61,122,.4)] max-sm:left-0 max-sm:right-[6%]">
+                  <h3 className="font-[Merriweather,Georgia,serif] text-xl font-bold text-ink">{site.chairman}</h3>
+                  <p className="mt-0.5 font-medium text-brand">{t("Founder Chairman & CEO")}</p>
+                  <span aria-hidden="true" className="mt-3 block h-px w-6 bg-ink/25" />
+                  <p className="mt-3 text-sm leading-snug text-ink/65">25+ years in social development and community empowerment</p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+
+          <KeyFigures />
         </div>
       </section>
 

@@ -160,3 +160,6 @@ th{background:#f4f8fd}tr.click:hover{background:#f1f7ff}
   .topbar{position:static;padding:10px 14px}.who span:last-child{display:none}main{padding:14px}h1{font-size:21px}
   .card{padding-left:76px}
 }
+
+/* volunteer photo next to the name in the Volunteers table */
+img.avatar{object-fit:cover;flex:none;background:#e8eef7}

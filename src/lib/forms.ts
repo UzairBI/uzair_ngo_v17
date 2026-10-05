@@ -51,6 +51,30 @@ async function saveToSupabase(kind: string, opts: Opts, data: Record<string, str
   } catch { return null; }
 }
 
+export type NewsletterResult = SubmitResult | "already" | "invalid" | "limited";
+const isEmail = (v: string) => v.length <= 254 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+
+/**
+ * Footer newsletter sign-up. The email goes to the `subscribe_newsletter` database function (see supabase/migrations),
+ * which stores it once in `newsletter_subscribers`: "already" = that email is subscribed, "limited" = too many attempts.
+ * Throws when the database fails. Without Supabase (or before that migration is run) it is sent like any other form.
+ */
+export async function subscribeNewsletter(email: string): Promise<NewsletterResult> {
+  const value = email.trim().toLowerCase();
+  if (!isEmail(value)) return "invalid";
+  if (supabaseConfigured && supabase) {
+    const { data, error } = await supabase.rpc("subscribe_newsletter", { p_email: value, p_source: "website-footer" });
+    if (!error) {
+      if (data === "subscribed" || data === "resubscribed") return "sent";
+      if (data === "already" || data === "invalid") return data;
+      if (data === "rate_limited") return "limited";
+      throw new Error("Unexpected reply");
+    }
+    if (error.code !== "PGRST202") throw new Error("Subscription failed"); // PGRST202 = the function does not exist yet
+  }
+  return submitForm("Newsletter subscription", { email: value });
+}
+
 /**
  * Sends a form. What happens, in order:
  *  1. DATABASE  - the site's own server (POST /api/public/...) if it's running, then Supabase (RPC functions) if configured.

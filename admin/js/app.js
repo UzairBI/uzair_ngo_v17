@@ -7,14 +7,19 @@ import requests from "./requests.js";
 import events from "./events.js";
 import projects from "./projects.js";
 import volunteers from "./volunteers.js";
+import newsletter from "./newsletter.js";
+import videos from "./videos.js";
+import annualReports from "./annualreports.js";
+import awards from "./awards.js";
 import broadcast from "./broadcast.js";
 import admins from "./admins.js";
+import { adminPhotoUrl } from "./data.js";
 
 // [label, page, badge key from Supabase dashboard query]
 const pages = {
   dashboard: ["Dashboard", dashboard], reports: ["Analytics", reports], projects: ["Projects", projects],
-  donations: ["Donations", donations], volunteers: ["Volunteers", volunteers],
-  requests: ["Document requests", requests], events: ["Events", events], broadcast: ["Broadcast", broadcast],
+  donations: ["Donations", donations], volunteers: ["Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter],
+  requests: ["Document requests", requests], events: ["Events", events], videos: ["Video Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], broadcast: ["Broadcast", broadcast],
   admins: ["Admins & activity", admins]
 };
 const app = document.getElementById("app");
@@ -60,7 +65,7 @@ async function start() {
   const nav = h("nav", { class: "side", "aria-label": "Admin" }, h("div", { class: "side-top" }, h("a", { href: "#/dashboard", class: "brand" }, h("img", { src: "/assets/images/logo.png", alt: "", onerror: (e) => e.target.remove() }), h("b", null, "NGO Admin")), toggle), menu,
     h("div", { class: "side-card" }, h("img", { src: "/assets/images/field-9.jpg", alt: "", onerror: (e) => e.target.remove() }), h("strong", null, "Creating Brighter Futures"), h("span", null, "Your work helps empower communities.")));
   const crumb = h("span", { class: "crumb" });
-  const topbar = h("header", { class: "topbar" }, crumb, h("div", { class: "grow" }), h("div", { class: "who" }, h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase()), h("span", null, h("b", null, me.display_name || me.email), h("small", null, me.role === "admin" ? "Administrator" : me.role === "editor" ? "Editor" : "Viewer"))));
+  const topbar = h("header", { class: "topbar" }, crumb, h("div", { class: "grow" }), h("div", { class: "who" }, (me.photo_path ? h("img", { class: "avatar", alt: "", src: adminPhotoUrl(me.photo_path), onerror: (e) => e.target.replaceWith(h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())) }) : h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())), h("span", null, h("b", null, me.display_name || me.email), h("small", null, me.role === "admin" ? "Administrator" : me.role === "editor" ? "Editor" : "Viewer"))));
   app.replaceChildren(h("div", { class: "shell" }, nav, h("div", { class: "content" }, topbar, main)));
 
   // "needs attention" counters next to the menu items - fetch from Supabase

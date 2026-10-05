@@ -1,25 +1,11 @@
-import { documents, type DocItem } from "../data/documents";
+import { documents } from "../data/documents";
+import { Link } from "react-router-dom";
 import { site } from "../data/site";
 import { useLang } from "../i18n/LangContext";
 import { useTitle } from "../hooks/useTitle";
 import PageHero from "../components/PageHero";
 import { transparencyImages } from "../data/slideshows";
 import DocumentRequestForm from "../components/DocumentRequestForm";
-
-function DocCard({ d }: { d: DocItem }) {
-  const { t } = useLang();
-  return (
-    <article className="flex flex-col rounded-2xl border bg-white p-6 shadow-sm">
-      <p className="eyebrow">PDF{d.pages ? ` · ${d.pages} pages` : ""} · {d.size}{d.year ? ` · ${d.year}` : ""}</p>
-      <h3 className="mt-2 font-serif text-lg font-bold">{d.title}</h3>
-      <p className="mt-2 flex-1 text-sm text-ink/70">{d.description}</p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <a href={d.file} target="_blank" rel="noreferrer" className="btn btn-brand !px-4 !py-2">{t("View PDF")}</a>
-        <a href={d.file} download className="btn border-2 border-brand !px-4 !py-2 text-brand">{t("Download")}</a>
-      </div>
-    </article>
-  );
-}
 
 export default function Transparency() {
   const { t } = useLang();
@@ -39,7 +25,27 @@ export default function Transparency() {
         <p className="eyebrow">{t("Annual Reports")}</p>
         <h2 className="h2 mt-2">Annual & Impact Reports</h2>
         <p className="mt-2 max-w-3xl text-ink/70">The organisation maintains statutory compliance, regular audits and annual reports. Our published impact reports set out what was done, where, for whom and with which partners.</p>
-        <div className="mt-8 grid gap-5 md:grid-cols-2">{reports.map((d) => <DocCard key={d.file} d={d} />)}</div>
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
+          {/* both reports open a page of their own: the impact figures, and the year-by-year annual reports (managed in the admin panel) */}
+          {reports.slice(0, 1).map((d) => (
+            <article key={d.file} className="flex flex-col rounded-2xl border bg-white p-6 shadow-sm">
+              <p className="eyebrow">Impact{d.year ? ` · ${d.year}` : ""}</p>
+              <h3 className="mt-2 font-serif text-lg font-bold">{d.title}</h3>
+              <p className="mt-2 flex-1 text-sm text-ink/70">{d.description}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link to="/transparency/impact-report" className="btn btn-brand !px-4 !py-2">{t("View Impact Report")} <span aria-hidden="true">→</span></Link>
+              </div>
+            </article>
+          ))}
+          <article className="flex flex-col rounded-2xl border bg-white p-6 shadow-sm">
+            <p className="eyebrow">Year by year · 2004 - 2025</p>
+            <h3 className="mt-2 font-serif text-lg font-bold">Comprehensive Annual Report 2004-2025</h3>
+            <p className="mt-2 flex-1 text-sm text-ink/70">The annual report of every financial year since the Samiti was registered in 2004, each one to view online or download.</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link to="/transparency/annual-reports" className="btn btn-brand !px-4 !py-2">{t("View Annual Reports")} <span aria-hidden="true">→</span></Link>
+            </div>
+          </article>
+        </div>
       </section>
 
       <section id="request" className="bg-slate-50 py-14">

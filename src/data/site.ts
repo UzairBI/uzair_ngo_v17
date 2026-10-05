@@ -34,7 +34,9 @@ export const site = {
     instagram: "https://www.instagram.com/sahara_rehli/",
     youtube: "https://www.youtube.com/channel/UCr2i8fA8YLC0JKYTFV45ukQ",
     linkedin: "https://www.linkedin.com/in/sahara-jan-kalyan-samiti-ngos-6a650025b/",
-    x: "https://x.com/saharasagn9997"
+    x: "https://x.com/saharasagn9997",
+    /** Google Business profile (opens the Google search panel for the Samiti). */
+    google: "https://www.google.com/search?gs_ssp=eJzj4tVP1zc0zDEsNEgxLEkzYLRSNagwtjS3SDFPTDQ1TLIwM0w0tTKoMDQ3tjBOtUhNSzWyTDQ0N_KSKE7MSCxKVMhKzFPITsypBFLFibmZJZkAgNYX5g&q=sahara+jan+kalyan+samiti&ie=UTF-8#ebo=0"
   },
   /** YouTube channel id (the part after /channel/). Used for the Video Gallery embed. */
   youtubeChannelId: "UCr2i8fA8YLC0JKYTFV45ukQ",

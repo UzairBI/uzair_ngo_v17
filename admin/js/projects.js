@@ -88,7 +88,7 @@ export default async () => {
       { label: "Area", options: (rs) => distinct(rs, "area"), test: (r, v) => r.area === v },
       { label: "Website", options: [["shown", "Shown"], ["hidden", "Hidden"]], test: (r, v) => (v === "shown") === !!r.published }],
     date: { label: "Added", get: (r) => r.created_at }, sort: { i: 5, dir: "desc" }, onRow: (r) => view(r, load),
-    empty: "No projects added yet. Use “+ Add project” — they appear on the website under “Latest projects”.",
+    empty: "No projects added yet. Use “+ Add project” — they appear on the website Projects page under “Upcoming & New Projects”.",
     tools: [h("button", { onclick: () => openProjectForm(null, load) }, "+ Add project")]
   });
 
@@ -113,7 +113,7 @@ export default async () => {
   const show = (k) => { tabs.querySelectorAll(".tab").forEach((t) => { const on = t.dataset.t === k; t.classList.toggle("on", on); t.setAttribute("aria-selected", String(on)); }); body.replaceChildren(panes[k]); };
 
   wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Projects"),
-    h("p", { class: "mut" }, "Projects added here appear on the website Projects page under “Latest projects” (unless hidden)."))), tabs, body);
+    h("p", { class: "mut" }, "Projects added here appear on the website Projects page under “Upcoming & New Projects” (menu: Our Projects → Upcoming Projects), unless hidden. Status “planned” is shown as “Upcoming”."))), tabs, body);
   show("added");
   getWebsitePortfolio().then((p) => { site.set(p); tabs.querySelector("[data-t=site] .count").textContent = p.length; }).catch((e) => site.error(e.message));
   await load();

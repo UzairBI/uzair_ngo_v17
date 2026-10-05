@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import { site, societyReg, darpanId, reg12A, reg80G, fcraReg } from "../data/site";
-import { submitForm } from "../lib/forms";
+import { subscribeNewsletter, type NewsletterResult } from "../lib/forms";
 import { useLang } from "../i18n/LangContext";
 import { quickNav } from "../data/navigation";
 import { API_BASE } from "../hooks/useLiveData";
@@ -10,11 +10,11 @@ import SocialIcons from "./SocialIcons";
 export default function Footer() {
   const [email, setEmail] = useState("");
   const { t } = useLang();
-  const [state, setState] = useState<"idle" | "sending" | "sent" | "mailto" | "error">("idle");
+  const [state, setState] = useState<"idle" | "sending" | NewsletterResult | "error">("idle");
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setState("sending");
-    try { const r = await submitForm("Newsletter subscription", { email }); setState(r); if (r === "sent") setEmail(""); } catch { setState("error"); }
+    try { const r = await subscribeNewsletter(email); setState(r); if (r === "sent") setEmail(""); } catch { setState("error"); }
   };
   return (
     <footer className="bg-ink text-sm text-white/80">
@@ -48,12 +48,20 @@ export default function Footer() {
         <div>
           <h3 className="mb-3 font-semibold text-white">{t("Field Updates Newsletter")}</h3>
           <p>Receive monthly impact reports, field stories, and upcoming drive announcements.</p>
-          <form onSubmit={submit} className="mt-3 space-y-2">
+          {/* noValidate: the email is checked in subscribeNewsletter, so the message below shows instead of the browser's own bubble */}
+          <form onSubmit={submit} noValidate className="mt-3 space-y-2">
             <label htmlFor="nl-email" className="text-xs">Email</label>
             <input id="nl-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
-              className="w-full rounded-md bg-white/10 px-3 py-2.5 text-white placeholder-white/50" />
-            <button className="btn btn-primary w-full disabled:opacity-60" type="submit" disabled={state === "sending"}>{t("Subscribe to Updates")}</button>
-            <div role="status" aria-live="polite" className="text-xs">{state === "sent" && <p className="text-green-300">Thank you for subscribing!</p>}{state === "mailto" && <p className="text-green-300">Your email app should open. Press Send to finish.</p>}{state === "error" && <p className="text-red-300">Something went wrong. Please try again.</p>}</div>
+              aria-invalid={state === "invalid"} className="w-full rounded-md bg-white/10 px-3 py-2.5 text-white placeholder-white/50" />
+            <button className="btn btn-primary w-full disabled:opacity-60" type="submit" disabled={state === "sending"}>{state === "sending" ? "Subscribing..." : t("Subscribe to Updates")}</button>
+            <div role="status" aria-live="polite" className="text-xs">
+              {state === "sent" && <p className="text-green-300">Thank you for subscribing to our updates!</p>}
+              {state === "already" && <p className="text-green-300">You are already subscribed to our updates.</p>}
+              {state === "mailto" && <p className="text-green-300">Your email app should open. Press Send to finish.</p>}
+              {state === "invalid" && <p className="text-red-300">Please enter a valid email address.</p>}
+              {state === "limited" && <p className="text-red-300">Too many attempts. Please try again in a few minutes.</p>}
+              {state === "error" && <p className="text-red-300">Something went wrong. Please try again.</p>}
+            </div>
           </form>
         </div>
       </div>

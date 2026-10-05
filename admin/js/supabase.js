@@ -41,7 +41,10 @@ export async function getCurrentAdmin() {
   if (error || !data) throw new AuthError("This account is not an admin, or has been deactivated");
   // Update last login time (fire-and-forget)
   try {
-    await supabase.from("admin_profiles").update({ last_login_at: new Date().toISOString() }).eq("id", user.id);
+    const now = { last_login_at: new Date().toISOString() };
+    // keep the sign-in email on the profile too, so the Admins list can show it (older databases have no email column yet)
+    const { error: e1 } = await supabase.from("admin_profiles").update({ ...now, email: user.email }).eq("id", user.id);
+    if (e1) await supabase.from("admin_profiles").update(now).eq("id", user.id);
   } catch { /* logging only */ }
   return { ...data, email: user.email };
 }

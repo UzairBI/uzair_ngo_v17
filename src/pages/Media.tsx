@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { supabase, supabaseConfigured } from "../lib/supabase";
 import { useTitle } from "../hooks/useTitle";
 import { useLang } from "../i18n/LangContext";
 import { site } from "../data/site";
@@ -59,9 +61,57 @@ const photos: Photo[] = [
   { file: "gallery/csr-volunteering/sap-volunteering-activity.jpg", alt: "SAP Labs volunteers on a hands-on activity with children", cat: "CSR & Volunteering" },
   { file: "gallery/csr-volunteering/sap-volunteers-workshop.jpg", alt: "SAP Labs volunteers running a hands-on workshop", cat: "CSR & Volunteering" }
 ];
+interface Video { youtube_id: string; title: string; description?: string }
+const videoFrame = "aspect-video overflow-hidden rounded-2xl border bg-black shadow";
+
+/** Published videos from the admin panel (table gallery_videos). Empty while loading, or when Supabase is not set up / not reachable. */
+function useGalleryVideos(): Video[] {
+  const [videos, setVideos] = useState<Video[]>([]);
+  useEffect(() => {
+    if (!supabaseConfigured || !supabase) return;
+    let alive = true;
+    // "*" rather than a column list, so the gallery keeps working if the description column has not been added yet
+    supabase.from("gallery_videos").select("*").eq("published", true).order("created_at").order("id")
+      .then(({ data, error }) => { if (alive && !error && data) setVideos(data as Video[]); });
+    return () => { alive = false; };
+  }, []);
+  return videos;
+}
+
+/** One small video: its YouTube thumbnail with a play button; the player itself only loads when it is clicked. */
+function VideoCard({ v }: { v: Video }) {
+  const [playing, setPlaying] = useState(false);
+  const label = v.title || "Sahara Jan Kalyan Samiti video";
+  return (
+    <figure>
+      <div className={`group relative ${videoFrame} transition duration-300 hover:-translate-y-1 hover:shadow-xl`}>
+        {playing
+          ? <iframe title={label} src={`https://www.youtube-nocookie.com/embed/${v.youtube_id}?autoplay=1&rel=0`} allowFullScreen className="h-full w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+          : (
+            <button type="button" onClick={() => setPlaying(true)} aria-label={`Play video: ${label}`} className="block h-full w-full">
+              <img src={`https://i.ytimg.com/vi/${v.youtube_id}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+              <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+              <span aria-hidden="true" className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#ff0000] text-white shadow-lg transition duration-300 group-hover:scale-110">
+                <svg viewBox="0 0 24 24" className="ml-0.5 h-6 w-6" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+              </span>
+            </button>
+          )}
+      </div>
+      {(v.title || v.description) && (
+        <figcaption className="mt-2.5">
+          {v.title && <span className="block font-semibold leading-snug text-ink">{v.title}</span>}
+          {v.description && <span className="mt-1 block whitespace-pre-line text-sm leading-relaxed text-ink/70">{v.description}</span>}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
 export default function Media() {
   const { t } = useLang();
   useTitle("Media & Gallery");
+  const videos = useGalleryVideos();
   const uploads = `https://www.youtube.com/embed/videoseries?list=${site.youtubeChannelId.replace(/^UC/, "UU")}`;
   return (
     <>
@@ -73,13 +123,20 @@ export default function Media() {
       <section id="video-gallery" className="bg-slate-50 py-16">
         <div className="container-site">
           <h2 className="h2">{t("Video Gallery")}</h2>
-          <div className="mt-6 aspect-video max-w-4xl overflow-hidden rounded-2xl border bg-black shadow">
-            <iframe title="Sahara Jan Kalyan Samiti YouTube videos" src={uploads} loading="lazy" allowFullScreen className="h-full w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+          {/* Videos added in the admin panel (Video Gallery), oldest first, so a new one lands to the right of the earlier ones.
+              Until any are added (or if the database cannot be reached) the channel's latest uploads are shown in one small player. */}
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {videos.length > 0
+              ? videos.map((v) => <VideoCard key={v.youtube_id} v={v} />)
+              : (
+                <div className={videoFrame}>
+                  <iframe title="Sahara Jan Kalyan Samiti YouTube videos" src={uploads} loading="lazy" allowFullScreen className="h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+                </div>
+              )}
           </div>
           <div className="mt-5 flex flex-wrap gap-3">
             <a className="btn btn-brand" href={site.social.youtube} target="_blank" rel="noreferrer">▶ {t("Watch on YouTube")}</a>
-            <a className="btn border-2 border-brand text-brand" href={site.social.instagram} target="_blank" rel="noreferrer">{t("Follow on Instagram")}</a>
           </div>
         </div>
       </section>

@@ -1,17 +1,47 @@
-import { getBroadcastAudienceCounts, getBroadcastHistory } from "./data.js";
-import { h, field, fmtDate, dataTable, msg } from "./ui.js";
+import { getTickerMessages, createTickerMessage, deleteTickerMessage } from "./data.js";
+import { h, field, fmtDateTime, msg, toast, busy, validate, rules, confirmDialog, spinner } from "./ui.js";
+
+// Broadcast = the scrolling "Live" strip at the very top of every page of the website.
+// Write a message, send it, and it joins the strip (newest first). Nothing else happens here.
+const MAX = 160;
 
 export default async () => {
-  const counts = await getBroadcastAudienceCounts();
-  const audience = h("select", null, [["volunteers", "Active volunteers"], ["donors", "Donors (successful donations)"], ["all", "Volunteers + donors"]].map(([v, l]) => h("option", { value: v }, `${l} (${counts[v]} with email)`)));
-  const subject = h("input", { name: "subject", maxlength: "200", disabled: true }), message = h("textarea", { name: "message", rows: "8", maxlength: "5000", disabled: true });
-  const form = h("form", { novalidate: true, onsubmit: (e) => e.preventDefault() },
-    msg("info", "Sending email requires a backend (SMTP) which is not available on this deployment. Use the audience counts below to export recipients yourself, or send via your own email tool."),
-    field("Audience", audience), field("Subject", subject), field("Message", message));
-  const hist = dataTable({ columns: [{ label: "Sent", cell: (r) => fmtDate(r.created_at), sort: (r) => r.created_at, firstDir: "desc" }, { label: "Audience", cell: (r) => r.audience, sort: (r) => r.audience },
-    { label: "Subject", cell: (r) => r.subject, sort: (r) => (r.subject || "").toLowerCase() }, { label: "Recipients", cell: (r) => r.recipients, sort: (r) => r.recipients, cls: "num" }],
-    rows: await getBroadcastHistory(), search: (r) => [r.subject, r.body, r.audience].join(" "), searchLabel: "Search broadcasts", sort: { i: 0, dir: "desc" }, pageSize: 10,
-    empty: "No broadcasts sent yet (from before this deployment)." });
-  return h("div", null, h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Broadcast message"), h("p", { class: "mut" }, "Email active volunteers and/or donors. Recipients never see each other (BCC)."))),
-    h("div", { class: "panel" }, form), h("h2", { class: "sec" }, "Past broadcasts"), hist.el);
+  const list = h("div");
+  const message = h("textarea", { name: "message", rows: "3", maxlength: String(MAX), placeholder: "e.g. 🎉 New event is live now: join our health camp this Sunday" });
+  const send = h("button", { type: "submit" }, "Send to website");
+
+  async function load() {
+    list.replaceChildren(spinner());
+    try {
+      const rows = await getTickerMessages();
+      list.replaceChildren(rows.length
+        ? h("ul", { class: "feed" }, rows.map((r) => h("li", null,
+            h("div", { class: "grow" }, h("div", { class: "pre" }, r.message), h("div", { class: "mut" }, `Sent ${fmtDateTime(r.created_at)}`)),
+            h("button", { type: "button", class: "danger sm", onclick: async () => {
+              if (!await confirmDialog({ title: "Remove message?", text: `“${r.message}” will stop showing on the website.`, ok: "Remove", danger: true })) return;
+              try { await deleteTickerMessage(r.id); toast("Message removed from the website."); load(); } catch (e) { toast(e.message, "err"); }
+            } }, "Remove"))))
+        : h("p", { class: "mut" }, "No messages. The website shows its built-in text until you send one."));
+    } catch (e) {
+      list.replaceChildren(msg("err", e.code === "PGRST205" ? "The messages table does not exist yet. Run supabase/migrations/20250112000000_ticker_messages.sql in the Supabase SQL Editor." : e.message));
+    }
+  }
+
+  const form = h("form", { novalidate: true, onsubmit: async (e) => {
+    e.preventDefault();
+    if (!validate(form, { message: rules.required("Message", MAX) })) return;
+    try {
+      await busy(send, () => createTickerMessage(message.value.trim().replace(/\s+/g, " ")), "Sending…");
+      message.value = ""; toast("Sent. It is now showing at the top of the website."); load();
+    } catch (err) { toast(err.message, "err"); }
+  } },
+    field(`Message (up to ${MAX} characters)`, message),
+    h("div", { class: "row" }, send));
+
+  const wrap = h("div", null,
+    h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Broadcast message"),
+      h("p", { class: "mut" }, "Messages here scroll in the “Live” strip at the very top of every page of the website. A new message appears first."))),
+    h("div", { class: "panel" }, form),
+    h("h2", { class: "sec" }, "Showing on the website now"), h("div", { class: "panel" }, list));
+  await load(); return wrap;
 };
