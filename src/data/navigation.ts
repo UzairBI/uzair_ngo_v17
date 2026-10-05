@@ -24,7 +24,6 @@ export const nav: NavItem[] = [
     { label: "Events Calendar", href: "/events" } ] },
   { label: "Transparency & Reports", href: "/transparency", children: [
     { label: "Annual Reports", href: "/transparency#annual-reports" },
-    { label: "Request Audit Report", href: "/transparency?request=audit#request" },
     { label: "Request Certificates", href: "/transparency?request=certificate#request" } ] },
   { label: "Contact Us", href: "/contact" }
 ];

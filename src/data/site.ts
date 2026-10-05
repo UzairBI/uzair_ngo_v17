@@ -2,6 +2,7 @@
  * ALL organisation identity, legal IDs and payment details live here.
  * Do NOT commit real bank / UPI / IFSC values to a public repo.
  */
+const googleBusinessUrl = "https://www.google.com/maps/search/?api=1&query=Sahara+Jan+Kalyan+Samiti+Sagar+Madhya+Pradesh";
 export const site = {
   name: "Sahara Jan Kalyan Samiti",
   shortName: "Sahara",
@@ -34,8 +35,11 @@ export const site = {
     instagram: "https://www.instagram.com/sahara_rehli/",
     youtube: "https://www.youtube.com/channel/UCr2i8fA8YLC0JKYTFV45ukQ",
     linkedin: "https://www.linkedin.com/in/sahara-jan-kalyan-samiti-ngos-6a650025b/",
-    x: "https://x.com/saharasagn9997"
+    x: "https://x.com/saharasagn9997",
+    google: googleBusinessUrl
   },
+  /** Google Business Profile / Maps listing. Replace with the Samiti's own profile link (Google Maps > Share > Copy link) when available. */
+  googleBusiness: googleBusinessUrl,
   /** YouTube channel id (the part after /channel/). Used for the Video Gallery embed. */
   youtubeChannelId: "UCr2i8fA8YLC0JKYTFV45ukQ",
   logo: "/assets/images/logo.png"
