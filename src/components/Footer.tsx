@@ -5,14 +5,19 @@ import { submitForm } from "../lib/forms";
 import { useLang } from "../i18n/LangContext";
 import { quickNav } from "../data/navigation";
 import { API_BASE } from "../hooks/useLiveData";
+import { checkField } from "../lib/validate";
 import SocialIcons from "./SocialIcons";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
   const { t } = useLang();
+  const [emailErr, setEmailErr] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "sent" | "mailto" | "error">("idle");
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    const m = checkField("email", email, true);
+    setEmailErr(m);
+    if (m) return;
     setState("sending");
     try { const r = await submitForm("Newsletter subscription", { email }); setState(r); if (r === "sent") setEmail(""); } catch { setState("error"); }
   };
@@ -48,10 +53,11 @@ export default function Footer() {
         <div>
           <h3 className="mb-3 font-semibold text-white">{t("Field Updates Newsletter")}</h3>
           <p>Receive monthly impact reports, field stories, and upcoming drive announcements.</p>
-          <form onSubmit={submit} className="mt-3 space-y-2">
+          <form onSubmit={submit} noValidate className="mt-3 space-y-2">
             <label htmlFor="nl-email" className="text-xs">Email</label>
-            <input id="nl-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
+            <input id="nl-email" type="email" required value={email} onChange={(e) => { setEmail(e.target.value); if (emailErr) setEmailErr(""); }} aria-invalid={!!emailErr} aria-describedby={emailErr ? "nl-email-err" : undefined} autoComplete="email" placeholder="you@example.com"
               className="w-full rounded-md bg-white/10 px-3 py-2.5 text-white placeholder-white/50" />
+            {emailErr && <p id="nl-email-err" className="text-xs text-red-300">{emailErr}</p>}
             <button className="btn btn-primary w-full disabled:opacity-60" type="submit" disabled={state === "sending"}>{t("Subscribe to Updates")}</button>
             <div role="status" aria-live="polite" className="text-xs">{state === "sent" && <p className="text-green-300">Thank you for subscribing!</p>}{state === "mailto" && <p className="text-green-300">Your email app should open. Press Send to finish.</p>}{state === "error" && <p className="text-red-300">Something went wrong. Please try again.</p>}</div>
           </form>

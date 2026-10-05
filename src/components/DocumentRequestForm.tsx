@@ -1,3 +1,4 @@
+import { checkField } from "../lib/validate";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { legalIds } from "../data/site";
@@ -43,6 +44,7 @@ export default function DocumentRequestForm() {
   const [params] = useSearchParams();
   const [type, setType] = useState<ReqType>("certificate");
   const [docType, setDocType] = useState(certificateTypes[0]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [delivery, setDelivery] = useState(deliveries[0]);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "mailto" | "error">("idle");
   const [ref, setRef] = useState("");
@@ -68,6 +70,12 @@ export default function DocumentRequestForm() {
       financial_year: type === "audit" ? g("financial_year") : "", delivery, delivery_address: delivery === deliveries[0] ? "" : g("delivery_address"),
       name: g("name"), organisation: g("organisation"), email: g("email"), phone: g("phone"), purpose: g("purpose"), message: g("message")
     };
+    const found: Record<string, string> = {};
+    const em = checkField("email", data.email, true), ph = checkField("tel", data.phone, true);
+    if (em) found.email = em;
+    if (ph) found.phone = ph;
+    setErrors(found);
+    if (em || ph) { form.querySelector<HTMLElement>(em ? "#dr-email" : "#dr-phone")?.focus(); return; }
     setState("sending");
     try {
       let finalRef = reference; // the server may issue a different number if this one is already taken
@@ -94,7 +102,7 @@ export default function DocumentRequestForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5 rounded-2xl border bg-white p-5 shadow-sm sm:p-6 md:p-8">
+    <form onSubmit={submit} noValidate className="space-y-5 rounded-2xl border bg-white p-5 shadow-sm sm:p-6 md:p-8">
       <fieldset className="min-w-0">
         <legend className="text-sm font-semibold">{t("What do you need?")}</legend>
         <div role="radiogroup" className="mt-2 grid grid-cols-2 gap-1 rounded-2xl bg-brand-light p-1 sm:gap-2 sm:rounded-full">
@@ -121,8 +129,8 @@ export default function DocumentRequestForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div><label htmlFor="dr-name" className="text-sm font-medium">{t("Full name")} *</label><input id="dr-name" name="name" required autoComplete="name" className={field} /></div>
         <div><label htmlFor="dr-org" className="text-sm font-medium">{t("Organisation")}</label><input id="dr-org" name="organisation" autoComplete="organization" className={field} placeholder="Company / foundation / bank (optional)" /></div>
-        <div><label htmlFor="dr-email" className="text-sm font-medium">{t("Email")} *</label><input id="dr-email" name="email" type="email" required autoComplete="email" className={field} /></div>
-        <div><label htmlFor="dr-phone" className="text-sm font-medium">{t("Phone")} *</label><input id="dr-phone" name="phone" type="tel" required autoComplete="tel" className={field} /></div>
+        <div><label htmlFor="dr-email" className="text-sm font-medium">{t("Email")} *</label><input id="dr-email" name="email" type="email" required autoComplete="email" aria-invalid={!!errors.email} className={field} />{errors.email && <p className="mt-1 text-xs text-red-700">{errors.email}</p>}</div>
+        <div><label htmlFor="dr-phone" className="text-sm font-medium">{t("Phone")} *</label><input id="dr-phone" name="phone" type="tel" inputMode="tel" required autoComplete="tel" aria-invalid={!!errors.phone} className={field} />{errors.phone && <p className="mt-1 text-xs text-red-700">{errors.phone}</p>}</div>
         <div><label htmlFor="dr-purpose" className="text-sm font-medium">{t("Purpose of request")} *</label><select id="dr-purpose" name="purpose" required className={field}>{purposes.map((p) => <option key={p}>{p}</option>)}</select></div>
         <div><label htmlFor="dr-delivery" className="text-sm font-medium">{t("Preferred delivery")}</label><select id="dr-delivery" value={delivery} onChange={(e) => setDelivery(e.target.value)} className={field}>{deliveries.map((d) => <option key={d}>{d}</option>)}</select></div>
       </div>
