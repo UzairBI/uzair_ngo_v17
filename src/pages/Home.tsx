@@ -20,6 +20,7 @@ import IndiaNetworkMap from "../components/IndiaNetworkMap";
 import SupportersStrip from "../components/SupportersStrip";
 import { fmtDate } from "./News";
 import DonateButton from "../components/DonateButton";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const heroWords = ["Communities", "Education", "Women", "Villages", "Students", "Environment"];
 /** Hero heading colour. Applied to each part separately (not to the whole <h1>) so the rotating word renders correctly in Safari. */
@@ -33,6 +34,7 @@ const heroFocus = Object.fromEntries([homeHeroOpening, ...homeHeroSlides].map((s
 export default function Home() {
   useTitle(undefined, "Community health, education, women empowerment, tree plantation and disaster relief.");
   const { t } = useLang();
+  const isMobile = useIsMobile();
   const { stats, campaigns, events } = useLiveData();
   const today = todayLocal();
   const nextEvents = events.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 2);
@@ -53,7 +55,7 @@ export default function Home() {
         </div>
         <div aria-hidden="true" className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-[#04132b]/95 via-[#06244d]/45 to-transparent md:block" />
 
-        <div className="container-site pb-10 pt-[calc(var(--hero-pad)_-_6svh)] font-hero md:py-14"><div className="max-w-[720px] max-md:flex max-md:flex-col max-md:items-start">
+        <div className="container-site pb-10 pt-[calc(var(--hero-pad)_-_6svh)] font-hero md:py-14"><div className="max-w-[720px] max-md:mx-auto max-md:flex max-md:flex-col max-md:items-center max-md:text-center">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-dark shadow-sm backdrop-blur sm:text-sm">
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-brand" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16" />
@@ -68,19 +70,21 @@ export default function Home() {
             <span className="block"><span className={`hero-ink hero-gap ${heroInk}`}>{t("Empowering")}</span>{" "}<RotatingWords words={heroWords.map(t)} className={heroAccent} /></span>
             <span className="block"><span className={`hero-ink ${heroInk}`}>{t("in Rural India")}</span></span>
           </h1>
-          <p className="mt-5 max-w-[620px] text-base font-medium leading-relaxed text-white/90 max-md:order-last max-md:mt-6 md:text-lg">
+          <p className="mt-5 max-w-[620px] text-base font-medium leading-relaxed text-white/90 max-md:order-last max-md:mt-6 max-md:pb-16 md:text-lg">
             {site.name} {t("is dedicated to sustainable grassroots upliftment providing quality education to children, health camps, women's skill training, and emergency relief across India.")}
           </p>
-          <div className="mt-8 flex max-w-xs flex-col gap-3 max-md:mt-4 max-md:w-full min-[480px]:max-w-none min-[480px]:flex-row min-[480px]:flex-wrap min-[480px]:gap-4 sm:mt-9">
-            <DonateButton to="/donate" size="lg">{t("Support Our Cause")}</DonateButton>
-            <Link to="/projects" className="btn-light btn-light-lg">
+          <div className="mt-8 flex max-w-xs flex-col gap-3 max-md:mx-auto max-md:mt-5 max-md:w-full max-md:max-w-sm min-[480px]:max-w-none min-[480px]:flex-row min-[480px]:flex-wrap min-[480px]:gap-4 sm:mt-9">
+            <DonateButton to="/donate" size="lg" full={isMobile} className="min-[480px]:order-first">{t("Support Our Cause")}</DonateButton>
+            <Link to="/projects" className={`btn-light btn-light-lg ${isMobile ? "w-full" : ""}`}>
               {t("Explore Program")} <span aria-hidden="true">→</span>
             </Link>
           </div>
         </div></div>
-        <a href="#impact" aria-label="Scroll to impact numbers" className="bounce-slow absolute bottom-24 left-1/2 hidden h-10 w-6 -translate-x-1/2 items-start justify-center rounded-full border-2 border-white/60 pt-2 md:flex">
-          <span className="h-2 w-1 rounded-full bg-white/90" />
-        </a>
+        {!isMobile && (
+          <a href="#impact" aria-label="Scroll to impact numbers" className="bounce-slow absolute bottom-24 left-1/2 hidden h-10 w-6 -translate-x-1/2 items-start justify-center rounded-full border-2 border-white/60 pt-2 md:flex">
+            <span className="h-2 w-1 rounded-full bg-white/90" />
+          </a>
+        )}
         <Wave fill="#e6f3fd" />
       </section>
 
@@ -218,7 +222,17 @@ export default function Home() {
               {nextEvents.length ? (
                 <ul className="mt-3 space-y-4">
                   {nextEvents.map((e) => (
-                    <li key={e.id}><p className="font-serif text-lg font-bold">{e.title}</p><p className="text-sm text-white/80">{fmtDate(e.date)} · {e.place}</p></li>
+                    <li key={e.id}>
+                      <p className="font-serif text-lg font-bold">{e.title}</p>
+                      <p className="text-sm text-white/80">{fmtDate(e.date)} · {e.place}</p>
+                      {e.images && e.images.length > 0 && (
+                        <div className="mt-2 flex gap-2">
+                          {e.images.slice(0, 2).map((src) => (
+                            <img key={src} src={src} alt={`${e.title} thumbnail`} loading="lazy" className="h-12 w-12 rounded object-cover" />
+                          ))}
+                        </div>
+                      )}
+                    </li>
                   ))}
                 </ul>
               ) : (
@@ -233,7 +247,7 @@ export default function Home() {
               {[["field-3.jpg", "Women Empowerment", "Community outreach with women and children"],
                 ["field-6.jpg", "Social Relief", "Community nutrition and family support"]].map(([f, c, tt]) => (
                 <Link to="/media" key={f} className="group relative block overflow-hidden rounded-2xl">
-                  <Img file={f} alt={tt} className="h-44 w-full transition group-hover:scale-105 sm:h-56" />
+                  <Img file={f} alt={tt} className="aspect-[4/3] w-full transition group-hover:scale-105" />
                   <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-3 text-xs text-white"><b className="block">{c}</b>{tt}</span>
                 </Link>
               ))}
@@ -241,11 +255,11 @@ export default function Home() {
           </div>
 
           <Reveal><h3 className="mt-14 font-serif text-2xl font-bold">{t("Latest Stories")}</h3></Reveal>
-          <div className="mt-5 grid gap-5 md:grid-cols-2">
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {posts.filter((p) => !usedImages.includes(p.image)).slice(0, 3).map((p, i) => (
               <Reveal key={p.slug} delay={i * 90}>
                 <Link to={`/news/${p.slug}`} className="group block h-full overflow-hidden rounded-2xl border bg-white transition hover:shadow-lg">
-                  <Img file={p.image} alt={p.title} className="h-40 w-full transition duration-500 group-hover:scale-105" />
+                  <Img file={p.image} alt={p.title} className="aspect-[16/10] w-full transition duration-500 group-hover:scale-105" />
                   <div className="p-4"><p className="eyebrow">{p.category}</p><h4 className="mt-1 font-serif font-bold">{p.title}</h4><span className="mt-2 inline-block text-sm font-semibold text-brand">{t("Read more")} →</span></div>
                 </Link>
               </Reveal>
@@ -263,18 +277,18 @@ export default function Home() {
       </section>
 
       {/* Supporters & partners */}
-      <section className="bg-brand-light py-16">
+      <section className="bg-brand-light pb-24 pt-16 md:pb-32">
         <div className="container-site text-center">
           <Reveal>
             <h2 className="h2 text-brand-dark">{t("Our Supporters & Partners")}</h2>
             <p className="mx-auto mt-3 max-w-2xl text-ink/70">{t("We are grateful to our valuable supporters and partners who help us make a difference in society.")}</p>
           </Reveal>
         </div>
-        <div className="mt-8"><SupportersStrip /></div>
+        <div className="mt-8 mb-4 md:mb-8"><SupportersStrip /></div>
       </section>
 
       {/* CTA */}
-      <section className="bg-gradient-to-br from-brand-dark to-brand py-16 text-center text-white">
+      <section className="mt-10 bg-gradient-to-br from-brand-dark to-brand py-16 text-center text-white md:mt-16">
         <div className="container-site">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-widest text-white/80">{t("Take Action Today")}</p>
