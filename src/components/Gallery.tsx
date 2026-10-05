@@ -31,10 +31,10 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
             className={`rounded-full border px-4 py-2 text-sm font-medium transition sm:py-1.5 ${c === cat ? "border-brand bg-brand text-white" : "hover:bg-brand-light"}`}>{c === "All" ? t("All") : c}</button>
         ))}
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3">
         {list.map((p, i) => (
           <button key={p.file} type="button" onClick={() => setOpen(i)} aria-label={`Open photo: ${p.alt}`} className="group relative block overflow-hidden rounded-xl sm:rounded-2xl">
-            <Img file={p.file} alt={p.alt} className="h-36 w-full transition min-[420px]:h-44 sm:h-64 duration-500 group-hover:scale-105" />
+            <Img file={p.file} alt={p.alt} className="aspect-[4/3] w-full transition duration-500 group-hover:scale-105" />
             <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 p-3 text-left text-xs text-white opacity-0 transition group-hover:opacity-100">{p.alt}</span>
           </button>
         ))}

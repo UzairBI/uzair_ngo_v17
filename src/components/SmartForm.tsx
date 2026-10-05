@@ -11,6 +11,14 @@ export default function SmartForm({ kind, fields, submitLabel, hidden = {}, clas
   const { t } = useLang();
   const [state, setState] = useState<"idle" | "sending" | "sent" | "mailto" | "error">("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const validate = (f: FieldDef, raw: string) => {
+    const v = raw.trim();
+    if (f.type === "email" || f.type === "tel") return checkField(f.type, v, f.required);
+    if (f.required && !v) return `${f.label} is required`;
+    if (f.name === "name" && v && v.length < 2) return "Please enter your full name";
+    return "";
+  };
+  const setErr = (name: string, msg: string) => setErrors((prev) => { const n = { ...prev }; if (msg) n[name] = msg; else delete n[name]; return n; });
   const input = "mt-1 w-full rounded-md border bg-white px-3 py-2.5 focus:border-brand focus:outline-none";
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,11 +28,7 @@ export default function SmartForm({ kind, fields, submitLabel, hidden = {}, clas
     const data: Record<string, string> = { ...hidden };
     fields.forEach((f) => { data[f.name] = String(fd.get(f.name) ?? ""); });
     const found: Record<string, string> = {};
-    fields.forEach((f) => {
-      const v = data[f.name].trim();
-      if (f.type === "email" || f.type === "tel") { const m = checkField(f.type, v, f.required); if (m) found[f.name] = m; }
-      else if (f.required && !v) found[f.name] = `${f.label} is required`;
-    });
+    fields.forEach((f) => { const m = validate(f, data[f.name]); if (m) found[f.name] = m; });
     setErrors(found);
     if (Object.keys(found).length) { form.querySelector<HTMLElement>(`[name="${Object.keys(found)[0]}"]`)?.focus(); return; }
     setState("sending");
@@ -39,9 +43,9 @@ export default function SmartForm({ kind, fields, submitLabel, hidden = {}, clas
       {fields.map((f) => (
         <div key={f.name}>
           <label htmlFor={`${kind}-${f.name}`} className="text-sm font-medium">{t(f.label)}{f.required && <span aria-hidden="true"> *</span>}</label>
-          {f.type === "textarea" ? <textarea id={`${kind}-${f.name}`} name={f.name} required={f.required} rows={4} placeholder={f.placeholder} className={input} />
+          {f.type === "textarea" ? <textarea id={`${kind}-${f.name}`} name={f.name} required={f.required} rows={4} maxLength={2000} placeholder={f.placeholder} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${kind}-${f.name}-err` : undefined} onBlur={(e) => setErr(f.name, validate(f, e.target.value))} className={input} />
             : f.type === "select" ? <select id={`${kind}-${f.name}`} name={f.name} required={f.required} className={input}>{f.options?.map((o) => <option key={o}>{o}</option>)}</select>
-            : <input id={`${kind}-${f.name}`} name={f.name} type={f.type ?? "text"} required={f.required} placeholder={f.placeholder} autoComplete={f.type === "email" ? "email" : f.type === "tel" ? "tel" : undefined} inputMode={f.type === "tel" ? "tel" : undefined} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${kind}-${f.name}-err` : undefined} className={input} />}
+            : <input id={`${kind}-${f.name}`} name={f.name} type={f.type ?? "text"} required={f.required} placeholder={f.placeholder} autoComplete={f.type === "email" ? "email" : f.type === "tel" ? "tel" : undefined} inputMode={f.type === "tel" ? "tel" : undefined} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${kind}-${f.name}-err` : undefined} maxLength={f.type === "email" ? 160 : 120} onBlur={(e) => setErr(f.name, validate(f, e.target.value))} className={input} />}
           {errors[f.name] && <p id={`${kind}-${f.name}-err`} className="mt-1 text-xs text-red-700">{errors[f.name]}</p>}
         </div>
       ))}

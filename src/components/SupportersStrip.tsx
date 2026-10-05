@@ -19,6 +19,10 @@ const partners: { file: string; name: string; url?: string }[] = [
   { file: "national-urban-livelihoods-mission.png", name: "National Urban Livelihoods Mission", url: "https://nulm.gov.in/" },
   { file: "sgsy-rural-development.png", name: "SGSY, Ministry of Rural Development", url: "https://www.rural.gov.in/" },
   { file: "rajya-shiksha-kendra.png", name: "Rajya Shiksha Kendra", url: "https://www.rskmp.in/" },
+  { file: "Ketto.png", name: "Ketto", url: "https://www.ketto.org/" },
+  { file: "Milaap.png", name: "Milaap", url: "https://milaap.org/" },
+  { file: "give.do.png", name: "Give.do", url: "https://www.give.do/" },
+  { file: "VFS_Global_Logo.png", name: "VFS Global", url: "https://www.vfsglobal.com/" },
   { file: "partner-15.png", name: "Supporter" }
 ];
 
