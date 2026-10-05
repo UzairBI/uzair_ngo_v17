@@ -37,16 +37,16 @@ export default function GetInvolved() {
           <h2 className="font-serif text-2xl font-bold">{t("Volunteer with us")}</h2>
           <p className="mb-4 mt-1 text-sm text-ink/70">Tell us how you would like to help and our team will contact you.</p>
           <SmartForm kind="Volunteer sign-up" submitLabel="Volunteer with us" table="volunteers"
-            fields={[{ name: "name", label: "Full name", required: true }, { name: "phone", label: "Phone", type: "tel", required: true }, { name: "email", label: "Email", type: "email" },
+            fields={[{ name: "name", label: "Full name", required: true, placeholder: "Your full name" }, { name: "phone", label: "Phone", type: "tel", required: true, placeholder: "98765 43210" }, { name: "email", label: "Email", type: "email", placeholder: "you@example.com (optional)" },
               { name: "area", label: "Area of interest", type: "select", options: ["Child education", "Health camps", "Women empowerment", "Tree plantation", "Relief drives", "Anywhere needed"] },
-              { name: "message", label: "Message", type: "textarea" }]} />
+              { name: "message", label: "Message", type: "textarea", placeholder: "Tell us about your skills or availability (optional)" }]} />
         </div>
         <div id="csr" className="rounded-2xl border p-6">
           <h2 className="font-serif text-2xl font-bold">Corporate CSR enquiry</h2>
           <p className="mb-4 mt-1 text-sm text-ink/70">Partner with us for verified, reportable impact.</p>
           <SmartForm kind="CSR enquiry" submitLabel="Send enquiry"
-            fields={[{ name: "company", label: "Company name", required: true }, { name: "name", label: "Contact person", required: true }, { name: "email", label: "Email", type: "email", required: true },
-              { name: "phone", label: "Phone", type: "tel" }, { name: "message", label: "How would you like to partner?", type: "textarea" }]} />
+            fields={[{ name: "company", label: "Company name", required: true, placeholder: "Your company or foundation" }, { name: "name", label: "Contact person", required: true, placeholder: "Full name" }, { name: "email", label: "Email", type: "email", required: true, placeholder: "name@company.com" },
+              { name: "phone", label: "Phone", type: "tel", placeholder: "98765 43210 (optional)" }, { name: "message", label: "How would you like to partner?", type: "textarea", placeholder: "Tell us about your CSR focus area or budget (optional)" }]} />
         </div>
       </section>
     </>

@@ -34,8 +34,8 @@ export default function Donate() {
 
   return (
     <section className="grid lg:grid-cols-2" aria-labelledby="donate-title">
-      {/* photo: full height of the page on large screens, a banner on phones */}
-      <div className="relative h-64 bg-ink sm:h-80 lg:h-auto">
+      {/* photo: full height of the page on large screens; on phones a banner BELOW the donation card, so the form is visible straight away */}
+      <div className="relative order-2 h-64 bg-ink sm:h-80 lg:order-1 lg:h-auto">
         <div className="relative h-full w-full overflow-hidden lg:sticky lg:top-[85px] lg:h-[calc(100vh-85px)]">
           {/* one photo = it stays still; two or more = each slides in from the right while the last slides out to the left, in a loop.
               The first photo is the fallback (already on screen), so the loop starts with the second one and ends on the first. */}
@@ -45,12 +45,12 @@ export default function Donate() {
           <p className="absolute bottom-16 left-4 right-4 max-w-sm font-serif text-lg font-bold leading-snug text-white sm:left-6 sm:right-6 sm:text-xl md:bottom-24 md:left-10 md:text-2xl lg:bottom-28">
             {t("Every child deserves a chance to learn, grow and dream.")}
           </p>
-          <Wave fill="#eef8ff" />
+          <div className="hidden lg:block"><Wave fill="#eef8ff" /></div>
         </div>
       </div>
 
       {/* light-blue panel with the donation card */}
-      <div className="relative isolate flex items-center justify-center overflow-hidden bg-[#eef8ff] px-4 py-8 sm:py-12 md:px-10 lg:items-start lg:pb-12 lg:pt-4">
+      <div className="relative isolate order-1 flex items-center justify-center overflow-hidden bg-[#eef8ff] px-4 py-8 sm:py-12 md:px-10 lg:order-2 lg:items-start lg:pb-12 lg:pt-4">
         <svg aria-hidden="true" viewBox="0 0 160 220" className="pointer-events-none absolute -top-4 left-0 -z-10 hidden h-56 w-40 text-brand sm:block" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M0 210C40 150 80 110 110 0" opacity=".55" /><path d="M24 214C64 154 104 114 134 4" opacity=".4" /><path d="M48 218C88 158 128 118 158 8" opacity=".25" />
         </svg>

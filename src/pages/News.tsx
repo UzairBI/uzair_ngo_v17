@@ -17,7 +17,7 @@ export default function News() {
         {posts.map((p, i) => (
           <Reveal key={p.slug} delay={i * 80}>
             <Link to={`/news/${p.slug}`} className="group block h-full overflow-hidden rounded-2xl border shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-              <Img file={p.image} alt={p.title} className="h-48 w-full transition duration-500 group-hover:scale-105" />
+              <Img file={p.image} alt={p.title} className="aspect-[16/10] w-full transition duration-500 group-hover:scale-105" />
               <div className="p-5">
                 <p className="eyebrow">{p.category} · {fmtDate(p.date)}</p>
                 <h2 className="mt-2 font-serif text-lg font-bold">{p.title}</h2>

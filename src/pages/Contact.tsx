@@ -82,8 +82,8 @@ export default function Contact() {
           </div>
         </div>
         <SmartForm dense kind="Contact message" submitLabel="Send Message" className="rounded-2xl border p-5 sm:p-6 lg:self-start lg:p-4"
-          fields={[{ name: "name", label: "Name", required: true }, { name: "email", label: "Email", type: "email", required: true },
-            { name: "phone", label: "Phone", type: "tel" }, { name: "message", label: "Message", type: "textarea", required: true }]} />
+          fields={[{ name: "name", label: "Name", required: true, placeholder: "Your full name" }, { name: "email", label: "Email", type: "email", required: true, placeholder: "you@example.com" },
+            { name: "phone", label: "Phone", type: "tel", placeholder: "98765 43210 (optional)" }, { name: "message", label: "Message", type: "textarea", required: true, placeholder: "How can we help you?" }]} />
       </section>
       <section className="container-site pb-16"><WorkMap /></section>
     </>

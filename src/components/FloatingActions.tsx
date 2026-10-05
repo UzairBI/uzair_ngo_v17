@@ -3,12 +3,14 @@ import { useLocation } from "react-router-dom";
 import { site } from "../data/site";
 import { useLang } from "../i18n/LangContext";
 import DonateButton from "./DonateButton";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 /** WhatsApp button (bottom-right), Donate pill (bottom-left) and a back-to-top button. */
 export default function FloatingActions() {
   const { t } = useLang();
   const { pathname } = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const isMobile = useIsMobile();
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 600);
     on(); window.addEventListener("scroll", on, { passive: true });
@@ -17,7 +19,7 @@ export default function FloatingActions() {
   return (
     <>
       {pathname !== "/donate" && (
-        <div className={`fixed bottom-4 left-4 z-30 transition duration-300 sm:bottom-5 ${scrolled ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"}`}>
+        <div className={`fixed bottom-4 left-4 z-30 transition duration-300 sm:bottom-5 ${scrolled || (isMobile && pathname !== "/") ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"}`}>
           <DonateButton to="/donate" className="dbtn-float">{t("Donate")}</DonateButton>
         </div>
       )}

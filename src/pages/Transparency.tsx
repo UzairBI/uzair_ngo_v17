@@ -12,14 +12,14 @@ export default function Transparency() {
   useTitle("Transparency & Reports");
   const reports = documents.filter((d) => d.section === "reports");
   const steps = [
-    ["Choose", "Pick a certificate or an audit report and the exact type you need."],
+    ["Choose", "Pick the certificate you need."],
     ["Tell us who you are", "Add your contact details and the purpose, for example donor or CSR due diligence."],
     ["We reply", "Our team checks the records and sends the document to your email, or by post if you ask for a certified copy."]
   ];
   return (
     <>
       <PageHero images={transparencyImages} eyebrow={t("Transparency & Reports")} title="Transparency & Financial Reports"
-        text="Our impact reports are published openly. Audit reports and registration certificates are shared on request, for donors, CSR partners, banks and the community." />
+        text="Our impact reports are published openly. Registration certificates are shared on request, for donors, CSR partners, banks and the community." />
 
       <section id="annual-reports" className="container-site border-b py-14">
         <p className="eyebrow">{t("Annual Reports")}</p>
@@ -52,7 +52,7 @@ export default function Transparency() {
         <div className="container-site grid items-start gap-10 lg:grid-cols-[1fr_1.35fr]">
           <div className="lg:sticky lg:top-28">
             <p className="eyebrow">{t("Request documents")}</p>
-            <h2 className="h2 mt-2">Request an Audit Report or Certificate</h2>
+            <h2 className="h2 mt-2">Request a Certificate</h2>
             <p className="mt-3 text-ink/70">Registered on {site.regDate} as a society under the M.P. Societies Registration Act, 1973. Fill in the form and your request goes straight to our records team.</p>
             <ol className="mt-6 space-y-4">
               {steps.map(([title, text], i) => (

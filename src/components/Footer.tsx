@@ -5,14 +5,19 @@ import { subscribeNewsletter, type NewsletterResult } from "../lib/forms";
 import { useLang } from "../i18n/LangContext";
 import { quickNav } from "../data/navigation";
 import { API_BASE } from "../hooks/useLiveData";
+import { checkField } from "../lib/validate";
 import SocialIcons from "./SocialIcons";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
   const { t } = useLang();
+  const [emailErr, setEmailErr] = useState("");
   const [state, setState] = useState<"idle" | "sending" | NewsletterResult | "error">("idle");
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    const m = checkField("email", email, true);
+    setEmailErr(m);
+    if (m) return;
     setState("sending");
     try { const r = await subscribeNewsletter(email); setState(r); if (r === "sent") setEmail(""); } catch { setState("error"); }
   };
@@ -29,7 +34,7 @@ export default function Footer() {
           <p className="text-xs">Darpan ID: {darpanId}</p>
           <p className="text-xs">12A: {reg12A.value} · 80G: {reg80G.value}</p>
           <p className="text-xs">FCRA: {fcraReg.value}</p>
-          <p className="text-xs"><Link to="/transparency?request=certificate#request" className="underline hover:text-white">Request registration certificates &amp; audit reports</Link></p>
+          <p className="text-xs"><Link to="/transparency?request=certificate#request" className="underline hover:text-white">Request registration certificates</Link></p>
           <SocialIcons className="mt-5" />
         </div>
         <div>
@@ -48,11 +53,11 @@ export default function Footer() {
         <div>
           <h3 className="mb-3 font-semibold text-white">{t("Field Updates Newsletter")}</h3>
           <p>Receive monthly impact reports, field stories, and upcoming drive announcements.</p>
-          {/* noValidate: the email is checked in subscribeNewsletter, so the message below shows instead of the browser's own bubble */}
           <form onSubmit={submit} noValidate className="mt-3 space-y-2">
             <label htmlFor="nl-email" className="text-xs">Email</label>
-            <input id="nl-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
-              aria-invalid={state === "invalid"} className="w-full rounded-md bg-white/10 px-3 py-2.5 text-white placeholder-white/50" />
+            <input id="nl-email" type="email" required value={email} onChange={(e) => { setEmail(e.target.value); if (emailErr) setEmailErr(""); }} aria-invalid={!!emailErr || state === "invalid"} aria-describedby={emailErr ? "nl-email-err" : undefined} autoComplete="email" placeholder="you@example.com"
+              className="w-full rounded-md bg-white/10 px-3 py-2.5 text-white placeholder-white/50" />
+            {emailErr && <p id="nl-email-err" className="text-xs text-red-300">{emailErr}</p>}
             <button className="btn btn-primary w-full disabled:opacity-60" type="submit" disabled={state === "sending"}>{state === "sending" ? "Subscribing..." : t("Subscribe to Updates")}</button>
             <div role="status" aria-live="polite" className="text-xs">
               {state === "sent" && <p className="text-green-300">Thank you for subscribing to our updates!</p>}
@@ -67,6 +72,10 @@ export default function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="container-site flex flex-col items-center justify-between gap-3 pb-24 pt-4 text-center text-xs md:flex-row md:pb-4 md:pr-24 md:text-left 2xl:pr-6">
+          <a href={site.googleBusiness} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 font-semibold text-brand-dark shadow transition hover:bg-brand-light md:order-last">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-red-500" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" /></svg>
+            Find us on Google
+          </a>
           <p>© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
