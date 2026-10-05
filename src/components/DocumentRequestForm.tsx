@@ -1,11 +1,8 @@
 import { checkField } from "../lib/validate";
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { FormEvent, useState } from "react";
 import { legalIds } from "../data/site";
 import { submitForm } from "../lib/forms";
 import { useLang } from "../i18n/LangContext";
-
-type ReqType = "certificate" | "audit";
 
 /** Options for "Certificate type". Built from the registrations listed in src/data/site.ts, plus two extras. */
 const certificateTypes = [
@@ -13,50 +10,20 @@ const certificateTypes = [
   "Organisation profile (all registrations & tax details)",
   "Other certificate (describe in the message)"
 ];
-const auditTypes = [
-  "Audited financial statements (Balance Sheet + Income & Expenditure)",
-  "Statutory auditor's report",
-  "Audit report under the Income Tax Act (Form 10B)",
-  "Receipts & Payments account",
-  "Utilisation certificate",
-  "FCRA annual return (FC-4) and audit statements",
-  "CSR project-wise utilisation report",
-  "Income Tax Return acknowledgement",
-  "Other audit document (describe in the message)"
-];
 const purposes = ["Donor due diligence", "CSR partner verification", "Government / regulatory requirement", "Bank / KYC", "Research / media", "Other"];
 const deliveries = ["PDF by email", "Certified hard copy by post / courier"];
-
-/** Last 12 completed financial years (India: April to March), newest first. */
-function financialYears() {
-  const now = new Date();
-  const currentStart = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1; // FY in progress
-  const list: string[] = [];
-  for (let y = currentStart - 1; y > currentStart - 13; y--) list.push(`FY ${y}-${String(y + 1).slice(2)}`);
-  return list;
-}
 
 const field = "mt-1 w-full rounded-md border bg-white px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-sky/40";
 const makeRef = () => `REQ-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 export default function DocumentRequestForm() {
   const { t } = useLang();
-  const [params] = useSearchParams();
-  const [type, setType] = useState<ReqType>("certificate");
   const [docType, setDocType] = useState(certificateTypes[0]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [delivery, setDelivery] = useState(deliveries[0]);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "mailto" | "error">("idle");
   const [ref, setRef] = useState("");
-  const years = useMemo(financialYears, []);
-  const options = type === "audit" ? auditTypes : certificateTypes;
-
-  const choose = (next: ReqType) => { setType(next); setDocType((next === "audit" ? auditTypes : certificateTypes)[0]); };
-  // /transparency?request=audit  or  ?request=certificate  pre-selects the tab
-  useEffect(() => {
-    const q = params.get("request");
-    if (q === "audit" || q === "certificate") choose(q);
-  }, [params]);
+  const options = certificateTypes;
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,8 +33,8 @@ export default function DocumentRequestForm() {
     const reference = makeRef();
     const g = (k: string) => String(fd.get(k) ?? "").trim();
     const data: Record<string, string> = {
-      reference, request_type: type === "audit" ? "Audit report" : "Certificate", document_type: docType,
-      financial_year: type === "audit" ? g("financial_year") : "", delivery, delivery_address: delivery === deliveries[0] ? "" : g("delivery_address"),
+      reference, request_type: "Certificate", document_type: docType,
+      delivery, delivery_address: delivery === deliveries[0] ? "" : g("delivery_address"),
       name: g("name"), organisation: g("organisation"), email: g("email"), phone: g("phone"), purpose: g("purpose"), message: g("message")
     };
     const found: Record<string, string> = {};
@@ -103,27 +70,9 @@ export default function DocumentRequestForm() {
 
   return (
     <form onSubmit={submit} noValidate className="space-y-5 rounded-2xl border bg-white p-5 shadow-sm sm:p-6 md:p-8">
-      <fieldset className="min-w-0">
-        <legend className="text-sm font-semibold">{t("What do you need?")}</legend>
-        <div role="radiogroup" className="mt-2 grid grid-cols-2 gap-1 rounded-2xl bg-brand-light p-1 sm:gap-2 sm:rounded-full">
-          {([["certificate", "Certificate / registration"], ["audit", "Audit report"]] as const).map(([v, label]) => (
-            <button key={v} type="button" role="radio" aria-checked={type === v} onClick={() => choose(v)}
-              className={`rounded-xl px-2 py-2.5 text-[13px] font-semibold leading-tight transition sm:rounded-full sm:px-4 sm:text-sm ${type === v ? "bg-brand text-white shadow" : "text-brand-dark hover:bg-white"}`}>{t(label)}</button>
-          ))}
-        </div>
-      </fieldset>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className={type === "audit" ? "" : "sm:col-span-2"}>
-          <label htmlFor="dr-doc" className="text-sm font-medium">{type === "audit" ? t("Audit type") : t("Certificate type")} *</label>
-          <select id="dr-doc" value={docType} onChange={(e) => setDocType(e.target.value)} required className={field}>{options.map((o) => <option key={o}>{o}</option>)}</select>
-        </div>
-        {type === "audit" && (
-          <div>
-            <label htmlFor="dr-fy" className="text-sm font-medium">{t("Financial year")} *</label>
-            <select id="dr-fy" name="financial_year" required className={field}><option>All available years</option>{years.map((y) => <option key={y}>{y}</option>)}</select>
-          </div>
-        )}
+      <div>
+        <label htmlFor="dr-doc" className="text-sm font-medium">{t("Certificate type")} *</label>
+        <select id="dr-doc" value={docType} onChange={(e) => setDocType(e.target.value)} required className={field}>{options.map((o) => <option key={o}>{o}</option>)}</select>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
