@@ -1,3 +1,4 @@
+import { videos, channelDescription } from "../data/videos";
 import { Link } from "react-router-dom";
 import { useTitle } from "../hooks/useTitle";
 import { useLang } from "../i18n/LangContext";
@@ -73,10 +74,27 @@ export default function Media() {
       <section id="video-gallery" className="bg-slate-50 py-16">
         <div className="container-site">
           <h2 className="h2">{t("Video Gallery")}</h2>
-          <div className="mt-6 aspect-video max-w-4xl overflow-hidden rounded-2xl border bg-black shadow">
-            <iframe title="Sahara Jan Kalyan Samiti YouTube videos" src={uploads} loading="lazy" allowFullScreen className="h-full w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
-          </div>
+          {videos.length > 0 ? (
+            <div className="mt-6 grid gap-6 md:grid-cols-2">
+              {videos.map((v) => (
+                <article key={v.id} className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+                  <div className="aspect-video bg-black">
+                    <iframe title={v.title} src={`https://www.youtube.com/embed/${v.id}`} loading="lazy" allowFullScreen className="h-full w-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+                  </div>
+                  <div className="p-4"><h3 className="font-serif text-lg font-bold">{v.title}</h3><p className="mt-1 text-sm text-ink/70">{v.description}</p></div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-6 max-w-4xl overflow-hidden rounded-2xl border bg-white shadow">
+              <div className="aspect-video bg-black">
+                <iframe title="Sahara Jan Kalyan Samiti YouTube videos" src={uploads} loading="lazy" allowFullScreen className="h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+              </div>
+              <div className="p-4"><h3 className="font-serif text-lg font-bold">{t("Latest from our YouTube channel")}</h3><p className="mt-1 text-sm text-ink/70">{channelDescription}</p></div>
+            </div>
+          )}
           <div className="mt-5 flex flex-wrap gap-3">
             <a className="btn btn-brand" href={site.social.youtube} target="_blank" rel="noreferrer">▶ {t("Watch on YouTube")}</a>
             <a className="btn border-2 border-brand text-brand" href={site.social.instagram} target="_blank" rel="noreferrer">{t("Follow on Instagram")}</a>
