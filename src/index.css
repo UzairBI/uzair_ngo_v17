@@ -266,3 +266,26 @@ body { overflow-wrap: break-word; }
   .impact-card:hover { transform: none; box-shadow: none; background-color: #fff; }
   .social-icon:hover { transform: none; }
 }
+
+/* =====================================================================
+   MOBILE-FIRST RESPONSIVE IMPROVEMENTS
+   ===================================================================== */
+/* Ensure form inputs have sufficient touch target size on mobile (48px minimum) */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  min-height: 2.75rem; /* 44px for mobile + padding */
+}
+/* Improve label spacing for mobile forms */
+label { display: block; margin-bottom: 0.25rem; }
+/* Ensure buttons have sufficient touch target size on mobile */
+.btn, .dbtn, .btn-light, button:not(.btn):not(.dbtn):not(.btn-light) {
+  min-height: 2.75rem; /* 44px for mobile */
+}
+/* Improve spacing between form elements on mobile */
+@media (max-width: 640px) {
+  form > div, form > button { margin-bottom: 1rem; }
+}
+
+/* fields that failed validation */
+input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"] { border-color: #b91c1c; }

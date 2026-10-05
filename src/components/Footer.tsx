@@ -34,7 +34,7 @@ export default function Footer() {
           <p className="text-xs">Darpan ID: {darpanId}</p>
           <p className="text-xs">12A: {reg12A.value} · 80G: {reg80G.value}</p>
           <p className="text-xs">FCRA: {fcraReg.value}</p>
-          <p className="text-xs"><Link to="/transparency?request=certificate#request" className="underline hover:text-white">Request registration certificates &amp; audit reports</Link></p>
+          <p className="text-xs"><Link to="/transparency?request=certificate#request" className="underline hover:text-white">Request registration certificates</Link></p>
           <SocialIcons className="mt-5" />
         </div>
         <div>
@@ -65,6 +65,10 @@ export default function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="container-site flex flex-col items-center justify-between gap-3 pb-24 pt-4 text-center text-xs md:flex-row md:pb-4 md:pr-24 md:text-left 2xl:pr-6">
+          <a href={site.googleBusiness} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 font-semibold text-brand-dark shadow transition hover:bg-brand-light md:order-last">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-red-500" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" /></svg>
+            Find us on Google
+          </a>
           <p>© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
