@@ -29,11 +29,11 @@ export default function Projects() {
       <PageHero images={projectsImages} eyebrow="Our Projects" title="Our 5 Core Projects" text="Comprehensive interventions designed for long-term community resilience." />
       <section className="container-site grid gap-6 py-12 sm:grid-cols-2 md:py-16 lg:grid-cols-3">
         {core.map((p, i) => (
-          <article key={p.slug} className="overflow-hidden rounded-2xl border shadow-sm">
-            <Img file={p.image} alt={p.title} className="h-52 w-full" />
-            <div className="p-5"><p className="eyebrow">0{i + 1} · {p.category}</p>
+          <article key={p.slug} className="flex flex-col overflow-hidden rounded-2xl border shadow-sm">
+            <Img file={p.image} alt={p.title} className="h-52 w-full shrink-0" />
+            <div className="flex flex-1 flex-col p-5"><p className="eyebrow">0{i + 1} · {p.category}</p>
               <h2 className="mt-2 font-serif text-xl font-bold">{p.title}</h2><p className="mt-2 text-sm text-ink/70">{p.text}</p>
-              <div className="mt-4 flex flex-wrap gap-2"><Link to={`/projects/${p.slug}`} className="btn btn-brand !px-4 !py-2">Learn Details</Link>
+              <div className="mt-auto flex flex-wrap gap-2 pt-4"><Link to={`/projects/${p.slug}`} className="btn btn-brand !px-4 !py-2">Learn Details</Link>
                 <DonateButton to="/donate" variant="outline" size="sm">Sponsor</DonateButton></div></div>
           </article>
         ))}

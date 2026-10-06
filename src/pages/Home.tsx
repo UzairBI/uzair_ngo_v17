@@ -196,11 +196,11 @@ export default function Home() {
           </Reveal>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {ways.map((w, i) => (
-              <Reveal key={w.title} delay={i * 90}>
-                <Link to={w.href} className="block h-full rounded-2xl border p-6 transition hover:-translate-y-1 hover:shadow-lg">
+              <Reveal key={w.title} delay={i * 90} className="h-full">
+                <Link to={w.href} className="flex h-full flex-col rounded-2xl border p-6 transition hover:-translate-y-1 hover:shadow-lg">
                   <h3 className="font-serif text-lg font-bold text-brand-dark">{w.title}</h3>
                   <p className="mt-2 text-sm text-ink/70">{w.text}</p>
-                  <span className="mt-4 inline-block text-sm font-semibold text-brand">{w.cta} →</span>
+                  <span className="mt-auto inline-block pt-4 text-sm font-semibold text-brand">{w.cta} →</span>
                 </Link>
               </Reveal>
             ))}
