@@ -126,6 +126,7 @@ export default function Media() {
       <section id="video-gallery" className="bg-slate-50 py-16">
         <div className="container-site">
           <h2 className="h2">{t("Video Gallery")}</h2>
+          <p className="mt-2 max-w-2xl text-ink/70">Watch our work in the field: stories, events and messages from the communities we serve.</p>
           {/* Videos added in the admin panel (Video Gallery), oldest first, so a new one lands to the right of the earlier ones.
               Until any are added (or if the database cannot be reached) the channel's latest uploads are shown in one small player. */}
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
