@@ -62,6 +62,18 @@ const photos: Photo[] = [
   { file: "gallery/csr-volunteering/sap-volunteering-activity.jpg", alt: "SAP Labs volunteers on a hands-on activity with children", cat: "CSR & Volunteering" },
   { file: "gallery/csr-volunteering/sap-volunteers-workshop.jpg", alt: "SAP Labs volunteers running a hands-on workshop", cat: "CSR & Volunteering" }
 ];
+/** Published photos from the admin panel (table gallery_photos), newest first. Empty while loading, or when Supabase is not set up / not reachable. */
+function useGalleryPhotos(): Photo[] {
+  const [list, setList] = useState<Photo[]>([]);
+  useEffect(() => {
+    if (!supabaseConfigured || !supabase) return;
+    let alive = true;
+    supabase.from("gallery_photos").select("image_url, caption, category").eq("published", true).order("created_at", { ascending: false }).order("id", { ascending: false })
+      .then(({ data, error }) => { if (alive && !error && data) setList(data.map((p) => ({ file: p.image_url, alt: p.caption || p.category, cat: p.category }))); });
+    return () => { alive = false; };
+  }, []);
+  return list;
+}
 interface Video { youtube_id: string; title: string; description?: string }
 const videoFrame = "aspect-video overflow-hidden rounded-2xl border bg-black shadow";
 
@@ -114,13 +126,15 @@ export default function Media() {
   const c = usePageText();
   useTitle("Media & Gallery");
   const videos = useGalleryVideos();
+  const added = useGalleryPhotos();
   const uploads = `https://www.youtube.com/embed/videoseries?list=${site.youtubeChannelId.replace(/^UC/, "UU")}`;
   return (
     <>
       <PageHero images={mediaImages} eyebrow={t("Media & Gallery")} title={c("media.hero.title")} text={c("media.hero.text")} />
       <section id="photo-gallery" className="container-site py-16">
         <h2 className="h2">{c("media.photos.title")}</h2>
-        <Gallery photos={photos} />
+        {/* photos added in the admin panel (Media & Gallery -> Photos) first, then the ones that ship with the website */}
+        <Gallery photos={[...added, ...photos]} />
       </section>
       <section id="video-gallery" className="bg-slate-50 py-16">
         <div className="container-site">

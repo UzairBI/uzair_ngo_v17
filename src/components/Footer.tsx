@@ -39,7 +39,7 @@ export default function Footer() {
         </div>
         <div className="flex flex-col">
           <h3 className="mb-3 font-semibold text-white">{t("Quick Navigation")}</h3>
-          <ul className="space-y-2 lg:flex lg:flex-1 lg:flex-col lg:justify-between">{quickNav.map((l) => <li key={l.href}><Link to={l.href} className="hover:text-white">{t(l.label)}</Link></li>)}</ul>
+          <ul className="space-y-2 lg:flex lg:flex-1 lg:flex-col lg:justify-between">{quickNav.map((l) => <li key={l.href}><Link to={l.href} className="underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white">{t(l.label)}</Link></li>)}</ul>
         </div>
         <div className="flex flex-col">
           <h3 className="mb-3 font-semibold text-white">{t("Field Office & Contact")}</h3>
@@ -82,10 +82,10 @@ export default function Footer() {
           </a>
           <p>© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
-            <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-white">Terms of Use</Link>
-            <Link to="/dpdp" className="hover:text-white">DPDP Compliance Notice</Link>
-            <a href={`${API_BASE}/admin`} rel="nofollow" className="hover:text-white">Admin</a>
+            <Link to="/privacy" className="underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white">Privacy Policy</Link>
+            <Link to="/terms" className="underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white">Terms of Use</Link>
+            <Link to="/dpdp" className="underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white">DPDP Compliance Notice</Link>
+            <a href={`${API_BASE}/admin`} rel="nofollow" className="underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white">Admin</a>
           </div>
         </div>
       </div>

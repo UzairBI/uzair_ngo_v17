@@ -400,6 +400,38 @@ export async function removeAnnualReportFile(path) {
   if (path) await supabase.storage.from("annual-reports").remove([path]);
 }
 
+// Photo Gallery (website Media & Gallery -> Photo Gallery): photos added in the admin panel, newest first.
+export async function getGalleryPhotos() {
+  const { data, error } = await supabase.from("gallery_photos").select("*").order("created_at", { ascending: false }).order("id", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+export async function createGalleryPhoto(data) {
+  const { data: result, error } = await supabase.from("gallery_photos").insert([data]).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function updateGalleryPhoto(id, data) {
+  const { data: result, error } = await supabase.from("gallery_photos").update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function deleteGalleryPhoto(r) {
+  const { error } = await supabase.from("gallery_photos").delete().eq("id", r.id);
+  if (error) throw error;
+  if (r.storage_path) await supabase.storage.from("gallery-photos").remove([r.storage_path]);
+}
+/** Uploads one photo and returns where it is: { image_url, storage_path }. */
+export async function uploadGalleryPhoto(file) {
+  const path = `${new Date().getFullYear()}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-").slice(-60)}`;
+  const { error } = await supabase.storage.from("gallery-photos").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return { image_url: supabase.storage.from("gallery-photos").getPublicUrl(path).data.publicUrl, storage_path: path };
+}
+export async function removeGalleryPhotoFile(path) {
+  if (path) await supabase.storage.from("gallery-photos").remove([path]);
+}
+
 // Awards & Recognition (website About Us -> Awards & Recognition). Listed in website order: sort_order, then newest first.
 export async function getAwards() {
   const { data, error } = await supabase.from("awards").select("*").order("sort_order").order("created_at", { ascending: false });

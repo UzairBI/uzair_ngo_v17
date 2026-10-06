@@ -5,16 +5,17 @@ import { checkField } from "../lib/validate";
 
 export interface FieldDef { name: string; label: string; type?: "text" | "email" | "tel" | "textarea" | "select"; required?: boolean; options?: string[]; placeholder?: string }
 interface Props { kind: string; fields: FieldDef[]; submitLabel: string; hidden?: Record<string, string>; className?: string; table?: string; onDone?: () => void;
-  /** Shorter form on large screens: short fields sit two to a row, the message box is lower and the spacing tighter. */ dense?: boolean }
+  /** Shorter form on large screens: short fields sit two to a row, the message box is lower and the spacing tighter. */ dense?: boolean;
+  /** Phone numbers must have exactly 10 digits, or exactly 12 when written with a leading + (see isValidPhoneStrict). */ strictPhone?: boolean }
 
 /** Reusable form: validates, sends through src/lib/forms.ts, shows success / error. Includes a hidden spam trap. */
-export default function SmartForm({ kind, fields, submitLabel, hidden = {}, className = "", table, onDone, dense }: Props) {
+export default function SmartForm({ kind, fields, submitLabel, hidden = {}, className = "", table, onDone, dense, strictPhone }: Props) {
   const { t } = useLang();
   const [state, setState] = useState<"idle" | "sending" | "sent" | "mailto" | "error">("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const validate = (f: FieldDef, raw: string) => {
     const v = raw.trim();
-    if (f.type === "email" || f.type === "tel") return checkField(f.type, v, f.required);
+    if (f.type === "email" || f.type === "tel") return checkField(f.type, v, f.required, strictPhone);
     if (f.required && !v) return `${f.label} is required`;
     if (f.name === "name" && v && v.length < 2) return "Please enter your full name";
     return "";

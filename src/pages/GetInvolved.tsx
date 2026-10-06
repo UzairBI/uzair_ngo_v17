@@ -14,7 +14,7 @@ export default function GetInvolved() {
         <div id="volunteer" className="rounded-2xl border p-6">
           <h2 className="font-serif text-2xl font-bold">{c("involved.volunteer.title")}</h2>
           <p className="justified mb-4 mt-1 text-sm text-ink/70">{c("involved.volunteer.text")}</p>
-          <SmartForm kind="Volunteer sign-up" submitLabel="Volunteer with us" table="volunteers"
+          <SmartForm strictPhone kind="Volunteer sign-up" submitLabel="Volunteer with us" table="volunteers"
             fields={[{ name: "name", label: "Full name", required: true, placeholder: "Your full name" }, { name: "phone", label: "Phone", type: "tel", required: true, placeholder: "98765 43210" }, { name: "email", label: "Email", type: "email", placeholder: "you@example.com (optional)" },
               { name: "area", label: "Area of interest", type: "select", options: ["Child education", "Health camps", "Women empowerment", "Tree plantation", "Relief drives", "Anywhere needed"] },
               { name: "message", label: "Message", type: "textarea", placeholder: "Tell us about your skills or availability (optional)" }]} />
@@ -22,7 +22,7 @@ export default function GetInvolved() {
         <div id="csr" className="rounded-2xl border p-6">
           <h2 className="font-serif text-2xl font-bold">{c("involved.enquiry.title")}</h2>
           <p className="justified mb-4 mt-1 text-sm text-ink/70">{c("involved.enquiry.text")}</p>
-          <SmartForm kind="CSR enquiry" submitLabel="Send enquiry"
+          <SmartForm strictPhone kind="CSR enquiry" submitLabel="Send enquiry"
             fields={[{ name: "company", label: "Company name", required: true, placeholder: "Your company or foundation" }, { name: "name", label: "Contact person", required: true, placeholder: "Full name" }, { name: "email", label: "Email", type: "email", required: true, placeholder: "name@company.com" },
               { name: "phone", label: "Phone", type: "tel", placeholder: "98765 43210 (optional)" }, { name: "message", label: "How would you like to partner?", type: "textarea", placeholder: "Tell us about your CSR focus area or budget (optional)" }]} />
         </div>

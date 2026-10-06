@@ -3,6 +3,7 @@ export const hiMessages: Record<string, string> = {
   // form checks
   "Enter a valid email address, e.g. name@example.com": "सही ईमेल पता लिखें, जैसे name@example.com",
   "Enter a valid 10-digit mobile number (e.g. 98765 43210) or an international number starting with +": "10 अंकों का सही मोबाइल नंबर लिखें (जैसे 98765 43210) या + से शुरू होने वाला अंतरराष्ट्रीय नंबर",
+  "Enter a 10-digit mobile number (e.g. 98765 43210), or 12 digits with the country code if it starts with + (e.g. +91 98765 43210)": "10 अंकों का मोबाइल नंबर लिखें (जैसे 98765 43210), या + से शुरू हो तो देश कोड सहित 12 अंक (जैसे +91 98765 43210)",
   "Email is required": "ईमेल आवश्यक है", "Phone number is required": "फोन नंबर आवश्यक है", "Please enter your full name": "कृपया अपना पूरा नाम लिखें",
   "Name is required": "नाम आवश्यक है", "Full name is required": "पूरा नाम आवश्यक है", "Message is required": "संदेश आवश्यक है",
   "Company name is required": "कंपनी का नाम आवश्यक है", "Contact person is required": "संपर्क व्यक्ति आवश्यक है", "Please enter a valid email address.": "कृपया सही ईमेल पता लिखें।",
