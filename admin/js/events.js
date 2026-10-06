@@ -1,4 +1,4 @@
-import { getEvents, createEvent, updateEvent, deleteEvent, uploadEventImage, deleteEventImage, eventImageUrl } from "./data.js";
+import { getEvents, getFileEvents, createEvent, updateEvent, deleteEvent, uploadEventImage, deleteEventImage, eventImageUrl } from "./data.js";
 import { h, fmtDate, field, modal, tag, dataTable, confirmDialog, toast, busy, validate, rules } from "./ui.js";
 
 function form(e, reload) {
@@ -39,6 +39,21 @@ function form(e, reload) {
   const close = modal(e.id ? "Edit event" : "New event", body); draw(e.images);
 }
 
+/** An event from the website file (public/data/live.json): shown as it is, with a button to copy it into a real, editable event. */
+function fileEvent(e, reload) {
+  const close = modal("Sample event from the website file", h("div", null,
+    h("p", { class: "mut" }, e.sample
+      ? "This event is written in the website file public/data/live.json and marked as a sample: it shows on the development website only and is hidden on the live website. It cannot be edited here."
+      : "This event is written in the website file public/data/live.json, not in the admin panel. It shows on the website and cannot be edited here."),
+    h("h2", null, e.title),
+    h("p", null, [fmtDate(e.event_date), e.event_time, e.place].filter(Boolean).join(" · ")),
+    e.description ? h("p", null, e.description) : null,
+    e.fileImages.length ? h("div", { class: "thumbs" }, e.fileImages.map((src) => h("div", null, h("img", { src, alt: "" })))) : null,
+    h("div", { class: "row end" },
+      h("button", { type: "button", class: "ghost", onclick: () => close() }, "Close"),
+      h("button", { type: "button", onclick: () => { close(); form({ title: e.title.replace(/\s*\(sample\)\s*$/i, ""), event_date: e.event_date, event_time: e.event_time, place: e.place, description: e.description, images: [] }, reload); } }, "Copy into a real event"))));
+}
+
 export default async () => {
   const wrap = h("div"), today = new Date().toISOString().slice(0, 10);
   const list = dataTable({
@@ -46,18 +61,18 @@ export default async () => {
       { label: "Date", cell: (r) => fmtDate(r.event_date), sort: (r) => r.event_date },
       { label: "Event", cell: (r) => h("div", null, h("b", null, r.title), r.event_time ? h("div", { class: "mut" }, r.event_time) : null), sort: (r) => r.title.toLowerCase() },
       { label: "Place", cell: (r) => r.place || "—", sort: (r) => (r.place || "").toLowerCase() },
-      { label: "Images", cell: (r) => r.images.length, sort: (r) => r.images.length, cls: "num" },
+      { label: "Images", cell: (r) => (r.file ? r.fileImages : r.images).length, sort: (r) => (r.file ? r.fileImages : r.images).length, cls: "num" },
       { label: "When", cell: (r) => tag(r.event_date >= today ? "active" : "cancelled", r.event_date >= today ? "Upcoming" : "Past"), sort: (r) => (r.event_date >= today ? 0 : 1) },
-      { label: "Status", cell: (r) => tag(r.published ? "active" : "pending", r.published ? "Published" : "Draft"), sort: (r) => (r.published ? 0 : 1) }],
+      { label: "Status", cell: (r) => (r.file ? tag(r.sample ? "pending" : "active", r.sample ? "Sample (hidden on live site)" : "Website file") : tag(r.published ? "active" : "pending", r.published ? "Published" : "Draft")), sort: (r) => (r.file ? 2 : r.published ? 0 : 1) }],
     search: (r) => [r.title, r.place, r.description, r.event_time].join(" "), searchLabel: "Search events",
     filters: [
       { label: "When", options: [["upcoming", "Upcoming"], ["past", "Past"]], test: (r, v) => (v === "upcoming") === (r.event_date >= today) },
-      { label: "Status", options: [["published", "Published"], ["draft", "Draft"]], test: (r, v) => (v === "published") === !!r.published }],
-    date: { label: "Date", get: (r) => r.event_date }, sort: { i: 0, dir: "desc" }, onRow: (r) => form(r, load),
+      { label: "Status", options: [["published", "Published"], ["draft", "Draft"], ["file", "Sample / website file"]], test: (r, v) => (v === "file" ? !!r.file : !r.file && (v === "published") === !!r.published) }],
+    date: { label: "Date", get: (r) => r.event_date }, sort: { i: 0, dir: "desc" }, onRow: (r) => (r.file ? fileEvent(r, load) : form(r, load)),
     empty: "No events yet. Published events appear on the website Events page.",
     tools: [h("button", { onclick: () => form(null, load) }, "+ New event")]
   });
-  async function load() { list.loading(); try { list.set(await getEvents()); } catch (e) { list.error(e.message); } }
-  wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Events"), h("p", { class: "mut" }, "Click an event to edit it or add images."))), list.el);
+  async function load() { list.loading(); try { const [rows, fromFile] = await Promise.all([getEvents(), getFileEvents()]); list.set([...rows, ...fromFile]); } catch (e) { list.error(e.message); } }
+  wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Events"), h("p", { class: "mut" }, "Click an event to edit it or add images. Events marked “Sample” come from the website file and can be copied into a real event."))), list.el);
   await load(); return wrap;
 };

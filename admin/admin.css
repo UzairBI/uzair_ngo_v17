@@ -163,3 +163,19 @@ th{background:#f4f8fd}tr.click:hover{background:#f1f7ff}
 
 /* volunteer photo next to the name in the Volunteers table */
 img.avatar{object-fit:cover;flex:none;background:#e8eef7}
+/* Website Pages: one collapsible box per page */
+details>summary{cursor:pointer;padding:2px 0;font-size:15px}details[open]>summary{margin-bottom:10px}
+details label>.row.nowrap{gap:8px;min-height:26px}details textarea{resize:vertical;line-height:1.5}
+/* fields side by side: label text, box and error message share the same three lines across the row, so the boxes line up
+   even when one label is longer and wraps onto a second line */
+.grid2>label:not(.chk){display:grid;grid-template-rows:subgrid;grid-row:span 3;align-content:start}
+/* EN / Hindi switch */
+.lang-switch{display:inline-flex;gap:4px;align-items:center;margin-right:10px}.login .lang-switch{margin:12px 0 0}
+.lang-switch button{margin:0;padding:4px 10px;font-size:12px;border-radius:99px}.lang-switch button[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+/* dashboard: contact messages (two lines of each message; the full text opens on click) */
+.contact-msg{margin-top:3px;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.contact-actions{justify-content:flex-end;gap:6px;margin-top:6px}.contact-actions button{margin:0}
+/* Media & Gallery: the photo being edited */
+.photo-preview img{max-width:100%;max-height:260px;border-radius:10px;display:block;margin:0 auto 12px}
+/* a box that opens under a drop-down (e.g. the name of a new photo group) */
+label select+input:not([hidden]){margin-top:6px}

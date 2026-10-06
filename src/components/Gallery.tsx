@@ -2,7 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Img from "./Img";
 import { useLang } from "../i18n/LangContext";
 
-export interface Photo { file: string; alt: string; cat: string }
+export interface Photo { /** a file in /assets/images/, or a full address starting with / or https:// (photos listed in the admin panel) */ file: string; alt: string; cat: string }
+const isFull = (file: string) => /^(https:\/\/|\/)/.test(file);
+/** Address of a photo: a full address is used as it is, anything else is a file in /assets/images/. */
+const photoSrc = (file: string) => (isFull(file) ? file : `/assets/images/${file}`);
 
 /** Filterable photo grid with a full-screen lightbox (arrows, Esc, arrow keys, and left / right swipe on touch screens). */
 export default function Gallery({ photos }: { photos: Photo[] }) {
@@ -34,7 +37,9 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
       <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3">
         {list.map((p, i) => (
           <button key={p.file} type="button" onClick={() => setOpen(i)} aria-label={`Open photo: ${p.alt}`} className="group relative block overflow-hidden rounded-xl sm:rounded-2xl">
-            <Img file={p.file} alt={p.alt} className="aspect-[4/3] w-full transition duration-500 group-hover:scale-105" />
+            {isFull(p.file)
+              ? <img src={p.file} alt={p.alt} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105" />
+              : <Img file={p.file} alt={p.alt} className="aspect-[4/3] w-full transition duration-500 group-hover:scale-105" />}
             <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 p-3 text-left text-xs text-white opacity-0 transition group-hover:opacity-100">{p.alt}</span>
           </button>
         ))}
@@ -50,7 +55,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
           <button type="button" aria-label="Close" onClick={() => setOpen(null)} className="absolute right-4 top-4 z-10 h-11 w-11 rounded-full bg-white/10 text-2xl text-white hover:bg-white/20">×</button>
           <button type="button" aria-label="Previous photo" onClick={(e) => { e.stopPropagation(); step(-1); }} className="absolute bottom-5 left-4 z-10 h-12 w-12 rounded-full sm:bottom-auto sm:left-3 bg-white/10 text-2xl text-white hover:bg-white/20">‹</button>
           <figure className="max-h-full max-w-5xl pb-16 sm:pb-0" onClick={(e) => e.stopPropagation()}>
-            <img src={`/assets/images/${cur.file}`} alt={cur.alt} className="mx-auto max-h-[66vh] w-auto rounded-xl object-contain sm:max-h-[80vh]" />
+            <img src={photoSrc(cur.file)} alt={cur.alt} className="mx-auto max-h-[66vh] w-auto rounded-xl object-contain sm:max-h-[80vh]" />
             <figcaption className="mt-3 text-center text-sm text-white/90">{cur.alt} · {(open ?? 0) + 1}/{list.length}</figcaption>
           </figure>
           <button type="button" aria-label="Next photo" onClick={(e) => { e.stopPropagation(); step(1); }} className="absolute bottom-5 right-4 z-10 h-12 w-12 rounded-full sm:bottom-auto sm:right-3 bg-white/10 text-2xl text-white hover:bg-white/20">›</button>

@@ -5,16 +5,17 @@ import { checkField } from "../lib/validate";
 
 export interface FieldDef { name: string; label: string; type?: "text" | "email" | "tel" | "textarea" | "select"; required?: boolean; options?: string[]; placeholder?: string }
 interface Props { kind: string; fields: FieldDef[]; submitLabel: string; hidden?: Record<string, string>; className?: string; table?: string; onDone?: () => void;
-  /** Shorter form on large screens: short fields sit two to a row, the message box is lower and the spacing tighter. */ dense?: boolean }
+  /** Shorter form on large screens: short fields sit two to a row, the message box is lower and the spacing tighter. */ dense?: boolean;
+  /** Phone numbers must have exactly 10 digits, or exactly 12 when written with a leading + (see isValidPhoneStrict). */ strictPhone?: boolean }
 
 /** Reusable form: validates, sends through src/lib/forms.ts, shows success / error. Includes a hidden spam trap. */
-export default function SmartForm({ kind, fields, submitLabel, hidden = {}, className = "", table, onDone, dense }: Props) {
+export default function SmartForm({ kind, fields, submitLabel, hidden = {}, className = "", table, onDone, dense, strictPhone }: Props) {
   const { t } = useLang();
   const [state, setState] = useState<"idle" | "sending" | "sent" | "mailto" | "error">("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const validate = (f: FieldDef, raw: string) => {
     const v = raw.trim();
-    if (f.type === "email" || f.type === "tel") return checkField(f.type, v, f.required);
+    if (f.type === "email" || f.type === "tel") return checkField(f.type, v, f.required, strictPhone);
     if (f.required && !v) return `${f.label} is required`;
     if (f.name === "name" && v && v.length < 2) return "Please enter your full name";
     return "";
@@ -45,9 +46,9 @@ export default function SmartForm({ kind, fields, submitLabel, hidden = {}, clas
   return (
     <form onSubmit={submit} noValidate className={`space-y-4 ${dense ? "lg:grid lg:grid-cols-2 lg:gap-x-4 lg:gap-y-3 lg:space-y-0" : ""} ${className}`}>
       {fields.map((f) => (
-        <div key={f.name} className={dense && wide(f) ? "lg:col-span-2" : undefined}>
+        <div key={f.name} className={dense && wide(f) ? `lg:col-span-2 ${f.type === "textarea" ? "lg:flex lg:flex-col" : ""}` : undefined}>
           <label htmlFor={`${kind}-${f.name}`} className="text-sm font-medium">{t(f.label)}{f.required && <span aria-hidden="true"> *</span>}</label>
-          {f.type === "textarea" ? <textarea id={`${kind}-${f.name}`} name={f.name} required={f.required} rows={4} maxLength={2000} placeholder={f.placeholder} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${kind}-${f.name}-err` : undefined} onBlur={(e) => setErr(f.name, validate(f, e.target.value))} className={`${input} ${dense ? "lg:h-16" : ""}`} />
+          {f.type === "textarea" ? <textarea id={`${kind}-${f.name}`} name={f.name} required={f.required} rows={4} maxLength={2000} placeholder={f.placeholder} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${kind}-${f.name}-err` : undefined} onBlur={(e) => setErr(f.name, validate(f, e.target.value))} className={`${input} ${dense ? "lg:h-16 lg:grow" : ""}`} />
             : f.type === "select" ? <select id={`${kind}-${f.name}`} name={f.name} required={f.required} className={input}>{f.options?.map((o) => <option key={o}>{o}</option>)}</select>
             : <input id={`${kind}-${f.name}`} name={f.name} type={f.type ?? "text"} required={f.required} placeholder={f.placeholder} autoComplete={f.type === "email" ? "email" : f.type === "tel" ? "tel" : undefined} inputMode={f.type === "tel" ? "tel" : undefined} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${kind}-${f.name}-err` : undefined} maxLength={f.type === "email" ? 160 : 120} onBlur={(e) => setErr(f.name, validate(f, e.target.value))} className={input} />}
           {errors[f.name] && <p id={`${kind}-${f.name}-err`} className="mt-1 text-xs text-red-700">{errors[f.name]}</p>}

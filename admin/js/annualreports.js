@@ -2,12 +2,14 @@ import { getAnnualReports, createAnnualReport, updateAnnualReport, deleteAnnualR
 import { h, fmtDate, field, modal, tag, dataTable, confirmDialog, toast, busy, validate, rules } from "./ui.js";
 
 const MAX_MB = 20;
-const fyRule = (v) => (!v ? "Financial year is required" : /^\d{4}-\d{2}$/.test(v) ? null : "Write it like 2026-27");
+const NAME_MAX = 40;
+// the name on the box is free text: 2026-27, 2004-2005, "Audit Report 2024", ...
+const fyRule = (v) => (!v ? "Name on the box is required" : v.length > NAME_MAX ? `Name must be ${NAME_MAX} characters or fewer` : null);
 const linkRule = (v) => (v && !/^(\/(?!\/)|https:\/\/)/.test(v) ? "Use a link starting with https:// (or a file of this website starting with /)" : v.length > 600 ? "Link is too long" : null);
 
 function form(r, reload) {
   r = r || {};
-  const save = h("button", { type: "submit" }, r.id ? "Save changes" : "Add year");
+  const save = h("button", { type: "submit" }, r.id ? "Save changes" : "Add box");
   const picker = h("input", { type: "file", accept: "application/pdf,.pdf" });
   const link = h("input", { name: "file_url", placeholder: "https://… (only if the PDF is hosted somewhere else)", value: r.storage_path ? "" : r.file_url || "" });
   const current = h("p", { class: "mut" });
@@ -35,11 +37,11 @@ function form(r, reload) {
         catch (err) { if (file) await removeAnnualReportFile(b.storage_path); throw err; } // do not leave an orphan upload behind
         if (stale && stale !== b.storage_path) await removeAnnualReportFile(stale);
       }, file ? "Uploading…" : "Saving…");
-      close(); toast(r.id ? "Saved." : "Year added."); reload();
+      close(); toast(r.id ? "Saved." : `Box “${fy}” added. It now shows on the website.`); reload();
     } catch (err) { toast(err.message, "err"); }
   } },
     h("div", { class: "grid2" },
-      field("Financial year (e.g. 2026-27)", h("input", { name: "fy", required: true, maxlength: "7", placeholder: "2026-27", value: r.fy || "" })),
+      field("Name on the box (any wording, e.g. 2026-27 or 2004-2005)", h("input", { name: "fy", required: true, maxlength: String(NAME_MAX), placeholder: "2026-2027", value: r.fy || "" })),
       field("Title on the box", h("input", { name: "title", maxlength: "160", placeholder: "Annual Report 2026-27", value: r.title || "" }))),
     field("Short description (optional, shown under the title)", h("textarea", { name: "description", rows: "2", maxlength: "400" }, r.description || "")),
     h("h2", null, "Report PDF"), current,
@@ -48,28 +50,28 @@ function form(r, reload) {
     h("label", { class: "chk" }, h("input", { type: "checkbox", name: "published", checked: r.id ? !!r.published : true }), "Published (the box is visible on the website)"),
     h("div", { class: "row end" },
       r.id && h("button", { class: "danger", type: "button", onclick: async () => {
-        if (!await confirmDialog({ title: `Delete ${r.fy}?`, text: "The box for this year and its uploaded PDF will be deleted from the website. This cannot be undone.", ok: "Delete year", danger: true })) return;
-        try { await deleteAnnualReport(r); close(); toast("Year deleted."); reload(); } catch (err) { toast(err.message, "err"); }
-      } }, "Delete year"),
+        if (!await confirmDialog({ title: `Delete ${r.fy}?`, text: "This box and its uploaded PDF will be deleted from the website. This cannot be undone.", ok: "Delete box", danger: true })) return;
+        try { await deleteAnnualReport(r); close(); toast("Box deleted."); reload(); } catch (err) { toast(err.message, "err"); }
+      } }, "Delete box"),
       h("div", { class: "grow" }), h("button", { type: "button", class: "ghost", onclick: () => close() }, "Cancel"), save));
-  const close = modal(r.id ? `Edit ${r.fy}` : "Add a year", f); showCurrent();
+  const close = modal(r.id ? `Edit ${r.fy}` : "Add a box", f); showCurrent();
 }
 
 export default async () => {
   const wrap = h("div");
   const list = dataTable({
     columns: [
-      { label: "Year", cell: (r) => h("b", null, r.fy), sort: (r) => r.fy, firstDir: "desc" },
+      { label: "Name on the box", cell: (r) => h("b", null, r.fy), sort: (r) => r.fy, firstDir: "desc" },
       { label: "Title", cell: (r) => h("div", null, r.title || "—", r.description ? h("div", { class: "mut" }, r.description.length > 110 ? r.description.slice(0, 110) + "…" : r.description) : null), sort: (r) => (r.title || "").toLowerCase() },
       { label: "PDF", cell: (r) => (r.file_url ? h("a", { href: r.file_url, target: "_blank", rel: "noopener" }, "Open PDF ↗") : h("span", { class: "mut" }, "Not uploaded")), sort: (r) => (r.file_url ? 0 : 1) },
       { label: "Updated", cell: (r) => fmtDate(r.updated_at), sort: (r) => r.updated_at },
       { label: "Status", cell: (r) => tag(!r.published ? "pending" : r.file_url ? "active" : "new", !r.published ? "Hidden" : r.file_url ? "Online" : "Empty box"), sort: (r) => (!r.published ? 2 : r.file_url ? 0 : 1) }],
-    search: (r) => [r.fy, r.title, r.description].join(" "), searchLabel: "Search years",
+    search: (r) => [r.fy, r.title, r.description].join(" "), searchLabel: "Search boxes",
     filters: [{ label: "PDF", options: [["yes", "Uploaded"], ["no", "Not uploaded"]], test: (r, x) => (x === "yes") === !!r.file_url }],
     sort: { i: 0, dir: "asc" }, pageSize: 25, onRow: (r) => form(r, load),
-    summary: (rows) => h("p", { class: "mut" }, `${rows.length} year(s) · ${rows.filter((r) => r.file_url).length} with a PDF`),
-    empty: "No years yet. Add a financial year and it appears as a box on the website.",
-    tools: [h("button", { onclick: () => form(null, load) }, "+ Add year")]
+    summary: (rows) => h("p", { class: "mut" }, `${rows.length} box(es) · ${rows.filter((r) => r.file_url).length} with a PDF`),
+    empty: "No boxes yet. Add one and it appears on the website.",
+    tools: [h("button", { onclick: () => form(null, load) }, "+ Add box")]
   });
   async function load() {
     list.loading();
@@ -77,6 +79,6 @@ export default async () => {
     catch (e) { list.error(e.code === "PGRST205" ? "The annual reports table does not exist yet. Run supabase/migrations/20250108000000_annual_reports.sql in the Supabase SQL Editor." : e.message); }
   }
   wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Annual Reports"),
-    h("p", { class: "mut" }, "One box per financial year on the website (Transparency & Reports → Annual Reports). Click a year to change its title or description, or to upload its PDF. A year without a PDF shows as “Report not uploaded yet”."))), list.el);
+    h("p", { class: "mut" }, "The boxes on the website (Transparency & Reports → Annual Reports). “+ Add box” creates a new one with any name you like. Click a box to rename it, change its title or description, or upload its PDF. A box without a PDF shows as “Report not uploaded yet”."))), list.el);
   await load(); return wrap;
 };
