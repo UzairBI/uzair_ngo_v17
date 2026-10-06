@@ -255,6 +255,36 @@ export async function deleteTeamMember(id) {
   if (error) throw error;
 }
 
+// Messages sent through the website Contact Us form (table form_submissions, kind "contact"), newest first.
+export async function getContactMessages(limit = 8) {
+  const { data, error, count } = await supabase.from("form_submissions").select("id, created_at, name, email, phone, message, status", { count: "exact" })
+    .eq("kind", "contact").order("created_at", { ascending: false }).order("id", { ascending: false }).limit(limit);
+  if (error) throw error;
+  return { rows: data || [], total: count || 0 };
+}
+/** Every contact message (for the Excel export), fetched 1,000 at a time. */
+export async function getAllContactMessages() {
+  const all = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase.from("form_submissions").select("created_at, name, email, phone, message, status")
+      .eq("kind", "contact").order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, from + 999);
+    if (error) throw error;
+    all.push(...(data || []));
+    if (!data || data.length < 1000) return all;
+  }
+}
+export async function deleteContactMessage(id) {
+  const { data, error } = await supabase.from("form_submissions").delete().eq("id", id).eq("kind", "contact").select("id");
+  if (error) throw error;
+  // nothing came back = the database did not let this admin delete it (the delete rule has not been added yet)
+  if (!data || !data.length) throw new Error("The message could not be deleted. Run supabase/migrations/20250118000000_contact_messages_delete.sql in the Supabase SQL Editor, then try again.");
+}
+/** status: "new" (not answered yet), "contacted" or "closed". */
+export async function setContactMessageStatus(id, status) {
+  const { error } = await supabase.from("form_submissions").update({ status }).eq("id", id).eq("kind", "contact");
+  if (error) throw error;
+}
+
 // Website page text (Website Pages). One row per text an admin has changed; the originals live in src/data/pageContent.ts.
 export async function getPageContent() {
   const { data, error } = await supabase.from("page_content").select("key, value, updated_at");

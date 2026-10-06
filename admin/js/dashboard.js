@@ -1,5 +1,5 @@
-import { getDashboardData } from "./data.js";
-import { h, inr, tag, timeAgo, monthLabel, barChart, statBars, statCard, panel, emptyState } from "./ui.js";
+import { getDashboardData, getContactMessages, getAllContactMessages, setContactMessageStatus, deleteContactMessage } from "./data.js";
+import { h, inr, tag, timeAgo, fmtDateTime, monthLabel, barChart, statBars, statCard, panel, emptyState, modal, toast, msg, busy, confirmDialog } from "./ui.js";
 import { openDonationForm } from "./donations.js";
 import { openProjectForm } from "./projects.js";
 
@@ -8,8 +8,68 @@ const TYPE = { donation: "Donation", volunteer: "Volunteer", request: "Request" 
 
 const greeting = () => { const hr = new Date().getHours(); return hr < 12 ? "Good Morning" : hr < 17 ? "Good Afternoon" : "Good Evening"; };
 
+const CONTACT_STATUS = { new: "New", contacted: "Contacted", closed: "Closed" };
+// local date + time as "2026-10-05 12:30" (Excel export, file name)
+const stamp = (d) => { const x = new Date(d), p = (v) => String(v).padStart(2, "0"); return `${x.getFullYear()}-${p(x.getMonth() + 1)}-${p(x.getDate())} ${p(x.getHours())}:${p(x.getMinutes())}`; };
+
+/** Link that opens Gmail's "new message" page with the person's address, a subject and their message quoted underneath. */
+function gmailReply(m) {
+  const quoted = m.message ? `\n\n\n--- Your message, ${fmtDateTime(m.created_at)} ---\n${m.message}` : "";
+  const q = new URLSearchParams({ view: "cm", fs: "1", to: m.email, su: "Re: your message to Sahara Jan Kalyan Samiti", body: `Dear ${m.name || "Sir / Madam"},${quoted}`.slice(0, 1500) });
+  return `https://mail.google.com/mail/?${q}`;
+}
+
+async function deleteContact(m, reload) {
+  if (!await confirmDialog({ title: "Delete message?", text: `The message from ${m.name || m.email || "this person"} will be removed permanently. This cannot be undone.`, ok: "Delete message", danger: true })) return false;
+  try { await deleteContactMessage(m.id); toast("Message deleted."); reload(); return true; } catch (err) { toast(err.message, "err"); return false; }
+}
+/** All contact messages (not only the ones on screen) as an Excel file. */
+async function exportContacts() {
+  const rows = await getAllContactMessages();
+  if (!rows.length) return toast("There are no contact messages to export.", "err");
+  const { default: writeXlsxFile } = await import("write-excel-file");
+  const head = ["Received", "Name", "Email", "Phone", "Message", "Status"].map((value) => ({ value, fontWeight: "bold" }));
+  // every cell is written as text, so a value starting with "=" can never run as a formula
+  const lines = rows.map((r) => [stamp(r.created_at), r.name || "", r.email || "", r.phone || "", r.message || "", CONTACT_STATUS[r.status] || r.status].map((value) => ({ type: String, value })));
+  await writeXlsxFile([head, ...lines], { columns: [{ width: 18 }, { width: 26 }, { width: 34 }, { width: 18 }, { width: 70 }, { width: 14 }], sheet: "Contact messages", stickyRowsCount: 1,
+    fileName: `contact-messages-${stamp(new Date()).slice(0, 10)}.xlsx` });
+  toast(`Exported ${rows.length} contact message(s).`);
+}
+/** One message from the website Contact Us form: everything the person wrote, links to answer, and its status. */
+function openContactMessage(m, reload) {
+  const set = (status, text) => h("button", { type: "button", class: status === "new" ? "ghost" : null, onclick: async () => {
+    try { await setContactMessageStatus(m.id, status); close(); toast("Status updated."); reload(); } catch (err) { toast(err.message, "err"); }
+  } }, text);
+  const close = modal(m.name || "Contact message", h("div", null,
+    h("p", { class: "mut" }, `Received ${fmtDateTime(m.created_at)}`, " · ", tag(m.status === "new" ? "pending" : "active", CONTACT_STATUS[m.status] || m.status)),
+    h("p", null, m.email ? h("a", { href: `mailto:${m.email}` }, m.email) : null, m.email && m.phone ? " · " : null, m.phone ? h("a", { href: `tel:${m.phone.replace(/[^\d+]/g, "")}` }, m.phone) : null),
+    h("p", { class: "pre", "data-no-translate": "" }, m.message || "No message."),
+    h("div", { class: "row end" },
+      // opens a new Gmail message in the browser, from the Gmail account that is signed in, already addressed to this person
+      m.email && h("a", { class: "btn", target: "_blank", rel: "noopener", href: gmailReply(m) }, "Reply by email"),
+      h("button", { type: "button", class: "danger", onclick: async () => { if (await deleteContact(m, reload)) close(); } }, "Delete message"),
+      h("div", { class: "grow" }),
+      m.status === "new" ? set("contacted", "Mark as contacted") : set("new", "Back to new"))));
+}
+
 export default async ({ me, go, reload }) => {
-  const d = await getDashboardData(), c = d.counts;
+  // the two parts load together; a problem with the contact messages never hides the rest of the dashboard
+  const [d, contact] = await Promise.all([getDashboardData(), getContactMessages().catch((e) => ({ error: e.message }))]);
+  const c = d.counts;
+  const waiting = contact.rows ? contact.rows.filter((m) => m.status === "new").length : 0;
+  const exportBtn = h("button", { type: "button", class: "ghost sm", onclick: () => busy(exportBtn, () => exportContacts().catch((e) => toast(e.message, "err")), "Exporting…") }, "Export Excel");
+  const contactList = contact.error ? msg("err", contact.error)
+    : contact.rows.length
+      ? h("ul", { class: "feed" }, contact.rows.map((m) => h("li", null, h("span", { class: `dot ${m.status === "new" ? "request" : "volunteer"}`, "aria-hidden": "true" }),
+          h("div", { class: "grow" },
+            h("a", { href: "#", onclick: (ev) => { ev.preventDefault(); openContactMessage(m, reload); } }, m.name || m.email || "Unnamed"),
+            h("div", { class: "mut" }, [m.email, m.phone].filter(Boolean).join(" · ")),
+            h("div", { class: "contact-msg", "data-no-translate": "" }, m.message || "")),
+          h("div", { class: "feed-r" }, tag(m.status === "new" ? "pending" : "active", CONTACT_STATUS[m.status] || m.status), h("div", { class: "mut" }, timeAgo(m.created_at)),
+            h("div", { class: "row nowrap contact-actions" },
+              h("button", { type: "button", class: "ghost sm", "aria-label": `View message from ${m.name || m.email || "this person"}`, onclick: () => openContactMessage(m, reload) }, "View"),
+              h("button", { type: "button", class: "danger sm", "aria-label": `Delete message from ${m.name || m.email || "this person"}`, onclick: () => deleteContact(m, reload) }, "Delete"))))))
+      : emptyState("No contact messages yet. Messages sent from the website Contact Us page appear here.");
   const ongoing = d.ongoingProjects.website + d.ongoingProjects.added;
 
   // things waiting for an admin
@@ -60,7 +120,7 @@ export default async ({ me, go, reload }) => {
     h("div", { class: "grid-2" },
       panel("Donations raised · last 12 months", barChart(d.months.map((m) => ({ label: monthLabel(m.month), title: monthLabel(m.month, true), value: m.raised })),
         { format: (v) => (v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : v >= 1000 ? `₹${Math.round(v / 1000)}k` : `₹${v}`), emptyText: "No successful donations in the last 12 months yet." }), h("a", { href: "#/reports", class: "more" }, "Full analytics →")),
-      panel("Volunteer sign-ups · last 12 months", barChart(d.months.map((m) => ({ label: monthLabel(m.month), title: monthLabel(m.month, true), value: m.volunteers })), { emptyText: "No volunteer sign-ups in the last 12 months yet." }))),
+      panel(null, h("div", { class: "row" }, h("h2", { class: "grow", style: "margin:0" }, "Contact messages"), exportBtn), h("p", { class: "mut" }, contact.rows ? `People who wrote to us from the website Contact Us page, newest first · ${contact.total} in total · ${waiting} not answered yet` : "People who wrote to us from the website Contact Us page."), contactList)),
     h("div", { class: "grid-3" },
       panel("Recent submissions", recent),
       panel("Recent admin activity", activity, h("a", { href: "#/admins", class: "more" }, "Full activity log →")),
