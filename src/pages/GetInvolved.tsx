@@ -12,7 +12,7 @@ export default function GetInvolved() {
     <>
       <PageHero eyebrow={t("Get Involved")} title="Volunteer & CSR Partnerships" text="Whether you donate, volunteer, partner via corporate CSR, or sponsor a cause, your involvement reaches lives directly." />
       <section className="container-site grid gap-5 py-16 sm:grid-cols-2 lg:grid-cols-4">
-        {ways.map((w) => <Link key={w.title} to={w.href} className="rounded-2xl border p-6 hover:shadow-lg"><h2 className="font-serif text-lg font-bold text-brand-dark">{w.title}</h2><p className="mt-2 text-sm text-ink/70">{w.text}</p><span className="mt-3 inline-block text-sm font-semibold text-brand">{w.cta} →</span></Link>)}
+        {ways.map((w) => <Link key={w.title} to={w.href} className="flex flex-col rounded-2xl border p-6 hover:shadow-lg"><h2 className="font-serif text-lg font-bold text-brand-dark">{w.title}</h2><p className="mt-2 text-sm text-ink/70">{w.text}</p><span className="mt-auto inline-block pt-3 text-sm font-semibold text-brand">{w.cta} →</span></Link>)}
       </section>
       <section id="csr-readiness" className="bg-brand-light py-14">
         <div className="container-site">

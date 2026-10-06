@@ -24,8 +24,8 @@ export default function Header() {
       <div className="w-full px-3 sm:px-6 lg:px-8">
         {/* full-width white bar behind everything: logo badge on the left, links in the middle, Donate on the right */}
         <div className="flex h-16 items-center justify-between sm:h-[72px]">
-          <Link to="/" aria-label={`${site.name} home`} className="flex h-11 shrink-0 items-center sm:h-[52px]">
-            <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-8 w-auto max-w-[150px] object-contain sm:h-10 sm:max-w-[190px]" />
+          <Link to="/" aria-label={`${site.name} home`} className="flex h-12 shrink-0 items-center sm:h-14 xl:h-[60px]">
+            <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-11 w-auto max-w-[190px] object-contain sm:h-12 sm:max-w-[220px] xl:h-14 xl:max-w-[260px]" />
           </Link>
 
           <nav aria-label="Main" className="hidden min-w-0 flex-1 items-center justify-between gap-3 pl-3 lg:flex xl:pl-8">
@@ -60,8 +60,8 @@ export default function Header() {
         {open && (
           <nav id="mobile-nav" aria-label="Mobile" className="fixed inset-0 z-50 flex flex-col bg-white text-ink lg:hidden">
             <div className="flex h-16 shrink-0 items-center justify-between border-b px-3 sm:h-[72px] sm:px-6">
-              <Link to="/" onClick={() => setOpen(false)} aria-label={`${site.name} home`} className="flex h-11 items-center">
-                <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-8 w-auto max-w-[150px] object-contain sm:h-10 sm:max-w-[190px]" />
+              <Link to="/" onClick={() => setOpen(false)} aria-label={`${site.name} home`} className="flex h-12 items-center sm:h-14">
+                <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-11 w-auto max-w-[190px] object-contain sm:h-12 sm:max-w-[220px] xl:h-14 xl:max-w-[260px]" />
               </Link>
               <button className="flex h-11 w-11 items-center justify-center rounded-full text-ink" aria-label="Close menu" onClick={() => setOpen(false)}>
                 <span className="block text-2xl leading-none">✕</span>

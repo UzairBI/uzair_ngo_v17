@@ -3,13 +3,16 @@ export const nav: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about", children: [
     { label: "Founder Chairman & CEO", href: "/about#founder" },
+    { label: "Our Journey", href: "/about/journey" },
     { label: "Mission & Vision", href: "/about#mission" },
     { label: "Executive Committee", href: "/about#committee" },
     { label: "Where We Work", href: "/about#reach" },
     { label: "Partners & Supporters", href: "/about#partners" },
+    { label: "Awards & Recognition", href: "/about/awards" },
     { label: "Legal & Registration", href: "/about#legal" } ] },
   { label: "Our Projects", href: "/projects", children: [
     { label: "Women Empowerment", href: "/projects/women-empowerment" },
+    { label: "Upcoming Projects", href: "/projects#upcoming" },
     { label: "Health & Nutrition", href: "/projects/health-nutrition" },
     { label: "Child Education", href: "/projects/child-education" },
     { label: "Environment & Tree Plantation", href: "/projects/environment" },
@@ -23,7 +26,7 @@ export const nav: NavItem[] = [
     { label: "Latest News", href: "/news" },
     { label: "Events Calendar", href: "/events" } ] },
   { label: "Transparency & Reports", href: "/transparency", children: [
-    { label: "Annual Reports", href: "/transparency#annual-reports" },
+    { label: "Impact & Annual Reports", href: "/transparency#annual-reports" },
     { label: "Request Certificates", href: "/transparency?request=certificate#request" } ] },
   { label: "Contact Us", href: "/contact" }
 ];

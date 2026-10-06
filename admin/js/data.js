@@ -2,7 +2,8 @@
 // All queries use RLS to enforce authorization. Stats/reporting logic mirrors the
 // old server/stats.js + server/portfolio.js, computed here client-side instead.
 
-import { supabase } from "./supabase.js";
+import { createClient } from "@supabase/supabase-js";
+import { supabase, supabaseUrl, supabaseKey } from "./supabase.js";
 
 export const monthKey = (d) => String(d || "").slice(0, 7);
 export function lastMonths(n) {
@@ -28,7 +29,7 @@ function monthly(all, months) {
 function recentSubmissions(all, limit = 10) {
   const items = [
     ...all.donations.map((d) => ({ type: "donation", at: d.created_at, title: `Donation ₹${Number(d.amount).toLocaleString("en-IN")}`, sub: `${d.donor_name || "Unknown donor"} · ${d.mode}${d.method ? " · " + d.method : ""}`, status: d.status, page: "donations" })),
-    ...all.volunteers.map((v) => ({ type: "volunteer", at: v.created_at, title: `Volunteer: ${v.name || "Unnamed"}`, sub: v.area || "Volunteer sign-up", status: v.status, page: "volunteers" })),
+    ...all.volunteers.map((v) => ({ type: "volunteer", at: v.created_at, title: `Volunteer: ${v.name || "Unnamed"}`, sub: v.area || "Volunteer sign-up", status: v.status, page: "volunteers/signups" })),
     ...all.requests.map((r) => ({ type: "request", at: r.created_at, title: `Request ${r.reference || "#" + r.id}`, sub: [r.name, r.document_type].filter(Boolean).join(" · "), status: reqStatus(r.status), page: "requests" }))
   ];
   return items.sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, limit);
@@ -117,13 +118,54 @@ export async function getActivityLog(limit = 100) {
 
 export async function getAdminsList(me) {
   const [{ data: admins }, log] = await Promise.all([
-    supabase.from("admin_profiles").select("id, display_name, role, is_active, created_at, last_login_at").order("created_at"),
+    supabase.from("admin_profiles").select("*").order("created_at"),
     getActivityLog(1000)
   ]);
   const counts = countBy(log, "admin_id");
   const emailOf = {};
   log.forEach((l) => { if (l.admin_id && l.admin_label && !emailOf[l.admin_id]) emailOf[l.admin_id] = l.admin_label; });
-  return (admins || []).map((a) => ({ ...a, email: a.id === me.id ? me.email : (emailOf[a.id] || a.display_name || a.id.slice(0, 8)), actions: counts[a.id] || 0 }));
+  return (admins || []).map((a) => ({ ...a, email: a.id === me.id ? me.email : (a.email || emailOf[a.id] || a.display_name || a.id.slice(0, 8)), actions: counts[a.id] || 0 }));
+}
+
+// ----- Admin users: add (email + password), photo, switch on / off -----
+export function adminPhotoUrl(path) { return supabase.storage.from("admin-photos").getPublicUrl(path).data.publicUrl; }
+/** A second client that never stores a session, so creating someone else's account does not sign the current admin out. */
+let signupClient = null;
+const signup = () => (signupClient ||= createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: "sjks-admin-signup" } }));
+/**
+ * Creates the sign-in account (Supabase Auth) and its admin profile. Returns the profile plus `needsConfirmation`:
+ * true when the project asks new accounts to click the link in a confirmation email before they can sign in.
+ */
+export async function createAdmin({ email, password, display_name }) {
+  const { data, error } = await signup().auth.signUp({ email, password });
+  if (error) throw new Error(error.message);
+  const user = data.user;
+  // Supabase answers "ok" with an empty identity list when the email already has an account (it does not reveal which)
+  if (!user || !(user.identities || []).length) throw new Error("This email already has an account. Use a different email, or ask the person to sign in with their existing password.");
+  const { data: row, error: e2 } = await supabase.from("admin_profiles").insert([{ id: user.id, display_name: display_name || email.split("@")[0], role: "admin", is_active: true, email }]).select().single();
+  if (e2) throw e2;
+  return { ...row, needsConfirmation: !data.session };
+}
+export async function updateAdmin(id, data) {
+  const { data: row, error } = await supabase.from("admin_profiles").update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return row;
+}
+/** Uploads the photo, saves its path on the admin and removes the photo it replaces. Returns the updated profile. */
+export async function setAdminPhoto(a, file) {
+  const path = `${a.id}/${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
+  const { error } = await supabase.storage.from("admin-photos").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  let saved;
+  try { saved = await updateAdmin(a.id, { photo_path: path }); }
+  catch (e) { await supabase.storage.from("admin-photos").remove([path]); throw e; }
+  if (a.photo_path) await supabase.storage.from("admin-photos").remove([a.photo_path]);
+  return saved;
+}
+export async function removeAdminPhoto(a) {
+  const saved = await updateAdmin(a.id, { photo_path: null });
+  if (a.photo_path) await supabase.storage.from("admin-photos").remove([a.photo_path]);
+  return saved;
 }
 
 export async function getDonations(filter = {}) {
@@ -168,8 +210,174 @@ export async function updateVolunteer(id, data) {
   return result;
 }
 export async function deleteVolunteer(id) {
+  const { data: row } = await supabase.from("volunteers").select("photo_path").eq("id", id).maybeSingle();
+  if (row?.photo_path) await supabase.storage.from("volunteer-photos").remove([row.photo_path]);
   const { error } = await supabase.from("volunteers").delete().eq("id", id);
   if (error) throw error;
+}
+// Volunteer photos shown on the website (About Us -> Our Volunteers): "volunteer-photos" storage bucket.
+export function volunteerPhotoUrl(path) { return supabase.storage.from("volunteer-photos").getPublicUrl(path).data.publicUrl; }
+/** Uploads the photo, saves its path on the volunteer and removes the photo it replaces. Returns the updated volunteer. */
+export async function setVolunteerPhoto(v, file) {
+  const path = `${v.id}/${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
+  const { error } = await supabase.storage.from("volunteer-photos").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  let saved;
+  try { saved = await updateVolunteer(v.id, { photo_path: path }); }
+  catch (e) { await supabase.storage.from("volunteer-photos").remove([path]); throw e; }
+  if (v.photo_path) await supabase.storage.from("volunteer-photos").remove([v.photo_path]);
+  return saved;
+}
+export async function removeVolunteerPhoto(v) {
+  const saved = await updateVolunteer(v.id, { photo_path: null });
+  if (v.photo_path) await supabase.storage.from("volunteer-photos").remove([v.photo_path]);
+  return saved;
+}
+
+// Team (website About Us -> Our Executive Committee and Management Team). Listed in website order: block, then sort_order.
+export async function getTeamMembers() {
+  const { data, error } = await supabase.from("team_members").select("*").order("team").order("sort_order").order("id");
+  if (error) throw error;
+  return data || [];
+}
+export async function createTeamMember(data) {
+  const { data: result, error } = await supabase.from("team_members").insert([data]).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function updateTeamMember(id, data) {
+  const { data: result, error } = await supabase.from("team_members").update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function deleteTeamMember(id) {
+  const { error } = await supabase.from("team_members").delete().eq("id", id);
+  if (error) throw error;
+}
+
+// Newsletter subscribers: searched, filtered and paged in the database (the list can grow far past one page of rows).
+const subscriberQuery = ({ q, status }, cols, opts) => {
+  const query = supabase.from("newsletter_subscribers").select(cols, opts);
+  if (status) query.eq("status", status);
+  if (q) query.ilike("email", `%${q.replace(/[\\%_]/g, "\\$&")}%`);
+  return query.order("subscribed_at", { ascending: false }).order("id", { ascending: false });
+};
+export async function getSubscribers({ q = "", status = "", page = 1, size = 25 } = {}) {
+  const { data, error, count } = await subscriberQuery({ q, status }, "id, email, status, source, subscribed_at", { count: "exact" }).range((page - 1) * size, page * size - 1);
+  if (error?.code === "PGRST103") return { rows: [], total: 0 }; // asked for a page past the last one
+  if (error) throw error;
+  return { rows: data || [], total: count || 0 };
+}
+/** Every subscriber matching the search + filter (for the Excel export), fetched 1,000 at a time. */
+export async function getAllSubscribers({ q = "", status = "" } = {}) {
+  const out = [], step = 1000;
+  for (let from = 0; ; from += step) {
+    const { data, error } = await subscriberQuery({ q, status }, "email, status, source, subscribed_at").range(from, from + step - 1);
+    if (error) throw error;
+    out.push(...(data || []));
+    if (!data || data.length < step) return out;
+  }
+}
+export async function getSubscriberCounts() {
+  const count = () => supabase.from("newsletter_subscribers").select("id", { count: "exact", head: true });
+  const since = new Date(Date.now() - 30 * 864e5).toISOString();
+  const res = await Promise.all([count(), count().eq("status", "active"), count().eq("status", "unsubscribed"), count().gte("subscribed_at", since)]);
+  const failed = res.find((r) => r.error);
+  if (failed) throw failed.error;
+  const [total, active, unsubscribed, recent] = res.map((r) => r.count || 0);
+  return { total, active, unsubscribed, recent };
+}
+export async function updateSubscriberStatus(id, status) {
+  const { data: result, error } = await supabase.from("newsletter_subscribers").update({ status }).eq("id", id).select("id, status").single();
+  if (error) throw error;
+  return result;
+}
+
+// Video Gallery (website Media page). Oldest first = the order they appear on the website, left to right.
+export async function getVideos() {
+  const { data, error } = await supabase.from("gallery_videos").select("*").order("created_at").order("id");
+  if (error) throw error;
+  return data || [];
+}
+const videoError = (error) => (error.code === "23505" ? new Error("This video is already in the gallery.") : error);
+export async function createVideo(data) {
+  const { data: result, error } = await supabase.from("gallery_videos").insert([data]).select().single();
+  if (error) throw videoError(error);
+  return result;
+}
+export async function updateVideo(id, data) {
+  const { data: result, error } = await supabase.from("gallery_videos").update(data).eq("id", id).select().single();
+  if (error) throw videoError(error);
+  return result;
+}
+export async function deleteVideo(id) {
+  const { error } = await supabase.from("gallery_videos").delete().eq("id", id);
+  if (error) throw error;
+}
+
+// Annual Reports (website Transparency -> Annual Reports): one row per financial year, PDFs in the "annual-reports" storage bucket.
+export async function getAnnualReports() {
+  const { data, error } = await supabase.from("annual_reports").select("*").order("fy");
+  if (error) throw error;
+  return data || [];
+}
+const reportError = (error) => (error.code === "23505" ? new Error("That financial year already has a box.") : error);
+export async function createAnnualReport(data) {
+  const { data: result, error } = await supabase.from("annual_reports").insert([data]).select().single();
+  if (error) throw reportError(error);
+  return result;
+}
+export async function updateAnnualReport(id, data) {
+  const { data: result, error } = await supabase.from("annual_reports").update(data).eq("id", id).select().single();
+  if (error) throw reportError(error);
+  return result;
+}
+export async function deleteAnnualReport(r) {
+  if (r.storage_path) await supabase.storage.from("annual-reports").remove([r.storage_path]);
+  const { error } = await supabase.from("annual_reports").delete().eq("id", r.id);
+  if (error) throw error;
+}
+/** Uploads a PDF and returns where it is: { file_url, storage_path }. */
+export async function uploadAnnualReportFile(fy, file) {
+  const path = `${fy}/${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
+  const { error } = await supabase.storage.from("annual-reports").upload(path, file, { contentType: "application/pdf" });
+  if (error) throw error;
+  return { file_url: supabase.storage.from("annual-reports").getPublicUrl(path).data.publicUrl, storage_path: path };
+}
+export async function removeAnnualReportFile(path) {
+  if (path) await supabase.storage.from("annual-reports").remove([path]);
+}
+
+// Awards & Recognition (website About Us -> Awards & Recognition). Listed in website order: sort_order, then newest first.
+export async function getAwards() {
+  const { data, error } = await supabase.from("awards").select("*").order("sort_order").order("created_at", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+export async function createAward(data) {
+  const { data: result, error } = await supabase.from("awards").insert([data]).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function updateAward(id, data) {
+  const { data: result, error } = await supabase.from("awards").update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function deleteAward(r) {
+  if (r.storage_path) await supabase.storage.from("award-certificates").remove([r.storage_path]);
+  const { error } = await supabase.from("awards").delete().eq("id", r.id);
+  if (error) throw error;
+}
+/** Uploads a certificate image and returns where it is: { image_url, storage_path }. */
+export async function uploadAwardCertificate(file) {
+  const path = `${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
+  const { error } = await supabase.storage.from("award-certificates").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return { image_url: supabase.storage.from("award-certificates").getPublicUrl(path).data.publicUrl, storage_path: path };
+}
+export async function removeAwardCertificate(path) {
+  if (path) await supabase.storage.from("award-certificates").remove([path]);
 }
 
 export async function getDocumentRequests(status = null) {
@@ -308,6 +516,21 @@ export async function getBroadcastAudienceCounts() {
   ]);
   const donorEmails = new Set((donRes.data || []).map((d) => (d.donor_email || "").toLowerCase()).filter(Boolean));
   return { volunteers: volRes.count || 0, donors: donorEmails.size, all: (volRes.count || 0) + donorEmails.size };
+}
+// Broadcast: the messages in the scrolling "Live" strip at the top of the website (newest first).
+export async function getTickerMessages() {
+  const { data, error } = await supabase.from("ticker_messages").select("*").order("created_at", { ascending: false }).order("id", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+export async function createTickerMessage(message) {
+  const { data, error } = await supabase.from("ticker_messages").insert([{ message }]).select().single();
+  if (error) throw error;
+  return data;
+}
+export async function deleteTickerMessage(id) {
+  const { error } = await supabase.from("ticker_messages").delete().eq("id", id);
+  if (error) throw error;
 }
 export async function getBroadcastHistory() {
   const { data, error } = await supabase.from("broadcasts").select("*").order("created_at", { ascending: false }).limit(50);

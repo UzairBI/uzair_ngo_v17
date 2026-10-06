@@ -10,7 +10,7 @@ const paths = {
 } as const;
 
 export type SocialKey = keyof typeof paths;
-const brand: Record<SocialKey, string> = { facebook: "#1877F2", instagram: "#E4405F", youtube: "#FF0000", linkedin: "#0A66C2", x: "#000000", google: "#4285F4" };
+const brand: Record<SocialKey, string> = { facebook: "#1877F2", instagram: "#E4405F", youtube: "#FF0000", linkedin: "#0A66C2", x: "#000000", google: "#EA4335" };
 const labels: Record<SocialKey, string> = { facebook: "Facebook", instagram: "Instagram", youtube: "YouTube", linkedin: "LinkedIn", x: "X (Twitter)", google: "Google Business" };
 
 /** Round social-media icon buttons. Each lights up in its own brand colour on hover. */

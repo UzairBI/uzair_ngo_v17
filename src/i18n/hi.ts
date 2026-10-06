@@ -7,9 +7,9 @@ export const hi: Record<string, string> = {
   "Legal & Registration": "कानूनी एवं पंजीकरण", "Women Empowerment": "महिला सशक्तिकरण", "Health & Nutrition": "स्वास्थ्य और पोषण",
   "Child Education": "बाल शिक्षा", "Environment & Tree Plantation": "पर्यावरण और वृक्षारोपण", "Social Welfare & Relief": "सामाजिक कल्याण और राहत",
   "Photo Gallery": "फोटो गैलरी", "Video Gallery": "वीडियो गैलरी", "Press / News": "प्रेस / समाचार", "Latest News": "ताज़ा समाचार",
-  "Events Calendar": "कार्यक्रम कैलेंडर", "Annual Reports": "वार्षिक रिपोर्ट", "Audit Reports": "ऑडिट रिपोर्ट", "Certificates": "प्रमाणपत्र",
+  "Events Calendar": "कार्यक्रम कैलेंडर", "Annual Reports": "वार्षिक रिपोर्ट", "Impact & Annual Reports": "प्रभाव एवं वार्षिक रिपोर्ट", "Upcoming Projects": "आगामी परियोजनाएँ", "Awards & Recognition": "पुरस्कार एवं सम्मान", "View Certificate": "प्रमाणपत्र देखें", "Upcoming & New Projects": "आगामी एवं नई परियोजनाएँ", "Audit Reports": "ऑडिट रिपोर्ट", "Certificates": "प्रमाणपत्र",
   // Top bar
-  "Live Impact": "जीवंत प्रभाव",
+  "Live Impact": "जीवंत प्रभाव", "Live": "लाइव",
   // Hero
   "Registered NGO": "पंजीकृत एनजीओ",
   "Empowering Lives,": "सशक्त जीवन,", "Empowering": "सशक्त", "in Rural India": "ग्रामीण भारत में",

@@ -15,7 +15,7 @@ export const posts: Post[] = [
     ]
   },
   {
-    slug: "how-shiksha-kendras-work", title: "How our Shiksha Kendras support children's learning", date: "2026-09-30", category: "Education", image: "field-9.jpg",
+    slug: "how-shiksha-kendras-work", title: "How our Shiksha Kendras support children's learning", date: "2026-09-30", category: "Education", image: "gallery/education/children-studying-centre.jpg",
     excerpt: "Free evening learning centres, remedial classes and school kits for children who might otherwise miss out.",
     body: [
       "In rural clusters and slum settlements of Sagar, children facing poverty often miss out on foundational reading, writing and school supplies. Our Shiksha Kendras were set up to close that gap.",

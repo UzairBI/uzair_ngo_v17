@@ -9,7 +9,7 @@ React 18 + TypeScript + Vite 5 + Tailwind 3 + React Router 6. No extra libraries
 
 ## Images
 All images live in `public/assets/images/`:
-logo.png, field-1.jpg, field-3.jpg, field-6.jpg, field-9.jpg, plantation-campaign.webp, founder-chairman.jpeg, executive-committee.jpg,
+logo.png, field-1.jpg, field-3.jpg, field-6.jpg, field-9.jpg, plantation-campaign.webp, founder-chairman.jpeg,
 team-spirit.png (About page, "The Tree" philosophy) and solar-lantern-*.jpg (4 field photos: Solar Lantern programme, Gallery, project page).
 Missing images show a teal "Add image: ..." box.
 

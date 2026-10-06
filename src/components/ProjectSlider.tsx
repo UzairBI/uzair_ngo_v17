@@ -14,15 +14,15 @@ export default function ProjectSlider() {
       <div className="relative">
         <div ref={ref} className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4" tabIndex={0} aria-label="Projects carousel">
           {projects.map((p, i) => (
-            <article key={p.slug} className="w-[min(300px,84vw)] shrink-0 snap-start overflow-hidden rounded-2xl border bg-white shadow-sm md:w-[330px]">
-              <Img file={p.image} alt={`${p.title} project activity`} className="h-48 w-full" />
-              <div className="p-5">
+            <article key={p.slug} className="w-[min(300px,84vw)] flex shrink-0 snap-start flex-col overflow-hidden rounded-2xl border bg-white shadow-sm md:w-[330px]">
+              <Img file={p.image} alt={`${p.title} project activity`} className="h-48 w-full shrink-0" />
+              <div className="flex flex-1 flex-col p-5">
                 <p className="eyebrow">0{i + 1} · {p.category}</p>
                 <h3 className="mt-2 font-serif text-lg font-bold">{p.title}</h3>
                 <p className="mt-2 text-sm text-ink/70">{p.text}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Link to={`/projects/${p.slug}`} className="btn btn-brand !px-4 !py-2">Learn Details</Link>
-                  <DonateButton to={`/donate${p.detail?.donateCause ? `?cause=${encodeURIComponent(p.detail.donateCause)}` : ""}`} variant="outline" size="sm">Sponsor</DonateButton>
+                <div className="mt-auto grid grid-cols-2 gap-2 pt-4">
+                  <Link to={`/projects/${p.slug}`} className="btn btn-brand justify-center whitespace-nowrap !px-3 !py-2">Learn Details</Link>
+                  <DonateButton to={`/donate${p.detail?.donateCause ? `?cause=${encodeURIComponent(p.detail.donateCause)}` : ""}`} variant="outline" size="sm" className="justify-center">Sponsor</DonateButton>
                 </div>
               </div>
             </article>

@@ -1,14 +1,21 @@
+import { useLocation } from "react-router-dom";
+import { bannerFor } from "../data/slideshows";
 import Wave from "./Wave";
 
 /**
  * Banner at the top of inner pages: ONE fixed photo (no slideshow) under a blue overlay, white text,
- * and the flowing wave along the bottom edge. Without `images` it is the plain blue banner (still with the wave).
+ * and the flowing wave along the bottom edge. The photo is the one of the main menu section the page belongs to
+ * (see `sectionBanners` in src/data/slideshows.ts); pass `images` to give a page its own photo instead.
+ * A page outside every section is the plain blue banner (still with the wave).
+ * `imgClassName` = how this page's photo is placed (which part stays in view, mirrored or not); the default keeps the upper-middle.
+ * `compact` = a shorter banner on large screens, for pages whose main box should be in view without scrolling.
  */
-export default function PageHero({ eyebrow, title, text, images }: { eyebrow: string; title: string; text?: string; images?: string[] }) {
-  const img = images?.[0];
+export default function PageHero({ eyebrow, title, text, images, compact, imgClassName = "object-[center_35%]" }: { eyebrow: string; title: string; text?: string; images?: string[]; compact?: boolean; imgClassName?: string }) {
+  const { pathname } = useLocation();
+  const img = (images ?? bannerFor(pathname))?.[0];
   return (
-    <section className="relative isolate overflow-hidden bg-gradient-to-br from-brand-dark to-brand pb-24 pt-12 text-white sm:pt-16 md:pb-36 md:pt-24">
-      {img && <img src={img} alt="" loading="eager" decoding="async" className="absolute inset-0 -z-20 h-full w-full object-cover object-[center_35%]" />}
+    <section className={`relative isolate overflow-hidden bg-gradient-to-br from-brand-dark to-brand pb-24 pt-12 text-white sm:pt-16 md:pb-36 md:pt-24 ${compact ? "lg:pb-[72px] lg:pt-4" : ""}`}>
+      {img && <img src={img} alt="" loading="eager" decoding="async" className={`absolute inset-0 -z-20 h-full w-full object-cover ${imgClassName}`} />}
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-[#061a36]/90 via-[#0b3d7a]/65 to-[#0b4f9c]/20" />
       <div className="container-site max-w-3xl md:max-w-site">
         <p className="inline-flex rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur">{eyebrow}</p>
