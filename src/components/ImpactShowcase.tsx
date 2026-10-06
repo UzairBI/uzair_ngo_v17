@@ -26,7 +26,7 @@ export function ImpactDashboard() {
             <div tabIndex={0} className="impact-card group relative h-full cursor-pointer rounded-2xl bg-white p-4 shadow-sm ring-1 ring-transparent sm:p-5">
               <p className="text-xs text-ink/50 transition-colors group-hover:text-brand">0{i + 1}</p>
               <p className="mt-1 text-lg font-bold leading-snug text-brand-dark sm:text-xl"><CountUp stat={s} /></p>
-              <p className="mt-0.5 text-[13px] leading-snug text-ink/70 sm:text-sm">{t(s.label)}</p>
+              <p className="mt-0.5 text-left text-[13px] leading-snug text-ink/70 sm:text-sm">{t(s.label)}</p>
             </div>
           </Reveal>
         ))}

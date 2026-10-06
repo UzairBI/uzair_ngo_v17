@@ -11,7 +11,7 @@ export default function ProjectSlider() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between text-xs text-ink/60">
-        <span>Swipe through active programs</span><span>01 — {String(projects.length).padStart(2, "0")}</span>
+        <span>Swipe through active programs</span><span>01 / {String(projects.length).padStart(2, "0")}</span>
       </div>
       <div className="relative">
         <div ref={ref} className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4" tabIndex={0} aria-label="Projects carousel">

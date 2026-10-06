@@ -108,7 +108,7 @@ export default function Home() {
             <Reveal>
               <p className="eyebrow flex items-center gap-4 tracking-[.2em]">{t("Chairman's Message")}<span aria-hidden="true" className="h-px w-12 bg-brand/50" /></p>
               <blockquote className="mt-5 font-[Merriweather,Georgia,serif] text-[1.7rem] font-bold leading-[1.25] text-ink sm:text-4xl lg:text-[2.7rem] lg:leading-[1.22]">“Selfless service and inclusive education pave the path to true social empowerment.”</blockquote>
-              <p className="mt-6 max-w-2xl leading-relaxed text-ink/70 md:text-lg">Welcome to {site.name}. Established with a deep commitment to social justice, our mission is to ensure no child is deprived of learning and no family is left without accessible healthcare. Through transparent governance and relentless field activity, we bridge the gap between resources and grassroots need.</p>
+              <p className="mt-6 leading-relaxed text-ink/70 md:text-lg">Welcome to {site.name}. Established with a deep commitment to social justice, our mission is to ensure no child is deprived of learning and no family is left without accessible healthcare. Through transparent governance and relentless field activity, we bridge the gap between resources and grassroots need.</p>
               <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-5">
                 <Link to="/about#founder" className="btn btn-brand !rounded-xl !px-7 !py-3.5">{t("Read Founder Message")} <span aria-hidden="true">→</span></Link>
               </div>
@@ -179,7 +179,7 @@ export default function Home() {
             <p className="eyebrow">{t("Featured Initiative")}</p>
             <h2 className="h2 mt-2">Shiksha Sahara: Bringing Dignity & Knowledge to Every Child</h2>
             <p className="mt-4 text-ink/70">In rural clusters and slum settlements, children facing poverty often miss out on foundational reading, writing, and school supplies. Our evening Shiksha Kendras provide free tutoring, school kits, and uniforms.</p>
-            <blockquote className="mt-4 border-l-4 border-brand pl-4 font-quote text-sm italic">"Learning support is strongest when families and communities become part of the journey. Getting my school bag and books gave me confidence to dream big." <br />- Parent of a Beneficiary Student</blockquote>
+            <blockquote className="mt-4 border-l-4 border-brand pl-4 font-quote text-sm italic">"Learning support is strongest when families and communities become part of the journey. Getting my school bag and books gave me confidence to dream big." <br />Parent of a Beneficiary Student</blockquote>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/projects/child-education" className="btn btn-brand">{t("Learn More About Shiksha Sahara")}</Link>
               <DonateButton to="/donate?amount=6000&cause=Child%20Education">Sponsor a Child (₹6,000/yr)</DonateButton>
@@ -194,7 +194,7 @@ export default function Home() {
           <Reveal>
             <p className="eyebrow">{t("Ways to Help")}</p>
             <h2 className="h2 mt-2">{t("Four Ways You Can Make a Difference")}</h2>
-            <p className="mt-2 max-w-2xl text-ink/70">Whether you donate, give time as a volunteer, partner via corporate CSR, or sponsor a cause, your involvement reaches lives directly.</p>
+            <p className="mt-2 text-ink/70">Whether you donate, give time as a volunteer, partner via corporate CSR, or sponsor a cause, your involvement reaches lives directly.</p>
           </Reveal>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {ways.map((w, i) => (

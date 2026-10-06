@@ -50,7 +50,7 @@ export const projects: Project[] = [
         { village: "Village 3", terrain: "Roadside hamlet; brick and tarp-roof shelters; seasonal flooding", families: "~10" }
       ],
       reachNote: "Figures reflect field-team tallies at the time of distribution and will be confirmed in the consolidated beneficiary register.",
-      quote: "Today, we have received the greatest support of our lives — now we are not afraid to walk the muddy paths at night.",
+      quote: "Today, we have received the greatest support of our lives, and now we are not afraid to walk the muddy paths at night.",
       gallery: [
         { file: "solar-lantern-forest-edge.jpg", alt: "A family at the edge of the forest received a solar lantern and charging panel. With no electricity nearby, it is now their only reliable source of light after sunset." },
         { file: "solar-lantern-rahli.jpg", alt: "In a Rahli-block settlement that has never had an electricity connection, an elderly resident received a solar lantern and panel." },
