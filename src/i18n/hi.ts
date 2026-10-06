@@ -82,5 +82,10 @@ export const hi: Record<string, string> = {
   "UPI": "यूपीआई", "Any UPI app": "कोई भी UPI ऐप", "Bank account": "बैंक खाता", "Net banking": "नेट बैंकिंग",
   "Cards": "कार्ड", "Debit & credit": "डेबिट और क्रेडिट", "Wallets": "वॉलेट", "Popular wallets": "प्रचलित वॉलेट",
   "You enter or confirm your amount on the secure payment page that opens next.": "आगे खुलने वाले सुरक्षित भुगतान पेज पर आप राशि दर्ज या पुष्टि करेंगे।",
-  "Your gift supports education, health, women's livelihoods, environment and relief work in the communities we serve.": "आपका दान हमारे समुदायों में शिक्षा, स्वास्थ्य, महिला आजीविका, पर्यावरण और राहत कार्यों में सहयोग करता है।"
+  "Your gift supports education, health, women's livelihoods, environment and relief work in the communities we serve.": "आपका दान हमारे समुदायों में शिक्षा, स्वास्थ्य, महिला आजीविका, पर्यावरण और राहत कार्यों में सहयोग करता है।",
+  // Blog
+  "Blog": "ब्लॉग", "Stories from the Field": "ज़मीनी कहानियाँ", "Voices, lessons and small victories from the communities we work with.": "जिन समुदायों के साथ हम काम करते हैं, उनकी आवाज़ें, सीख और छोटी-छोटी जीत।",
+  "Latest story": "नई कहानी", "Read the story": "कहानी पढ़ें", "min read": "मिनट में पढ़ें", "Back to all posts": "सभी लेखों पर वापस", "More from the blog": "ब्लॉग से और",
+  "Our first stories are being written. Please check back soon.": "हमारी पहली कहानियाँ लिखी जा रही हैं। कृपया जल्द फिर देखें।",
+  "Have a story from the field you would like us to tell?": "क्या आपके पास कोई ज़मीनी कहानी है जो आप चाहते हैं कि हम सुनाएँ?", "Write to us": "हमें लिखें",
 };

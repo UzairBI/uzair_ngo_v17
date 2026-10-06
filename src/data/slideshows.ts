@@ -53,6 +53,7 @@ export const projectsImages = ["/images/projects/projects-hero.jpg"];
 export const mediaImages = ["/images/media/media-hero.jpg"];
 export const transparencyImages = ["/images/transparency/transparency-hero.jpg"];
 export const contactImages = ["/images/contact/contact-hero.jpg"];
+export const blogImages = ["/images/blog/blog-hero.jpg"];
 
 /**
  * Banner photo of each MAIN MENU section, keyed by the section's link in src/data/navigation.ts.
@@ -63,6 +64,7 @@ export const sectionBanners: Record<string, string[]> = {
   "/projects": projectsImages,
   "/media": mediaImages,
   "/transparency": transparencyImages,
+  "/blog": blogImages,
   "/contact": contactImages
 };
 

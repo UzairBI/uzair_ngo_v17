@@ -18,6 +18,8 @@ import Journey from "./pages/Journey";
 import AnnualReports from "./pages/AnnualReports";
 import ImpactReport from "./pages/ImpactReport";
 import Awards from "./pages/Awards";
+import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
 export default function App() {
   return (
     <Routes>
@@ -32,6 +34,8 @@ export default function App() {
         <Route path="/news" element={<News />} />
         <Route path="/news/:slug" element={<NewsDetail />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogDetail />} />
         <Route path="/transparency" element={<Transparency />} />
         <Route path="/transparency/annual-reports" element={<AnnualReports />} />
         <Route path="/transparency/impact-report" element={<ImpactReport />} />

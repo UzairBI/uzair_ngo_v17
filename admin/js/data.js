@@ -464,6 +464,40 @@ export async function removeAwardCertificate(path) {
   if (path) await supabase.storage.from("award-certificates").remove([path]);
 }
 
+// Blog (website Blog -> /blog). Listed as on the website: newest date first.
+export async function getBlogPosts() {
+  const { data, error } = await supabase.from("blog_posts").select("*").order("published_on", { ascending: false }).order("id", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+const blogError = (error) => (error.code === "23505" ? new Error("Another post already uses this web address. Change the address (the part after /blog/).") : error);
+export async function createBlogPost(data) {
+  const { data: result, error } = await supabase.from("blog_posts").insert([data]).select().single();
+  if (error) throw blogError(error);
+  return result;
+}
+export async function updateBlogPost(id, data) {
+  const { data: result, error } = await supabase.from("blog_posts").update(data).eq("id", id).select().single();
+  if (error) throw blogError(error);
+  return result;
+}
+export async function deleteBlogPost(r) {
+  const { error } = await supabase.from("blog_posts").delete().eq("id", r.id);
+  if (error) throw error;
+  await removeBlogImages([r.cover_path, r.photo_path]);
+}
+/** Uploads one photo of a post and returns where it is: { url, path }. */
+export async function uploadBlogImage(file) {
+  const path = `${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
+  const { error } = await supabase.storage.from("blog-images").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return { url: supabase.storage.from("blog-images").getPublicUrl(path).data.publicUrl, path };
+}
+export async function removeBlogImages(paths) {
+  const list = paths.filter(Boolean);
+  if (list.length) await supabase.storage.from("blog-images").remove(list);
+}
+
 export async function getDocumentRequests(status = null) {
   const query = supabase.from("document_requests").select("*");
   if (status) query.eq("status", status);

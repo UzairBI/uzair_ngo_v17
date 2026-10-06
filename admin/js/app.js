@@ -11,6 +11,7 @@ import newsletter from "./newsletter.js";
 import videos from "./videos.js";
 import annualReports from "./annualreports.js";
 import awards from "./awards.js";
+import blog from "./blog.js";
 import broadcast from "./broadcast.js";
 import admins from "./admins.js";
 import pageContent from "./pagecontent.js";
@@ -21,7 +22,7 @@ import { adminPhotoUrl } from "./data.js";
 const pages = {
   dashboard: ["Dashboard", dashboard], reports: ["Analytics", reports], projects: ["Projects", projects],
   donations: ["Donations", donations], volunteers: ["Team & Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter],
-  requests: ["Document requests", requests], events: ["Events", events], videos: ["Media & Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], pagecontent: ["Website Pages", pageContent], broadcast: ["Broadcast", broadcast],
+  requests: ["Document requests", requests], events: ["Events", events], videos: ["Media & Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], blog: ["Blog", blog], pagecontent: ["Website Pages", pageContent], broadcast: ["Broadcast", broadcast],
   admins: ["Admins & activity", admins]
 };
 const app = document.getElementById("app");
