@@ -40,4 +40,5 @@ create policy "Admins can delete page content"
 revoke all on page_content from public, anon, authenticated;
 grant select on page_content to anon;
 grant select, insert, delete on page_content to authenticated;
-grant update (value) on page_content to authenticated;
+-- key as well as value: saving from the admin panel is an "insert or update", which writes both columns
+grant update (key, value) on page_content to authenticated;
