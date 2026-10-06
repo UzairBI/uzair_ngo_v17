@@ -23,7 +23,6 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
 
   const touchX = useRef<number | null>(null);
   const cur = open !== null ? list[open] : null;
-  const count = (c: string) => (c === "All" ? photos.length : photos.filter((p) => p.cat === c).length);
   return (
     <>
       <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -39,7 +38,6 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
             <button key={c} type="button" onClick={() => { setCat(c); setOpen(null); }} aria-pressed={c === cat}
               className={`flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${c === cat ? "border-transparent bg-gradient-to-r from-brand-dark to-brand text-white shadow-lg shadow-brand/30" : "border-ink/10 bg-white text-ink/75 hover:border-brand/40 hover:bg-brand-light hover:text-brand-dark"}`}>
               {c === "All" ? t("All") : c}
-              <span className={`rounded-full px-2 py-0.5 text-[11px] leading-none ${c === cat ? "bg-white/25" : "bg-ink/5 text-ink/55"}`}>{count(c)}</span>
             </button>
           ))}
         </div>
