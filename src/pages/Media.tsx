@@ -17,7 +17,7 @@ const photos: Photo[] = [
   { file: "solar-lantern-forest-edge.jpg", alt: "Solar lantern and charging panel handed to a family at the forest edge, Sagar district", cat: "Solar Lantern" },
   { file: "solar-lantern-rahli.jpg", alt: "Solar lantern distribution in a Rahli-block settlement with no electricity connection", cat: "Solar Lantern" },
   { file: "solar-lantern-hamlet.jpg", alt: "A woman receives a solar lantern in a low-lying, flood-prone hamlet", cat: "Solar Lantern" },
-  { file: "solar-lantern-mother-child.jpg", alt: "A mother holding her young child receives her family's solar lantern", cat: "Solar Lantern" },
+  // solar-lantern-mother-child.jpg is left out here so the Solar Lantern tab shows a full row of 3; it still appears on the Solar Lantern project page.
   // public/assets/images/gallery/education/ - Education
   { file: "gallery/education/classroom-students-uniform.jpg", alt: "Students in school uniform attending a classroom session", cat: "Education" },
   { file: "gallery/education/children-with-books-banner.jpg", alt: "Children holding books after a learning session at a community centre", cat: "Education" },
@@ -29,16 +29,19 @@ const photos: Photo[] = [
   { file: "gallery/health-nutrition/mother-infant-outreach.jpg", alt: "A mother holding her infant during a community outreach visit", cat: "Health" },
   { file: "gallery/health-nutrition/mother-infant-nutrition-centre.jpg", alt: "A mother with her infant at a community nutrition centre", cat: "Health" },
   { file: "gallery/health-nutrition/supplies-handover-centre.jpg", alt: "Supplies being handed over to children and mothers at a Sahara community centre", cat: "Health" },
-  { file: "gallery/health-nutrition/women-children-awareness-session.jpg", alt: "Women and children gathered for a community awareness session", cat: "Health" },
+  { file: "gallery/health-nutrition/women-children-awareness-session.jpg", alt: "Women and children gathered for a community awareness session", cat: "Women Empowerment" },
   { file: "gallery/health-nutrition/community-distribution-banner.jpg", alt: "Community gathering with supplies distributed under a Sahara banner", cat: "Health" },
   { file: "gallery/health-nutrition/child-nutrition-kit-handover.jpg", alt: "A nutrition kit handed to a mother at the pre-school education and child-nutrition programme", cat: "Health" },
   { file: "gallery/health-nutrition/child-nutrition-support.jpg", alt: "Supplementary nutrition handed to a child at the pre-school education and nutrition programme", cat: "Health" },
   { file: "gallery/health-nutrition/mothers-children-centre.jpg", alt: "Mothers and young children at a Sahara centre", cat: "Health" },
-  { file: "gallery/health-nutrition/women-session-centre.jpg", alt: "Women attending a health and nutrition awareness session at a Sahara centre", cat: "Health" },
+  { file: "gallery/health-nutrition/women-session-centre.jpg", alt: "Women attending a health and nutrition awareness session at a Sahara centre", cat: "Women Empowerment" },
   { file: "gallery/health-nutrition/health-checkup-bp.jpg", alt: "Blood-pressure check at a community health camp", cat: "Health" },
   { file: "gallery/health-nutrition/menstrual-hygiene-inauguration.jpg", alt: "A student addressing the inauguration of the menstrual-hygiene programme with KONE", cat: "Health" },
   { file: "gallery/health-nutrition/sanitary-vending-machine-school-1.jpg", alt: "A student using a sanitary pad vending machine installed in her school", cat: "Health" },
   { file: "gallery/health-nutrition/sanitary-vending-machine-school-2.jpg", alt: "Sanitary pad vending machine at a government school, part of the KONE partnership", cat: "Health" },
+  // public/assets/images/gallery/environment/ - Environment. Replace these two green-setting photos with real plantation photos when you have them.
+  { file: "gallery/environment/women-in-green-village-forest.jpg", alt: "Women of the community standing together among the trees of a green village", cat: "Environment" },
+  { file: "gallery/environment/girls-cycling-forest-road.jpg", alt: "Girls cycling to school along a tree-lined forest road", cat: "Environment" },
   // public/assets/images/gallery/social-relief/ - Social relief
   { file: "gallery/social-relief/ration-kits-distribution.jpg", alt: "Ration kits laid out for distribution to families, with children seated in front", cat: "Social Relief" },
   { file: "gallery/social-relief/ration-clothes-tribal-women.jpg", alt: "Ration and clothes distribution for tribal women", cat: "Social Relief" },
