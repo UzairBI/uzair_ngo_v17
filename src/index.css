@@ -289,3 +289,25 @@ label { display: block; margin-bottom: 0.25rem; }
 
 /* fields that failed validation */
 input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"] { border-color: #b91c1c; }
+
+/* =====================================================================
+   MOBILE ONLY (< 768px): centre headings, copy, cards and button rows on every page. Desktop is untouched.
+   ===================================================================== */
+@media (max-width: 767px) {
+  main section h1, main section h2, main section h3, main section blockquote,
+  main section .eyebrow, main section .h2,
+  main section > .container-site > p, main section .container-site .reveal > p,
+  main section header p { text-align: center; margin-left: auto; margin-right: auto; }
+  main section .eyebrow { justify-content: center; }
+  main section .impact-card, main section dl > div { text-align: center; justify-content: center; }
+  main section .impact-card { display: flex; flex-direction: column; align-items: center; }
+  main section dl > div { flex-direction: column; border-left: 0 !important; }
+  main section dl > div > div { align-items: center; text-align: center; }
+  main section .btn, main section .dbtn, main section .btn-light { margin-left: auto; margin-right: auto; justify-content: center; }
+  main section .flex-wrap { justify-content: center; }
+  main section .max-w-2xl, main section .max-w-3xl, main section .max-w-xl { margin-left: auto; margin-right: auto; }
+  main section img { margin-left: auto; margin-right: auto; }
+  /* form fields stay left-aligned so typing and labels read naturally */
+  main form, main form * { text-align: left; }
+  main form .btn, main form button[type="submit"] { margin-left: auto; margin-right: auto; }
+}
