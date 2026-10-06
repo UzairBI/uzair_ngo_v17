@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Img from "./Img";
 import { useLang } from "../i18n/LangContext";
 
-export interface Photo { /** a file in /assets/images/, or a full https address (photos added in the admin panel) */ file: string; alt: string; cat: string }
-/** Address of a photo: a full https address is used as it is, anything else is a file in /assets/images/. */
-const photoSrc = (file: string) => (/^https:\/\//.test(file) ? file : `/assets/images/${file}`);
+export interface Photo { /** a file in /assets/images/, or a full address starting with / or https:// (photos listed in the admin panel) */ file: string; alt: string; cat: string }
+const isFull = (file: string) => /^(https:\/\/|\/)/.test(file);
+/** Address of a photo: a full address is used as it is, anything else is a file in /assets/images/. */
+const photoSrc = (file: string) => (isFull(file) ? file : `/assets/images/${file}`);
 
 /** Filterable photo grid with a full-screen lightbox (arrows, Esc, arrow keys, and left / right swipe on touch screens). */
 export default function Gallery({ photos }: { photos: Photo[] }) {
@@ -36,7 +37,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
       <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3">
         {list.map((p, i) => (
           <button key={p.file} type="button" onClick={() => setOpen(i)} aria-label={`Open photo: ${p.alt}`} className="group relative block overflow-hidden rounded-xl sm:rounded-2xl">
-            {/^https:\/\//.test(p.file)
+            {isFull(p.file)
               ? <img src={p.file} alt={p.alt} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105" />
               : <Img file={p.file} alt={p.alt} className="aspect-[4/3] w-full transition duration-500 group-hover:scale-105" />}
             <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 p-3 text-left text-xs text-white opacity-0 transition group-hover:opacity-100">{p.alt}</span>

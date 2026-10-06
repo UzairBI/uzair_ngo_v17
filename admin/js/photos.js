@@ -5,9 +5,25 @@ import { h, fmtDate, field, modal, tag, dataTable, confirmDialog, toast, busy, v
 const CATEGORIES = ["Education", "Health", "Women Empowerment", "Environment", "Social Relief", "Solar Lantern", "Skill Development", "CSR & Volunteering"];
 const MAX_MB = 8, MAX_FILES = 12;
 const imageProblem = (file) => (!/^image\/(jpeg|png|webp)$/.test(file.type) ? "Please choose JPG, PNG or WebP photos." : file.size > MAX_MB * 1024 * 1024 ? `“${file.name}” is larger than ${MAX_MB} MB.` : null);
-const groupField = (value) => [
-  field("Group * (the filter button it appears under; choose one, or type your own)", h("input", { name: "category", required: true, maxlength: "60", list: "photo-cats", value: value || CATEGORIES[0] })),
-  h("datalist", { id: "photo-cats" }, CATEGORIES.map((c) => h("option", { value: c })))];
+// groups in use on the website right now (kept up to date each time the list loads), so a group typed earlier is offered too
+let groupsInUse = [];
+const NEW_GROUP = "\u0000new";
+/**
+ * The group of a photo: a drop-down that always lists every group, with "New group…" as its last choice, which opens
+ * a box to type a name. The value read by the form is the hidden field "category".
+ */
+const groupField = (value) => {
+  const all = [...new Set([...CATEGORIES, ...groupsInUse, value].filter(Boolean))];
+  const chosen = value || CATEGORIES[0];
+  const out = h("input", { type: "hidden", name: "category", value: chosen });
+  const typed = h("input", { maxlength: "60", placeholder: "Name of the new group", "aria-label": "Name of the new group", hidden: true, oninput: () => { out.value = typed.value; } });
+  const pick = h("select", { "aria-label": "Group", onchange: () => {
+    const isNew = pick.value === NEW_GROUP;
+    typed.hidden = !isNew; out.value = isNew ? typed.value : pick.value;
+    if (isNew) typed.focus();
+  } }, all.map((c) => h("option", { value: c, selected: c === chosen }, c)), h("option", { value: NEW_GROUP }, "+ New group…"));
+  return [h("label", null, "Group * (the filter button it appears under on the website)", pick, typed, out)];
+};
 const captionField = (value, many) => field(many ? "Caption (optional; shown under every photo you add now; up to 300 characters)" : "Caption (shown under the photo; up to 300 characters)",
   h("textarea", { name: "caption", rows: "2", maxlength: "300", placeholder: "e.g. Children studying together at a Sahara learning centre" }, value || ""));
 
@@ -58,7 +74,7 @@ function editForm(r, reload) {
     h("label", { class: "chk" }, h("input", { type: "checkbox", name: "published", checked: !!r.published }), "Published (visible on the website Photo Gallery)"),
     h("div", { class: "row end" },
       h("button", { class: "danger", type: "button", onclick: async () => {
-        if (!await confirmDialog({ title: "Remove photo?", text: "This photo will be removed from the website Photo Gallery and deleted. This cannot be undone.", ok: "Remove photo", danger: true })) return;
+        if (!await confirmDialog({ title: "Remove photo?", text: "This photo will be removed from the website Photo Gallery. This cannot be undone.", ok: "Remove photo", danger: true })) return;
         try { await deleteGalleryPhoto(r); close(); toast("Photo removed."); reload(); } catch (err) { toast(err.message, "err"); }
       } }, "Remove photo"),
       h("div", { class: "grow" }), h("button", { type: "button", class: "ghost", onclick: () => close() }, "Cancel"), save));
@@ -72,23 +88,25 @@ export default function photosPane(onCount) {
       { label: "Photo", cell: (r) => h("div", { class: "thumbs" }, h("div", null, h("img", { src: r.image_url, alt: "", loading: "lazy" }))) },
       { label: "Caption", cell: (r) => (r.caption ? (r.caption.length > 120 ? r.caption.slice(0, 120) + "…" : r.caption) : h("span", { class: "mut" }, "No caption")), sort: (r) => (r.caption || "").toLowerCase() },
       { label: "Group", cell: (r) => r.category, sort: (r) => r.category },
-      { label: "Added", cell: (r) => fmtDate(r.created_at), sort: (r) => r.created_at },
+      { label: "Added", cell: (r) => (r.storage_path ? fmtDate(r.created_at) : h("span", { class: "mut" }, "Came with the website")), sort: (r) => r.created_at },
       { label: "Status", cell: (r) => tag(r.published ? "active" : "pending", r.published ? "Published" : "Hidden"), sort: (r) => (r.published ? 0 : 1) }],
     search: (r) => [r.caption, r.category].join(" "), searchLabel: "Search photos",
     filters: [
       { label: "Group", options: (rs) => [...new Set(rs.map((r) => r.category).filter(Boolean))].sort().map((c) => [c, c]), test: (r, x) => r.category === x },
       { label: "Status", options: [["published", "Published"], ["hidden", "Hidden"]], test: (r, x) => (x === "published") === !!r.published }],
-    sort: { i: 3, dir: "desc" }, pageSize: 25, onRow: (r) => editForm(r, load),
+    // group by group, as on the website; inside a group the newest comes first
+    sort: { i: 2, dir: "asc" }, pageSize: 50, onRow: (r) => editForm(r, load),
+    summary: (rows) => h("p", { class: "mut" }, `${rows.length} photo(s): `, [...new Set(rows.map((r) => r.category))].sort().map((c) => `${c} ${rows.filter((r) => r.category === c).length}`).join(" · ")),
     empty: "No photos added yet. Add photos and they appear first in the website Photo Gallery.",
     tools: [h("button", { onclick: () => addForm(load) }, "+ Add photos")]
   });
   async function load() {
     list.loading();
-    try { const rows = await getGalleryPhotos(); list.set(rows); onCount?.(rows.length); }
+    try { const rows = await getGalleryPhotos(); groupsInUse = [...new Set(rows.map((r) => r.category).filter(Boolean))].sort(); list.set(rows); onCount?.(rows.length); }
     catch (e) { list.error(e.code === "PGRST205" ? "The photo table does not exist yet. Run supabase/migrations/20250119000000_gallery_photos.sql in the Supabase SQL Editor." : e.message); }
   }
   load();
   return h("div", null,
-    h("p", { class: "mut" }, "Photos you add here show first in the website Photo Gallery (Media & Gallery), newest first, before the photos that came with the website. Click a photo to change its caption or group, hide it or remove it."),
+    h("p", { class: "mut" }, "Every photo of the website Photo Gallery (Media & Gallery), group by group. Photos you add show first on the website, newest first, before the ones that came with it. Click a photo to change its caption or group, hide it or remove it."),
     list.el);
 }

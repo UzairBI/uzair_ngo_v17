@@ -177,3 +177,5 @@ details label>.row.nowrap{gap:8px;min-height:26px}details textarea{resize:vertic
 .contact-actions{justify-content:flex-end;gap:6px;margin-top:6px}.contact-actions button{margin:0}
 /* Media & Gallery: the photo being edited */
 .photo-preview img{max-width:100%;max-height:260px;border-radius:10px;display:block;margin:0 auto 12px}
+/* a box that opens under a drop-down (e.g. the name of a new photo group) */
+label select+input:not([hidden]){margin-top:6px}

@@ -10,6 +10,8 @@ import Gallery, { type Photo } from "../components/Gallery";
 import PageHero from "../components/PageHero";
 import { mediaImages } from "../data/slideshows";
 import { fmtDate } from "./News";
+/** The photos that ship with the website. The live list is managed in the admin panel (it started as a copy of this one,
+ *  see supabase/migrations/20250120000000_gallery_photos_builtin.sql); this is what shows when the database cannot be reached. */
 const photos: Photo[] = [
   { file: "field-1.jpg", alt: "Winter blanket and cloth drive", cat: "Social Relief" },
   { file: "field-3.jpg", alt: "Tailoring centre", cat: "Women Empowerment" },
@@ -62,7 +64,8 @@ const photos: Photo[] = [
   { file: "gallery/csr-volunteering/sap-volunteering-activity.jpg", alt: "SAP Labs volunteers on a hands-on activity with children", cat: "CSR & Volunteering" },
   { file: "gallery/csr-volunteering/sap-volunteers-workshop.jpg", alt: "SAP Labs volunteers running a hands-on workshop", cat: "CSR & Volunteering" }
 ];
-/** Published photos from the admin panel (table gallery_photos), newest first. Empty while loading, or when Supabase is not set up / not reachable. */
+/** Published photos from the admin panel (table gallery_photos): uploads first (newest first), then the photos that came with the website.
+ *  Empty while loading, or when Supabase is not set up / not reachable. */
 function useGalleryPhotos(): Photo[] {
   const [list, setList] = useState<Photo[]>([]);
   useEffect(() => {
@@ -133,8 +136,8 @@ export default function Media() {
       <PageHero images={mediaImages} eyebrow={t("Media & Gallery")} title={c("media.hero.title")} text={c("media.hero.text")} />
       <section id="photo-gallery" className="container-site py-16">
         <h2 className="h2">{c("media.photos.title")}</h2>
-        {/* photos added in the admin panel (Media & Gallery -> Photos) first, then the ones that ship with the website */}
-        <Gallery photos={[...added, ...photos]} />
+        {/* the list kept in the admin panel (Media & Gallery -> Photos); the built-in list below is only used until that has loaded or if it cannot be reached */}
+        <Gallery photos={added.length ? added : photos} />
       </section>
       <section id="video-gallery" className="bg-slate-50 py-16">
         <div className="container-site">
