@@ -7,6 +7,7 @@ import SmartForm from "../components/SmartForm";
 import { fmtDate } from "./News";
 import { site } from "../data/site";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { Steps, Faq } from "../components/InfoBlocks";
 
 const ics = (e: EventItem) => {
   const d = e.date.replace(/-/g, "");
@@ -76,6 +77,9 @@ export default function Events() {
         </div>
         {past.length > 0 && (<><h2 className="h2 mt-14">{t("Past events")}</h2><div className="mt-6 space-y-4 opacity-80">{past.map((e) => <Card key={e.id} e={e} past />)}</div></>)}
       </section>
+      <Steps eyebrow="What to expect" title="Our events, in a few words"
+        steps={[["Health camps", "Free check-ups, awareness talks and referrals for families in nearby villages."], ["Learning days", "Activities, books and learning kits for children at our centres."], ["Plantation drives", "Community tree planting with follow-up care for the saplings."], ["Relief and awareness", "Distribution drives and sessions on hygiene, nutrition and rights."]]} />
+      <Faq title="Joining an event" items={[["How do I register?", "Open an upcoming event and press Register. Share your name and phone number and our team will confirm."], ["Is there a fee?", "Our community events are free to attend. Any exception is stated on the event itself."], ["Can I volunteer at an event?", "Yes. Write to us from the Get Involved page and mention the event."], ["Where are events held?", "Most are held in and around Sagar district, Madhya Pradesh. The place is shown on every event."]]} />
     </>
   );
 }
