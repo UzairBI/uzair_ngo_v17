@@ -6,6 +6,8 @@ import Img from "../components/Img";
 import PageHero from "../components/PageHero";
 import NotFound from "./NotFound";
 import DonateButton from "../components/DonateButton";
+import { Steps, Faq } from "../components/InfoBlocks";
+import { focusAreas } from "../data/projectFocus";
 
 export default function ProjectDetail() {
   const { slug } = useParams();
@@ -13,6 +15,7 @@ export default function ProjectDetail() {
   useTitle(p?.title, p?.text);
   if (!p) return <NotFound />;
   const d = p.detail;
+  const focus = focusAreas[p.slug];
   const related = portfolio.filter((x) => x.area === p.slug);
   const donateTo = `/donate${d?.donateCause ? `?cause=${encodeURIComponent(d.donateCause)}` : ""}`;
   return (
@@ -25,6 +28,16 @@ export default function ProjectDetail() {
           <h2 className="h2">About this programme</h2>
           {d?.partner && <p className="mt-2 text-sm font-semibold text-brand-dark">{d.partner}</p>}
           {d?.paragraphs ? d.paragraphs.map((t, i) => <p key={i} className="mt-4 text-ink/75">{t}</p>) : <p className="mt-4 text-ink/70">{p.text}</p>}
+          {focus && !d?.paragraphs && (
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {focus.points.map(([h, x]) => (
+                <li key={h} className="rounded-2xl bg-brand-light p-4">
+                  <p className="font-semibold text-brand-dark">{h}</p>
+                  <p className="mt-1 text-sm leading-snug text-ink/70">{x}</p>
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="mt-6 flex flex-wrap gap-3">
             <DonateButton to={donateTo}>{d ? "Fund a lantern" : "Sponsor"}</DonateButton>
             {d?.report && <a href={d.report.href} target="_blank" rel="noreferrer" className="btn btn-brand">{d.report.label}</a>}
@@ -32,6 +45,8 @@ export default function ProjectDetail() {
           </div>
         </div>
       </section>
+
+      {focus && !d && <Steps eyebrow="How it works" title={`How the ${p.category.toLowerCase()} programme runs`} steps={focus.steps} />}
 
       {d?.stats && (
         <section className="bg-brand-light py-10">
@@ -107,6 +122,8 @@ export default function ProjectDetail() {
           <p className="mt-6 text-sm"><Link to="/projects#portfolio" className="font-semibold text-brand">See the complete 2004–2025 portfolio →</Link></p>
         </section>
       )}
+
+      <Faq items={[["Can I support this programme directly?", "Yes. Use the Sponsor button above to give to this cause, or write to us to discuss a larger or CSR-backed contribution."], ["Can I visit or volunteer?", "Yes. Visits and volunteering are welcome by prior arrangement. Use the Get Involved page to reach our team."], ["Will I know how my support was used?", "We publish impact and annual reports and share field updates on this website and our social channels."]]} />
     </>
   );
 }
