@@ -280,14 +280,14 @@ export default function Home() {
       </section>
 
       {/* Supporters & partners */}
-      <section className="bg-brand-light pb-24 pt-16 md:pb-32">
+      <section className="bg-brand-light pb-6 pt-10 md:pb-8 md:pt-12">
         <div className="container-site text-center">
           <Reveal>
             <h2 className="h2 text-brand-dark">{t("Our Supporters & Partners")}</h2>
             <p className="mx-auto mt-3 max-w-2xl text-ink/70">{t("We are grateful to our valuable supporters and partners who help us make a difference in society.")}</p>
           </Reveal>
         </div>
-        <div className="mt-8 mb-4 md:mb-8"><SupportersStrip /></div>
+        <div className="mt-6"><SupportersStrip /></div>
       </section>
 
       {/* CTA */}
