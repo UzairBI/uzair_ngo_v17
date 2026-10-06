@@ -6,6 +6,7 @@ import Wave from "../components/Wave";
 import BackgroundSlideshow from "../components/BackgroundSlideshow";
 import { donationImages } from "../data/slideshows";
 import DonateButton from "../components/DonateButton";
+import { Highlights, Faq } from "../components/InfoBlocks";
 
 /**
  * Donate page. Layout: full-height photo on the left, light-blue panel on the right with one white card.
@@ -33,16 +34,17 @@ export default function Donate() {
   useTitle("Donate");
 
   return (
+    <>
     <section className="grid lg:grid-cols-2" aria-labelledby="donate-title">
       {/* photo: full height of the page on large screens; on phones a banner BELOW the donation card, so the form is visible straight away */}
-      <div className="relative order-2 h-64 bg-ink sm:h-80 lg:order-1 lg:h-auto">
+      <div className="relative order-1 h-72 bg-ink sm:h-96 lg:order-1 lg:h-auto">
         <div className="relative h-full w-full overflow-hidden lg:sticky lg:top-[85px] lg:h-[calc(100vh-85px)]">
           {/* one photo = it stays still; two or more = each slides in from the right while the last slides out to the left, in a loop.
               The first photo is the fallback (already on screen), so the loop starts with the second one and ends on the first. */}
           <BackgroundSlideshow images={donationSlides.length > 1 ? [...donationSlides.slice(1), donationSlides[0]] : donationSlides} fallback={donationSlides.length > 1 ? donationSlides[0] : undefined}
             imgClassNames={donationFocus} effect="shift" startDelay={5000} interval={5000} duration={1100} />
           <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent lg:from-ink/70 lg:via-transparent" />
-          <p className="absolute bottom-16 left-4 right-4 max-w-sm font-serif text-lg font-bold leading-snug text-white sm:left-6 sm:right-6 sm:text-xl md:bottom-24 md:left-10 md:text-2xl lg:bottom-28">
+          <p className="absolute bottom-14 left-4 right-4 max-w-sm max-lg:mx-auto max-lg:text-center font-serif text-lg font-bold leading-snug text-white sm:left-6 sm:right-6 sm:text-xl md:bottom-24 md:left-10 md:text-2xl lg:bottom-28">
             {t("Every child deserves a chance to learn, grow and dream.")}
           </p>
           <div className="hidden lg:block"><Wave fill="#eef8ff" /></div>
@@ -50,7 +52,7 @@ export default function Donate() {
       </div>
 
       {/* light-blue panel with the donation card */}
-      <div className="relative isolate order-1 flex items-center justify-center overflow-hidden bg-[#eef8ff] px-4 py-8 sm:py-12 md:px-10 lg:order-2 lg:items-start lg:pb-12 lg:pt-4">
+      <div className="relative isolate z-10 order-2 max-lg:-mt-8 max-lg:rounded-t-[2rem] flex items-center justify-center overflow-hidden bg-[#eef8ff] px-4 pb-10 pt-8 sm:pb-12 sm:pt-10 md:px-10 lg:order-2 lg:items-start lg:pb-12 lg:pt-4">
         <svg aria-hidden="true" viewBox="0 0 160 220" className="pointer-events-none absolute -top-4 left-0 -z-10 hidden h-56 w-40 text-brand sm:block" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M0 210C40 150 80 110 110 0" opacity=".55" /><path d="M24 214C64 154 104 114 134 4" opacity=".4" /><path d="M48 218C88 158 128 118 158 8" opacity=".25" />
         </svg>
@@ -81,9 +83,13 @@ export default function Donate() {
               {t("You enter or confirm your amount on the secure payment page that opens next.")}
             </p>
           </div>
-          <p className="mt-5 px-1 text-xs text-ink/65">{t("Your gift supports education, health, women's livelihoods, environment and relief work in the communities we serve.")}</p>
+          <p className="mt-5 px-1 text-center text-xs lg:text-left text-ink/65">{t("Your gift supports education, health, women's livelihoods, environment and relief work in the communities we serve.")}</p>
         </div>
       </div>
     </section>
+    <Highlights eyebrow="Why give" title="Your gift, put to work"
+      items={[["Education", "Learning kits, books and support for children in our education programmes."], ["Health", "Health camps, check-ups and support for patients in need."], ["Livelihoods", "Skill training and self-help group support for women."], ["Environment", "Tree plantation and care drives with local communities."], ["Relief", "Help for families affected by emergencies and hardship."], ["Accountability", "12A, 80G, FCRA and CSR-1 registered, with published reports."]]} />
+    <Faq title="Donation FAQ" items={[["Is my donation tax-deductible?", "The Samiti holds 80G approval, so eligible donations qualify for deduction under Section 80G, subject to applicable rules."], ["Which payment methods can I use?", "The secure payment page that opens next lists the available options, such as UPI, cards and net banking."], ["Will I get a receipt?", "Add your email on the payment page, and contact us if you need a receipt or an 80G certificate."], ["Can I donate to a specific cause?", "Yes. Use the sponsor links on the Projects page or write to us to direct your gift."], ["Can I donate from abroad?", "We hold FCRA registration. Please contact us for foreign contribution details."]]} />
+    </>
   );
 }
