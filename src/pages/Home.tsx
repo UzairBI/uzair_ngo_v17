@@ -3,6 +3,7 @@ import { ways } from "../data/content";
 import { site } from "../data/site";
 import { posts } from "../data/news";
 import { useTitle } from "../hooks/useTitle";
+import { usePageText } from "../hooks/usePageText";
 import { useLiveData, todayLocal } from "../hooks/useLiveData";
 import { useLang } from "../i18n/LangContext";
 import Img from "../components/Img";
@@ -34,6 +35,7 @@ const heroFocus = Object.fromEntries([homeHeroOpening, ...homeHeroSlides].map((s
 export default function Home() {
   useTitle(undefined, "Community health, education, women empowerment, tree plantation and disaster relief.");
   const { t } = useLang();
+  const c = usePageText();
   const isMobile = useIsMobile();
   const { campaigns, events } = useLiveData();
   const today = todayLocal();
@@ -198,8 +200,8 @@ export default function Home() {
             {ways.map((w, i) => (
               <Reveal key={w.title} delay={i * 90} className="h-full">
                 <Link to={w.href} className="flex h-full flex-col rounded-2xl border p-6 transition hover:-translate-y-1 hover:shadow-lg">
-                  <h3 className="font-serif text-lg font-bold text-brand-dark">{w.title}</h3>
-                  <p className="mt-2 text-sm text-ink/70">{w.text}</p>
+                  <h3 className="font-serif text-lg font-bold text-brand-dark">{c(`involved.way.${i + 1}.title`)}</h3>
+                  <p className="mt-2 text-sm text-ink/70">{c(`involved.way.${i + 1}.text`)}</p>
                   <span className="mt-auto inline-block pt-4 text-sm font-semibold text-brand">{w.cta} →</span>
                 </Link>
               </Reveal>

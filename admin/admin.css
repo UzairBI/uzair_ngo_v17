@@ -163,3 +163,12 @@ th{background:#f4f8fd}tr.click:hover{background:#f1f7ff}
 
 /* volunteer photo next to the name in the Volunteers table */
 img.avatar{object-fit:cover;flex:none;background:#e8eef7}
+/* Website Pages: one collapsible box per page */
+details>summary{cursor:pointer;padding:2px 0;font-size:15px}details[open]>summary{margin-bottom:10px}
+details label>.row.nowrap{gap:8px;min-height:26px}details textarea{resize:vertical;line-height:1.5}
+/* fields side by side: label text, box and error message share the same three lines across the row, so the boxes line up
+   even when one label is longer and wraps onto a second line */
+.grid2>label:not(.chk){display:grid;grid-template-rows:subgrid;grid-row:span 3;align-content:start}
+/* EN / Hindi switch */
+.lang-switch{display:inline-flex;gap:4px;align-items:center;margin-right:10px}.login .lang-switch{margin:12px 0 0}
+.lang-switch button{margin:0;padding:4px 10px;font-size:12px;border-radius:99px}.lang-switch button[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}

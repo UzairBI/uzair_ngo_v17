@@ -1,5 +1,6 @@
 import { site } from "../data/site";
 import { useTitle } from "../hooks/useTitle";
+import { usePageText } from "../hooks/usePageText";
 import { useLang } from "../i18n/LangContext";
 import PageHero from "../components/PageHero";
 import { contactImages } from "../data/slideshows";
@@ -19,17 +20,19 @@ function officeOpen() {
 }
 export default function Contact() {
   const { t } = useLang();
+  const c = usePageText();
   useTitle("Contact Us");
   const open = officeOpen();
   return (
     <>
-      <PageHero compact images={contactImages} eyebrow={t("Contact Us")} title="Contact Us & Field Office" />
-      <section className="container-site grid gap-10 py-12 md:grid-cols-2 md:py-16 lg:pt-4">
+      <PageHero compact images={contactImages} eyebrow={t("Contact Us")} title={c("contact.hero.title")} />
+      <section className="container-site py-12 md:py-16 lg:pt-4">
+        <Reveal><h2 className="h2">{c("contact.title")}</h2></Reveal>
+        {/* the form box starts level with the office cards and, on large screens, ends level with the office hours card */}
+        <div className="mt-5 grid gap-10 md:grid-cols-2">
         <div className="min-w-0">
-          <Reveal><h2 className="h2">{t("Field Office & Contact")}</h2></Reveal>
-
           {/* the two offices */}
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             {[{ label: "Head office", text: site.address, icon: <><path d="M12 21s7-6.2 7-11.5A7 7 0 005 9.5C5 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></> },
               { label: "Registered office", text: site.registeredOffice, icon: <><path d="M4 21V9l8-5 8 5v12" /><path d="M2.5 21h19M9.5 21v-5h5v5" /></> }].map((o, i) => (
               <Reveal key={o.label} delay={80 + i * 80}>
@@ -81,9 +84,10 @@ export default function Contact() {
             </Reveal>
           </div>
         </div>
-        <SmartForm dense kind="Contact message" submitLabel="Send Message" className="rounded-2xl border p-5 sm:p-6 lg:self-start lg:p-4"
+        <SmartForm dense kind="Contact message" submitLabel="Send Message" className="rounded-2xl border p-5 sm:p-6 md:self-start lg:grid-rows-[auto_auto_1fr_auto] lg:self-stretch lg:p-4"
           fields={[{ name: "name", label: "Name", required: true, placeholder: "Your full name" }, { name: "email", label: "Email", type: "email", required: true, placeholder: "you@example.com" },
             { name: "phone", label: "Phone", type: "tel", placeholder: "98765 43210 (optional)" }, { name: "message", label: "Message", type: "textarea", required: true, placeholder: "How can we help you?" }]} />
+        </div>
       </section>
       <section className="container-site pb-16"><WorkMap /></section>
     </>

@@ -255,6 +255,24 @@ export async function deleteTeamMember(id) {
   if (error) throw error;
 }
 
+// Website page text (Website Pages). One row per text an admin has changed; the originals live in src/data/pageContent.ts.
+export async function getPageContent() {
+  const { data, error } = await supabase.from("page_content").select("key, value, updated_at");
+  if (error) throw error;
+  return data || [];
+}
+/** `changed` = [{ key, value }] to save; `reset` = keys that go back to their original wording. */
+export async function savePageContent(changed, reset) {
+  if (changed.length) {
+    const { error } = await supabase.from("page_content").upsert(changed, { onConflict: "key" });
+    if (error) throw error;
+  }
+  if (reset.length) {
+    const { error } = await supabase.from("page_content").delete().in("key", reset);
+    if (error) throw error;
+  }
+}
+
 // Newsletter subscribers: searched, filtered and paged in the database (the list can grow far past one page of rows).
 const subscriberQuery = ({ q, status }, cols, opts) => {
   const query = supabase.from("newsletter_subscribers").select(cols, opts);
@@ -321,7 +339,10 @@ export async function getAnnualReports() {
   if (error) throw error;
   return data || [];
 }
-const reportError = (error) => (error.code === "23505" ? new Error("That financial year already has a box.") : error);
+const reportError = (error) => (error.code === "23505" ? new Error("Another box already has this name. Use a different name.")
+  // the database still has the old rule that only accepts names like 2004-05
+  : error.code === "23514" && /fy_check/.test(error.message || "") ? new Error("The database still only accepts names like 2004-05. Run supabase/migrations/20250117000000_annual_reports_free_names.sql in the Supabase SQL Editor, then save again.")
+  : error);
 export async function createAnnualReport(data) {
   const { data: result, error } = await supabase.from("annual_reports").insert([data]).select().single();
   if (error) throw reportError(error);
@@ -339,7 +360,8 @@ export async function deleteAnnualReport(r) {
 }
 /** Uploads a PDF and returns where it is: { file_url, storage_path }. */
 export async function uploadAnnualReportFile(fy, file) {
-  const path = `${fy}/${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
+  // the box name is free text, so only its letters, digits, dots and dashes go into the folder name
+  const path = `${fy.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^[-.]+|[-.]+$/g, "") || "report"}/${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
   const { error } = await supabase.storage.from("annual-reports").upload(path, file, { contentType: "application/pdf" });
   if (error) throw error;
   return { file_url: supabase.storage.from("annual-reports").getPublicUrl(path).data.publicUrl, storage_path: path };
@@ -433,6 +455,21 @@ export async function getEvents(published = null) {
   const { data, error } = await query.order("event_date", { ascending: false });
   if (error) throw error;
   return (data || []).map((e) => ({ ...e, images: (e.event_images || []).sort((a, b) => a.position - b.position) }));
+}
+/**
+ * Events written in the website file public/data/live.json (the default sample event lives there), in the same shape as
+ * the database rows plus `file: true`. They cannot be edited here; `fileImages` are their photo addresses.
+ * An event marked "sample" in the file shows on the development site only and is hidden on the live site.
+ */
+export async function getFileEvents() {
+  try {
+    const r = await fetch("/data/live.json", { cache: "no-store" });
+    const j = r.ok ? await r.json() : {};
+    return (Array.isArray(j.events) ? j.events : []).map((e) => ({
+      file: true, id: `file:${e.id}`, title: e.title || "", event_date: e.date || "", event_time: e.time || "", place: e.place || "", description: e.text || "",
+      sample: !!e.sample, published: !e.sample, images: [], fileImages: Array.isArray(e.images) ? e.images : []
+    }));
+  } catch { return []; }
 }
 export async function getEvent(id) {
   const { data, error } = await supabase.from("events").select("*, event_images(*)").eq("id", id).single();

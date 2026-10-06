@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { useTitle } from "../hooks/useTitle";
+import { usePageText } from "../hooks/usePageText";
 import { useLang } from "../i18n/LangContext";
 import { site } from "../data/site";
 import { posts } from "../data/news";
@@ -101,7 +102,7 @@ function VideoCard({ v }: { v: Video }) {
       {(v.title || v.description) && (
         <figcaption className="mt-2.5">
           {v.title && <span className="block font-semibold leading-snug text-ink">{v.title}</span>}
-          {v.description && <span className="mt-1 block whitespace-pre-line text-sm leading-relaxed text-ink/70">{v.description}</span>}
+          {v.description && <span className="justified mt-1 block whitespace-pre-line text-sm leading-relaxed text-ink/70">{v.description}</span>}
         </figcaption>
       )}
     </figure>
@@ -110,19 +111,20 @@ function VideoCard({ v }: { v: Video }) {
 
 export default function Media() {
   const { t } = useLang();
+  const c = usePageText();
   useTitle("Media & Gallery");
   const videos = useGalleryVideos();
   const uploads = `https://www.youtube.com/embed/videoseries?list=${site.youtubeChannelId.replace(/^UC/, "UU")}`;
   return (
     <>
-      <PageHero images={mediaImages} eyebrow={t("Media & Gallery")} title={t("Photo & Video Gallery")} text="Real work. Real people. Real change." />
+      <PageHero images={mediaImages} eyebrow={t("Media & Gallery")} title={c("media.hero.title")} text={c("media.hero.text")} />
       <section id="photo-gallery" className="container-site py-16">
-        <h2 className="h2">{t("Photo Gallery")}</h2>
+        <h2 className="h2">{c("media.photos.title")}</h2>
         <Gallery photos={photos} />
       </section>
       <section id="video-gallery" className="bg-slate-50 py-16">
         <div className="container-site">
-          <h2 className="h2">{t("Video Gallery")}</h2>
+          <h2 className="h2">{c("media.videos.title")}</h2>
           {/* Videos added in the admin panel (Video Gallery), oldest first, so a new one lands to the right of the earlier ones.
               Until any are added (or if the database cannot be reached) the channel's latest uploads are shown in one small player. */}
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -141,9 +143,9 @@ export default function Media() {
         </div>
       </section>
       <section id="press-news" className="container-site py-16">
-        <div className="flex flex-wrap items-end justify-between gap-3"><h2 className="h2">{t("Press / News")}</h2><Link to="/news" className="text-sm font-semibold text-brand">{t("Latest News")} →</Link></div>
+        <div className="flex flex-wrap items-end justify-between gap-3"><h2 className="h2">{c("media.press.title")}</h2><Link to="/news" className="text-sm font-semibold text-brand">{t("Latest News")} →</Link></div>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {posts.map((p) => <Link key={p.slug} to={`/news/${p.slug}`} className="rounded-2xl border p-5 transition hover:shadow-lg"><p className="eyebrow">{fmtDate(p.date)}</p><h3 className="mt-2 font-serif font-bold">{p.title}</h3><p className="mt-2 text-sm text-ink/70">{p.excerpt}</p></Link>)}
+          {posts.map((p) => <Link key={p.slug} to={`/news/${p.slug}`} className="rounded-2xl border p-5 transition hover:shadow-lg"><p className="eyebrow">{fmtDate(p.date)}</p><h3 className="mt-2 font-serif font-bold">{p.title}</h3><p className="justified mt-2 text-sm text-ink/70">{p.excerpt}</p></Link>)}
         </div>
       </section>
     </>

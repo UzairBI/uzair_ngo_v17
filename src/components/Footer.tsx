@@ -23,43 +23,47 @@ export default function Footer() {
   };
   return (
     <footer className="bg-ink text-sm text-white/80">
+      {/* on large screens all four columns are the same height and the last item of each (Donate Now, the social icons, the fax line, Subscribe) sits on the same line */}
       <div className="container-site grid gap-10 py-12 sm:grid-cols-2 md:py-14 lg:grid-cols-4">
-        <div>
-          <Link to="/" aria-label={`${site.name} home`} className="inline-block rounded-2xl bg-white px-4 py-3 shadow-lg shadow-black/20 transition hover:scale-[1.03]">
+        <div className="flex flex-col">
+          <Link to="/" aria-label={`${site.name} home`} className="inline-block self-start rounded-2xl bg-white px-4 py-3 shadow-lg shadow-black/20 transition hover:scale-[1.03]">
             <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-14 w-auto max-w-[230px] object-contain" />
           </Link>
           <p className="mt-3 text-xs">{site.name} · {site.location} · {site.regLine}</p>
-          <p className="mt-4">{site.tagline}</p>
           <p className="mt-4 text-xs">Society Reg: {societyReg}</p>
           <p className="text-xs">Darpan ID: {darpanId}</p>
           <p className="text-xs">12A: {reg12A.value} · 80G: {reg80G.value}</p>
           <p className="text-xs">FCRA: {fcraReg.value}</p>
           <p className="text-xs"><Link to="/transparency?request=certificate#request" className="underline hover:text-white">Request registration certificates</Link></p>
-          <SocialIcons className="mt-5" />
+          <SocialIcons className="mt-5 lg:mt-auto lg:pt-5" />
         </div>
-        <div>
+        <div className="flex flex-col">
           <h3 className="mb-3 font-semibold text-white">{t("Quick Navigation")}</h3>
-          <ul className="space-y-2">{quickNav.map((l) => <li key={l.href}><Link to={l.href} className="hover:text-white">{t(l.label)}</Link></li>)}</ul>
+          <ul className="space-y-2 lg:flex lg:flex-1 lg:flex-col lg:justify-between">{quickNav.map((l) => <li key={l.href}><Link to={l.href} className="hover:text-white">{t(l.label)}</Link></li>)}</ul>
         </div>
-        <div>
+        <div className="flex flex-col">
           <h3 className="mb-3 font-semibold text-white">{t("Field Office & Contact")}</h3>
-          <p>{site.address}</p>
-          <p className="mt-2"><a href={site.phoneHref} className="hover:text-white">Phone: {site.phone}</a></p>
-          <p><a href={`mailto:${site.email}`} className="hover:text-white">Email: {site.email}</a></p>
-          <p className="mt-2">Registered Office: {site.registeredOffice}</p>
-          <p className="mt-2">Office Hours: {site.officeHours}</p>
-          <p className="mt-2">Chairman: {site.chairman} · Fax: {site.fax}</p>
+          {/* the spare height is shared equally between the four blocks, so the last one still ends on the bottom line */}
+          <div className="flex flex-1 flex-col gap-2 lg:justify-between">
+            <p>{site.address}</p>
+            <div>
+              <p><a href={site.phoneHref} className="hover:text-white">Phone: {site.phone}</a></p>
+              <p><a href={`mailto:${site.email}`} className="hover:text-white">Email: {site.email}</a></p>
+            </div>
+            <p>Office Hours: {site.officeHours}</p>
+            <p>Chairman: {site.chairman} · Fax: {site.fax}</p>
+          </div>
         </div>
-        <div>
+        <div className="flex flex-col">
           <h3 className="mb-3 font-semibold text-white">{t("Field Updates Newsletter")}</h3>
           <p>Receive monthly impact reports, field stories, and upcoming drive announcements.</p>
-          <form onSubmit={submit} noValidate className="mt-3 space-y-2">
+          <form onSubmit={submit} noValidate className="mt-3 flex flex-1 flex-col gap-2">
             <label htmlFor="nl-email" className="text-xs">Email</label>
             <input id="nl-email" type="email" required value={email} onChange={(e) => { setEmail(e.target.value); if (emailErr) setEmailErr(""); }} aria-invalid={!!emailErr || state === "invalid"} aria-describedby={emailErr ? "nl-email-err" : undefined} autoComplete="email" placeholder="you@example.com"
               className="w-full rounded-md bg-white/10 px-3 py-2.5 text-white placeholder-white/50" />
             {emailErr && <p id="nl-email-err" className="text-xs text-red-300">{emailErr}</p>}
-            <button className="btn btn-primary w-full disabled:opacity-60" type="submit" disabled={state === "sending"}>{state === "sending" ? "Subscribing..." : t("Subscribe to Updates")}</button>
-            <div role="status" aria-live="polite" className="text-xs">
+            <button className="btn btn-primary w-full disabled:opacity-60 lg:mt-auto" type="submit" disabled={state === "sending"}>{state === "sending" ? "Subscribing..." : t("Subscribe to Updates")}</button>
+            <div role="status" aria-live="polite" className="text-xs empty:hidden">
               {state === "sent" && <p className="text-green-300">Thank you for subscribing to our updates!</p>}
               {state === "already" && <p className="text-green-300">You are already subscribed to our updates.</p>}
               {state === "mailto" && <p className="text-green-300">Your email app should open. Press Send to finish.</p>}

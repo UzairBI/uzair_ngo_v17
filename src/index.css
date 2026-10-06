@@ -130,6 +130,8 @@ body { @apply font-sans text-ink bg-white antialiased; }
   .eyebrow { @apply text-xs font-semibold uppercase tracking-widest text-brand; }
   .h2 { @apply font-serif text-2xl sm:text-3xl md:text-4xl font-bold leading-tight; }
   .container-site { @apply mx-auto w-full max-w-site px-4 md:px-6; }
+  /* body paragraphs: both edges straight, the full width of their box; long words break with a hyphen instead of leaving wide gaps */
+  .justified { text-align: justify; hyphens: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .btn, .btn:hover, .btn:active, .btn [aria-hidden="true"] { transition: none; transform: none; }

@@ -30,6 +30,8 @@ export const site = {
   registeredOffice: "333/4, Ram Nagari, Ward No. 5, Rehli - 470227, District Sagar, Madhya Pradesh, India",
   /** Public Razorpay donation page (used as a fallback until the checkout key is configured). */
   razorpayMe: "https://razorpay.me/@saharajankalyansamiti",
+  /** Razorpay subscription link for monthly donations. Empty = the monthly option opens the normal donation page above. */
+  razorpayMonthly: "",
   social: {
     facebook: "https://www.facebook.com/profile.php?id=61550890041187",
     instagram: "https://www.instagram.com/sahara_rehli/",

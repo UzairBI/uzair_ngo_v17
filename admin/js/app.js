@@ -13,13 +13,15 @@ import annualReports from "./annualreports.js";
 import awards from "./awards.js";
 import broadcast from "./broadcast.js";
 import admins from "./admins.js";
+import pageContent from "./pagecontent.js";
+import { langSwitch } from "./lang.js";
 import { adminPhotoUrl } from "./data.js";
 
 // [label, page, badge key from Supabase dashboard query]
 const pages = {
   dashboard: ["Dashboard", dashboard], reports: ["Analytics", reports], projects: ["Projects", projects],
   donations: ["Donations", donations], volunteers: ["Team & Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter],
-  requests: ["Document requests", requests], events: ["Events", events], videos: ["Video Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], broadcast: ["Broadcast", broadcast],
+  requests: ["Document requests", requests], events: ["Events", events], videos: ["Video Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], pagecontent: ["Website Pages", pageContent], broadcast: ["Broadcast", broadcast],
   admins: ["Admins & activity", admins]
 };
 const app = document.getElementById("app");
@@ -33,7 +35,7 @@ function loginView(authError = null) {
     e.preventDefault(); btn.disabled = true; btn.textContent = "Signing in…";
     const ok = await run(box, () => signIn(email.value, pw.value));
     btn.disabled = false; btn.textContent = "Sign in"; pw.value = ""; if (ok) start();
-  } }, h("h1", null, "Admin sign in"), authError ? msg("err", authError) : box, field("Email", email), field("Password", pw), btn, h("p", { class: "mut" }, "Powered by Supabase Auth"));
+  } }, h("h1", null, "Admin sign in"), authError ? msg("err", authError) : box, field("Email", email), field("Password", pw), btn, h("p", { class: "mut" }, "Powered by Supabase Auth"), langSwitch());
   app.replaceChildren(h("div", { class: "login" }, form));
   email.focus();
 }
@@ -65,7 +67,7 @@ async function start() {
   const nav = h("nav", { class: "side", "aria-label": "Admin" }, h("div", { class: "side-top" }, h("a", { href: "#/dashboard", class: "brand" }, h("img", { src: "/assets/images/logo.png", alt: "", onerror: (e) => e.target.remove() }), h("b", null, "NGO Admin")), toggle), menu,
     h("div", { class: "side-card" }, h("img", { src: "/assets/images/field-9.jpg", alt: "", onerror: (e) => e.target.remove() }), h("strong", null, "Creating Brighter Futures"), h("span", null, "Your work helps empower communities.")));
   const crumb = h("span", { class: "crumb" });
-  const topbar = h("header", { class: "topbar" }, crumb, h("div", { class: "grow" }), h("div", { class: "who" }, (me.photo_path ? h("img", { class: "avatar", alt: "", src: adminPhotoUrl(me.photo_path), onerror: (e) => e.target.replaceWith(h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())) }) : h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())), h("span", null, h("b", null, me.display_name || me.email), h("small", null, me.role === "admin" ? "Administrator" : me.role === "editor" ? "Editor" : "Viewer"))));
+  const topbar = h("header", { class: "topbar" }, crumb, h("div", { class: "grow" }), langSwitch(), h("div", { class: "who" }, (me.photo_path ? h("img", { class: "avatar", alt: "", src: adminPhotoUrl(me.photo_path), onerror: (e) => e.target.replaceWith(h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())) }) : h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())), h("span", null, h("b", null, me.display_name || me.email), h("small", null, me.role === "admin" ? "Administrator" : me.role === "editor" ? "Editor" : "Viewer"))));
   app.replaceChildren(h("div", { class: "shell" }, nav, h("div", { class: "content" }, topbar, main)));
 
   // "needs attention" counters next to the menu items - fetch from Supabase

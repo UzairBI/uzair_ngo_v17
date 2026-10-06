@@ -73,6 +73,7 @@ export const hi: Record<string, string> = {
   "More testimonials": "और प्रशंसापत्र", "people reached through our programmes": "हमारे कार्यक्रमों से लाभान्वित लोग",
   "Read more stories": "और कहानियाँ पढ़ें", "Support our work": "हमारे कार्य में सहयोग करें",
   // Donate page
+  "Monthly donation": "मासिक दान", "Give every month and support our work all year.": "हर महीने दान करें और पूरे साल हमारे कार्य में सहयोग दें।", "Donate Monthly": "मासिक दान करें",
   "Make a Donation": "दान करें", "Donation amount": "दान राशि", "Other": "अन्य",
   "Every donation, no matter how big or small, makes a significant difference to our cause. Thank you for doing your part to help.": "हर दान, चाहे बड़ा हो या छोटा, हमारे कार्य में बड़ा बदलाव लाता है। सहयोग के लिए धन्यवाद।",
   "Every child deserves a chance to learn, grow and dream.": "हर बच्चे को सीखने, बढ़ने और सपने देखने का अवसर मिलना चाहिए।",
