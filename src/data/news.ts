@@ -40,5 +40,23 @@ export const posts: Post[] = [
       "Self-Help Groups (SHGs) give women a way to save together and support each other, and our financial literacy workshops teach practical money-management and income-generation skills.",
       "Women who joined the programme describe gaining confidence and greater family security. You can support this work by sponsoring a woman's training."
     ]
+  },
+  {
+    slug: "rural-health-checkup-camps", title: "Taking health care to the village doorstep", date: "2026-09-30", category: "Health & Nutrition", image: "field-6.jpg",
+    excerpt: "Free health check-up camps, maternal care and basic nutrition kits for families in remote villages.",
+    body: [
+      "For many families in remote villages, the nearest doctor is far away and a visit means a lost day's wages. Our Rural Health Checkup Camps bring basic care to the village itself.",
+      "At each camp, families receive a free check-up and guidance, with referral where further treatment is needed. We also run preventative awareness drives and give support to mothers and children, including basic nutrition kits.",
+      "You can help us reach more villages by supporting our health programme from the Donate page, or by volunteering at a camp through the Get Involved page."
+    ]
+  },
+  {
+    slug: "relief-drives-blankets-and-ration", title: "Warmth and food for families in need: our relief drives", date: "2026-09-30", category: "Social Relief", image: "field-1.jpg",
+    excerpt: "Seasonal blanket and clothing drives, ration kits for senior citizens and emergency relief for families in hardship.",
+    body: [
+      "When winter arrives or a crisis strikes, the families with the least are hit first. Our relief work responds with seasonal blanket and clothing drives, ration kits for senior citizens and community food drives.",
+      "Each drive is planned with local volunteers, so help reaches the people who need it most, and we keep a record of what was given and where.",
+      "Donations of funds, clothing or time all make a difference. Write to us from the Get Involved page to join the next drive."
+    ]
   }
 ];

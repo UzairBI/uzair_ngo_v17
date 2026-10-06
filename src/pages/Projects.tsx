@@ -102,11 +102,11 @@ export default function Projects() {
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {list.map((p) => (
-            <article key={p.no} className="rounded-2xl border bg-white p-5">
+            <article key={p.no} className="flex flex-col rounded-2xl border bg-white p-5 md:[&:last-child:nth-child(odd)]:col-span-2 md:[&:last-child:nth-child(odd)]:w-[calc(50%-0.5rem)] md:[&:last-child:nth-child(odd)]:justify-self-center">
               <p className="eyebrow">{String(p.no).padStart(2, "0")} · {areaLabel(p.area)}{p.period ? ` · ${p.period}` : ""}</p>
               <h3 className="mt-1 font-serif text-lg font-bold">{p.name}</h3>
               <p className="justified mt-2 text-sm text-ink/70">{p.summary}</p>
-              <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+              <dl className="mt-auto grid pt-3 grid-cols-2 gap-x-4 gap-y-2 text-xs">
                 <div><dt className="text-ink/50">Location</dt><dd className="font-medium">{p.location}</dd></div>
                 <div><dt className="text-ink/50">Reach</dt><dd className="font-medium">{p.beneficiaries}</dd></div>
                 <div><dt className="text-ink/50">Budget</dt><dd className="font-medium">{p.budget}</dd></div>

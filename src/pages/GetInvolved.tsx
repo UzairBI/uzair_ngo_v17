@@ -3,6 +3,7 @@ import { usePageText } from "../hooks/usePageText";
 import { useLang } from "../i18n/LangContext";
 import PageHero from "../components/PageHero";
 import SmartForm from "../components/SmartForm";
+import { Steps, Highlights, Faq } from "../components/InfoBlocks";
 export default function GetInvolved() {
   const { t } = useLang();
   const c = usePageText();
@@ -10,6 +11,8 @@ export default function GetInvolved() {
   return (
     <>
       <PageHero eyebrow={t("Get Involved")} title={c("involved.hero.title")} text={c("involved.hero.text")} />
+      <Steps eyebrow="How it works" title="From first hello to your first field day" intro="Getting involved is simple. Here is what to expect once you reach out."
+        steps={[["Reach out", "Fill in the volunteer or CSR form below, or call or WhatsApp our team."], ["We connect", "A team member contacts you to understand your interests, skills and availability."], ["Get matched", "You are matched to a programme: education, health camps, women's livelihoods, environment or relief."], ["Make a difference", "Join field activity with our team and see the work first-hand."]]} />
       <section className="container-site grid gap-8 py-16 lg:grid-cols-2">
         <div id="volunteer" className="rounded-2xl border p-6">
           <h2 className="font-serif text-2xl font-bold">{c("involved.volunteer.title")}</h2>
@@ -27,6 +30,9 @@ export default function GetInvolved() {
               { name: "phone", label: "Phone", type: "tel", placeholder: "98765 43210 (optional)" }, { name: "message", label: "How would you like to partner?", type: "textarea", placeholder: "Tell us about your CSR focus area or budget (optional)" }]} />
         </div>
       </section>
+      <Highlights eyebrow="Ways to contribute" title="There is a role for everyone"
+        items={[["Give your time", "Support learning centres, health camps, plantation drives and relief distribution."], ["Share a skill", "Teaching, medical help, design, photography, accounts or digital support are all welcome."], ["Partner as a company", "Co-create a CSR project with defined goals, field reporting and documentation."], ["Sponsor a cause", "Sponsor a child's education, a tree drive or a family kit."], ["Spread the word", "Follow us on social media and share our stories with your network."], ["Support from anywhere", "Donations and skill-based help do not need you to be in Sagar."]]} />
+      <Faq items={[["Do I need prior experience to volunteer?", "No. Most field activities need willingness and time. Our team guides you on the day."], ["Can students volunteer?", "Yes. Students and young professionals are welcome. Contact us with your availability."], ["Is the Samiti eligible for CSR funding?", "Yes. We hold CSR-1 registration along with 12A, 80G and FCRA, listed above. Certificates are shared on request."], ["How soon will someone contact me?", "We aim to reply within a few working days. For something urgent, call or WhatsApp us."]]} />
     </>
   );
 }
