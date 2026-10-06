@@ -1,6 +1,3 @@
-import { Link } from "react-router-dom";
-import { ways, csrReadiness } from "../data/content";
-import { reg12A, reg80G, fcraReg, darpanId, legalIds } from "../data/site";
 import { useTitle } from "../hooks/useTitle";
 import { usePageText } from "../hooks/usePageText";
 import { useLang } from "../i18n/LangContext";
@@ -13,27 +10,6 @@ export default function GetInvolved() {
   return (
     <>
       <PageHero eyebrow={t("Get Involved")} title={c("involved.hero.title")} text={c("involved.hero.text")} />
-      <section className="container-site grid gap-5 py-16 sm:grid-cols-2 lg:grid-cols-4">
-        {ways.map((w, i) => <Link key={w.title} to={w.href} className="flex flex-col rounded-2xl border p-6 hover:shadow-lg"><h2 className="font-serif text-lg font-bold text-brand-dark">{c(`involved.way.${i + 1}.title`)}</h2><p className="justified mt-2 text-sm text-ink/70">{c(`involved.way.${i + 1}.text`)}</p><span className="mt-auto inline-block pt-3 text-sm font-semibold text-brand">{w.cta} →</span></Link>)}
-      </section>
-      <section id="csr-readiness" className="bg-brand-light py-14">
-        <div className="container-site">
-          <p className="eyebrow">{t("CSR & Donor Readiness")}</p>
-          <h2 className="h2 mt-2">{c("involved.csr.title")}</h2>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[["12A", reg12A.value], ["80G", reg80G.value], ["FCRA", fcraReg.value], ["CSR-1", legalIds.find((l) => l.title.startsWith("CSR"))!.value], ["NGO Darpan", darpanId], ["UEI (SAM.gov)", legalIds.find((l) => l.title.startsWith("Unique"))!.value]].map(([k, v]) => (
-              <div key={k} className="rounded-xl bg-white px-4 py-3"><p className="text-xs text-ink/60">{k}</p><p className="break-all font-mono text-sm font-semibold text-brand-dark">{v}</p></div>
-            ))}
-          </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {csrReadiness.map(([k], i) => <div key={k} className="rounded-2xl bg-white p-5"><h3 className="font-semibold">{c(`involved.csr.${i + 1}.title`)}</h3><p className="justified mt-1 text-sm text-ink/70">{c(`involved.csr.${i + 1}.text`)}</p></div>)}
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/transparency?request=certificate#request" className="btn btn-brand">View registrations &amp; certificates</Link>
-            <a href="/documents/SJKS-Impact-Report-2004-2025.pdf" target="_blank" rel="noreferrer" className="btn border-2 border-brand text-brand">Impact Report 2004–2025 (PDF)</a>
-          </div>
-        </div>
-      </section>
       <section className="container-site grid gap-8 py-16 lg:grid-cols-2">
         <div id="volunteer" className="rounded-2xl border p-6">
           <h2 className="font-serif text-2xl font-bold">{c("involved.volunteer.title")}</h2>

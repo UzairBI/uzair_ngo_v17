@@ -1,4 +1,4 @@
-import { projects, values, mission, thematicAreas, ways, csrReadiness } from "./content";
+import { projects, values, mission, thematicAreas, ways } from "./content";
 import { site } from "./site";
 import { legalDocs, type LegalKind } from "./legal";
 
@@ -108,14 +108,10 @@ add("Transparency & Reports", [
 add("Get Involved", [
   ["involved.hero.title", "Banner heading", "Volunteer & CSR Partnerships"],
   ["involved.hero.text", "Banner text", "Whether you donate, volunteer, partner via corporate CSR, or sponsor a cause, your involvement reaches lives directly."],
-  // also shown on the Home page
+  // the four "ways to help" boxes on the Home page
   ...ways.flatMap((w, i): [string, string, string][] => [
     [`involved.way.${i + 1}.title`, `Way to help ${i + 1}: name`, w.title],
     [`involved.way.${i + 1}.text`, `Way to help ${i + 1}: text`, w.text]]),
-  ["involved.csr.title", "CSR readiness: heading", "Compliance-ready for corporate, foundation and international partners"],
-  ...csrReadiness.flatMap(([title, text], i): [string, string, string][] => [
-    [`involved.csr.${i + 1}.title`, `CSR readiness ${i + 1}: name`, title],
-    [`involved.csr.${i + 1}.text`, `CSR readiness ${i + 1}: text`, text]]),
   ["involved.volunteer.title", "Volunteer form: heading", "Volunteer with us"],
   ["involved.volunteer.text", "Volunteer form: text", "Tell us how you would like to help and our team will contact you."],
   ["involved.enquiry.title", "CSR form: heading", "Corporate CSR enquiry"],
