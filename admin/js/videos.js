@@ -1,5 +1,6 @@
 import { getVideos, createVideo, updateVideo, deleteVideo } from "./data.js";
 import { h, fmtDate, field, modal, tag, dataTable, confirmDialog, toast, busy, validate, rules } from "./ui.js";
+import photosPane from "./photos.js";
 
 /** The 11-character video id from any YouTube link (watch, youtu.be, shorts, embed, live) or the id itself. Null when it is not one. */
 export function youtubeId(input) {
@@ -47,8 +48,8 @@ function form(v, reload) {
   const close = modal(v.id ? "Edit video" : "Add video", f); show();
 }
 
-export default async () => {
-  const wrap = h("div");
+/** The "Videos" tab of the Media & Gallery page. `onCount(n)` is told how many videos there are. */
+function videosPane(onCount) {
   const list = dataTable({
     columns: [
       { label: "Order", cell: (r) => r.n, sort: (r) => r.n, cls: "num" },
@@ -64,10 +65,24 @@ export default async () => {
   });
   async function load() {
     list.loading();
-    try { list.set((await getVideos()).map((r, i) => ({ ...r, n: i + 1 }))); }
+    try { const rows = await getVideos(); list.set(rows.map((r, i) => ({ ...r, n: i + 1 }))); onCount?.(rows.length); }
     catch (e) { list.error(e.code === "PGRST205" ? "The video table does not exist yet. Run supabase/migrations/20250106000000_gallery_videos.sql in the Supabase SQL Editor." : e.message); }
   }
-  wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Video Gallery"),
-    h("p", { class: "mut" }, "YouTube videos shown on the website under Media & Gallery. They appear left to right in this order; a new video goes after the last one. Click a video to edit or remove it."))), list.el);
-  await load(); return wrap;
+  load();
+  return h("div", null,
+    h("p", { class: "mut" }, "YouTube videos shown on the website under Media & Gallery. They appear left to right in this order; a new video goes after the last one. Click a video to edit or remove it."),
+    list.el);
+}
+
+// Media & Gallery: two tabs, the videos and the photos of the website's Media & Gallery page.
+export default async () => {
+  const count = (k, n) => (tabs.querySelector(`[data-t=${k}] .count`).textContent = n);
+  const body = h("div");
+  const tabs = h("div", { class: "tabs", role: "tablist" }, [["videos", "Videos"], ["photos", "Photos"]].map(([k, l]) =>
+    h("button", { type: "button", role: "tab", "data-t": k, class: "tab", onclick: () => show(k) }, l, " ", h("span", { class: "count" }, "…"))));
+  const panes = { videos: videosPane((n) => count("videos", n)), photos: photosPane((n) => count("photos", n)) };
+  const show = (k) => { tabs.querySelectorAll(".tab").forEach((t) => { const on = t.dataset.t === k; t.classList.toggle("on", on); t.setAttribute("aria-selected", String(on)); }); body.replaceChildren(panes[k]); };
+  show("videos");
+  return h("div", null, h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Media & Gallery"),
+    h("p", { class: "mut" }, "The videos and photos shown on the website Media & Gallery page."))), tabs, body);
 };

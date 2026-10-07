@@ -255,6 +255,54 @@ export async function deleteTeamMember(id) {
   if (error) throw error;
 }
 
+// Messages sent through the website Contact Us form (table form_submissions, kind "contact"), newest first.
+export async function getContactMessages(limit = 8) {
+  const { data, error, count } = await supabase.from("form_submissions").select("id, created_at, name, email, phone, message, status", { count: "exact" })
+    .eq("kind", "contact").order("created_at", { ascending: false }).order("id", { ascending: false }).limit(limit);
+  if (error) throw error;
+  return { rows: data || [], total: count || 0 };
+}
+/** Every contact message (for the Excel export), fetched 1,000 at a time. */
+export async function getAllContactMessages() {
+  const all = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase.from("form_submissions").select("created_at, name, email, phone, message, status")
+      .eq("kind", "contact").order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, from + 999);
+    if (error) throw error;
+    all.push(...(data || []));
+    if (!data || data.length < 1000) return all;
+  }
+}
+export async function deleteContactMessage(id) {
+  const { data, error } = await supabase.from("form_submissions").delete().eq("id", id).eq("kind", "contact").select("id");
+  if (error) throw error;
+  // nothing came back = the database did not let this admin delete it (the delete rule has not been added yet)
+  if (!data || !data.length) throw new Error("The message could not be deleted. Run supabase/migrations/20250118000000_contact_messages_delete.sql in the Supabase SQL Editor, then try again.");
+}
+/** status: "new" (not answered yet), "contacted" or "closed". */
+export async function setContactMessageStatus(id, status) {
+  const { error } = await supabase.from("form_submissions").update({ status }).eq("id", id).eq("kind", "contact");
+  if (error) throw error;
+}
+
+// Website page text (Website Pages). One row per text an admin has changed; the originals live in src/data/pageContent.ts.
+export async function getPageContent() {
+  const { data, error } = await supabase.from("page_content").select("key, value, updated_at");
+  if (error) throw error;
+  return data || [];
+}
+/** `changed` = [{ key, value }] to save; `reset` = keys that go back to their original wording. */
+export async function savePageContent(changed, reset) {
+  if (changed.length) {
+    const { error } = await supabase.from("page_content").upsert(changed, { onConflict: "key" });
+    if (error) throw error;
+  }
+  if (reset.length) {
+    const { error } = await supabase.from("page_content").delete().in("key", reset);
+    if (error) throw error;
+  }
+}
+
 // Newsletter subscribers: searched, filtered and paged in the database (the list can grow far past one page of rows).
 const subscriberQuery = ({ q, status }, cols, opts) => {
   const query = supabase.from("newsletter_subscribers").select(cols, opts);
@@ -321,7 +369,10 @@ export async function getAnnualReports() {
   if (error) throw error;
   return data || [];
 }
-const reportError = (error) => (error.code === "23505" ? new Error("That financial year already has a box.") : error);
+const reportError = (error) => (error.code === "23505" ? new Error("Another box already has this name. Use a different name.")
+  // the database still has the old rule that only accepts names like 2004-05
+  : error.code === "23514" && /fy_check/.test(error.message || "") ? new Error("The database still only accepts names like 2004-05. Run supabase/migrations/20250117000000_annual_reports_free_names.sql in the Supabase SQL Editor, then save again.")
+  : error);
 export async function createAnnualReport(data) {
   const { data: result, error } = await supabase.from("annual_reports").insert([data]).select().single();
   if (error) throw reportError(error);
@@ -339,13 +390,46 @@ export async function deleteAnnualReport(r) {
 }
 /** Uploads a PDF and returns where it is: { file_url, storage_path }. */
 export async function uploadAnnualReportFile(fy, file) {
-  const path = `${fy}/${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
+  // the box name is free text, so only its letters, digits, dots and dashes go into the folder name
+  const path = `${fy.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^[-.]+|[-.]+$/g, "") || "report"}/${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
   const { error } = await supabase.storage.from("annual-reports").upload(path, file, { contentType: "application/pdf" });
   if (error) throw error;
   return { file_url: supabase.storage.from("annual-reports").getPublicUrl(path).data.publicUrl, storage_path: path };
 }
 export async function removeAnnualReportFile(path) {
   if (path) await supabase.storage.from("annual-reports").remove([path]);
+}
+
+// Photo Gallery (website Media & Gallery -> Photo Gallery): photos added in the admin panel, newest first.
+export async function getGalleryPhotos() {
+  const { data, error } = await supabase.from("gallery_photos").select("*").order("created_at", { ascending: false }).order("id", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+export async function createGalleryPhoto(data) {
+  const { data: result, error } = await supabase.from("gallery_photos").insert([data]).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function updateGalleryPhoto(id, data) {
+  const { data: result, error } = await supabase.from("gallery_photos").update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function deleteGalleryPhoto(r) {
+  const { error } = await supabase.from("gallery_photos").delete().eq("id", r.id);
+  if (error) throw error;
+  if (r.storage_path) await supabase.storage.from("gallery-photos").remove([r.storage_path]);
+}
+/** Uploads one photo and returns where it is: { image_url, storage_path }. */
+export async function uploadGalleryPhoto(file) {
+  const path = `${new Date().getFullYear()}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-").slice(-60)}`;
+  const { error } = await supabase.storage.from("gallery-photos").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return { image_url: supabase.storage.from("gallery-photos").getPublicUrl(path).data.publicUrl, storage_path: path };
+}
+export async function removeGalleryPhotoFile(path) {
+  if (path) await supabase.storage.from("gallery-photos").remove([path]);
 }
 
 // Awards & Recognition (website About Us -> Awards & Recognition). Listed in website order: sort_order, then newest first.
@@ -378,6 +462,40 @@ export async function uploadAwardCertificate(file) {
 }
 export async function removeAwardCertificate(path) {
   if (path) await supabase.storage.from("award-certificates").remove([path]);
+}
+
+// Blog (website Blog -> /blog). Listed as on the website: newest date first.
+export async function getBlogPosts() {
+  const { data, error } = await supabase.from("blog_posts").select("*").order("published_on", { ascending: false }).order("id", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+const blogError = (error) => (error.code === "23505" ? new Error("Another post already uses this web address. Change the address (the part after /blog/).") : error);
+export async function createBlogPost(data) {
+  const { data: result, error } = await supabase.from("blog_posts").insert([data]).select().single();
+  if (error) throw blogError(error);
+  return result;
+}
+export async function updateBlogPost(id, data) {
+  const { data: result, error } = await supabase.from("blog_posts").update(data).eq("id", id).select().single();
+  if (error) throw blogError(error);
+  return result;
+}
+export async function deleteBlogPost(r) {
+  const { error } = await supabase.from("blog_posts").delete().eq("id", r.id);
+  if (error) throw error;
+  await removeBlogImages([r.cover_path, r.photo_path]);
+}
+/** Uploads one photo of a post and returns where it is: { url, path }. */
+export async function uploadBlogImage(file) {
+  const path = `${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
+  const { error } = await supabase.storage.from("blog-images").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return { url: supabase.storage.from("blog-images").getPublicUrl(path).data.publicUrl, path };
+}
+export async function removeBlogImages(paths) {
+  const list = paths.filter(Boolean);
+  if (list.length) await supabase.storage.from("blog-images").remove(list);
 }
 
 export async function getDocumentRequests(status = null) {
@@ -433,6 +551,21 @@ export async function getEvents(published = null) {
   const { data, error } = await query.order("event_date", { ascending: false });
   if (error) throw error;
   return (data || []).map((e) => ({ ...e, images: (e.event_images || []).sort((a, b) => a.position - b.position) }));
+}
+/**
+ * Events written in the website file public/data/live.json (the default sample event lives there), in the same shape as
+ * the database rows plus `file: true`. They cannot be edited here; `fileImages` are their photo addresses.
+ * An event marked "sample" in the file shows on the development site only and is hidden on the live site.
+ */
+export async function getFileEvents() {
+  try {
+    const r = await fetch("/data/live.json", { cache: "no-store" });
+    const j = r.ok ? await r.json() : {};
+    return (Array.isArray(j.events) ? j.events : []).map((e) => ({
+      file: true, id: `file:${e.id}`, title: e.title || "", event_date: e.date || "", event_time: e.time || "", place: e.place || "", description: e.text || "",
+      sample: !!e.sample, published: !e.sample, images: [], fileImages: Array.isArray(e.images) ? e.images : []
+    }));
+  } catch { return []; }
 }
 export async function getEvent(id) {
   const { data, error } = await supabase.from("events").select("*, event_images(*)").eq("id", id).single();

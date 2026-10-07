@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { site } from "../data/site";
 import { useTitle } from "../hooks/useTitle";
+import { usePageText } from "../hooks/usePageText";
 import { useLang } from "../i18n/LangContext";
 import Wave from "../components/Wave";
 import BackgroundSlideshow from "../components/BackgroundSlideshow";
@@ -31,7 +32,9 @@ const methods: { label: string; sub: string; svg: ReactNode }[] = [
 
 export default function Donate() {
   const { t } = useLang();
+  const c = usePageText();
   useTitle("Donate");
+  const [monthly, setMonthly] = useState(false);
 
   return (
     <>
@@ -60,13 +63,14 @@ export default function Donate() {
           <path d="M210 10C270 40 310 120 290 200C270 280 190 340 110 330C30 320-10 250 10 180C30 110 60 60 110 30C150 6 180-4 210 10Z" opacity=".9" />
         </svg>
 
-        <div className="w-full max-w-xl">
-          <div className="rounded-2xl bg-white p-5 shadow-xl shadow-brand-dark/10 sm:p-6 md:p-10 lg:p-8">
-            <h1 id="donate-title" className="font-serif text-3xl font-bold leading-tight text-ink sm:text-4xl">{t("Make a Donation")}</h1>
-            <p className="mt-3 text-sm text-ink/70">{t("Every donation, no matter how big or small, makes a significant difference to our cause. Thank you for doing your part to help.")}</p>
+        {/* on large screens the card stretches down the panel, ending about level with the middle of the blue shape */}
+        <div className="flex w-full max-w-xl flex-col">
+          <div className="flex flex-col rounded-2xl bg-white p-5 shadow-xl shadow-brand-dark/10 sm:p-6 md:p-10 lg:flex-1 lg:p-8">
+            <h1 id="donate-title" className="font-serif text-3xl font-bold leading-tight text-ink sm:text-4xl">{c("donate.title")}</h1>
+            <p className="justified mt-3 text-sm text-ink/70">{c("donate.text")}</p>
 
             <div className="mt-7 lg:mt-5">
-              <p className="text-sm font-semibold text-ink">{t("Choose how to pay on the next page")}</p>
+              <p className="text-sm font-semibold text-ink">{c("donate.methods.title")}</p>
               <ul className="mt-3 grid grid-cols-2 gap-2">
                 {methods.map((m) => (
                   <li key={m.label} className="flex items-center gap-2 rounded-xl border border-ink/10 bg-white px-2.5 py-2.5 sm:gap-3 sm:px-3">
@@ -77,11 +81,26 @@ export default function Donate() {
               </ul>
             </div>
 
-            <DonateButton href={site.razorpayMe} full size="lg" className="mt-8 lg:mt-6">{t("Donate Now")}</DonateButton>
+            {/* monthly giving: switches the button to the monthly link (site.razorpayMonthly) */}
+            <label className="mb-0 mt-4 flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-ink/10 bg-brand-light/40 px-3 py-3 sm:px-4">
+              <span className="min-w-0 leading-tight">
+                <strong className="block text-sm font-semibold text-ink">{c("donate.monthly.title")}</strong>
+                <span className="text-xs text-ink/60">{c("donate.monthly.text")}</span>
+              </span>
+              <input type="checkbox" role="switch" checked={monthly} onChange={(e) => setMonthly(e.target.checked)} className="peer sr-only" />
+              <span aria-hidden="true" className={`relative block h-7 w-12 shrink-0 rounded-full transition-colors duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-brand peer-focus-visible:ring-offset-2 ${monthly ? "bg-brand" : "bg-ink/20"}`}>
+                <span className={`absolute left-1 top-1 block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${monthly ? "translate-x-5" : ""}`} />
+              </span>
+            </label>
+
+            {/* stays at the bottom of the card when the card is stretched */}
+            <div className="mt-8 lg:mt-auto lg:pt-6">
+            <DonateButton href={monthly && site.razorpayMonthly ? site.razorpayMonthly : site.razorpayMe} full size="lg">{t(monthly ? "Donate Monthly" : "Donate Now")}</DonateButton>
             <p className="mt-3 flex items-start justify-center gap-2 text-center text-xs text-ink/60">
               <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" className="mt-px shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></svg>
-              {t("You enter or confirm your amount on the secure payment page that opens next.")}
+              {c("donate.note")}
             </p>
+            </div>
           </div>
           <p className="mt-5 px-1 text-center text-xs lg:text-left text-ink/65">{t("Your gift supports education, health, women's livelihoods, environment and relief work in the communities we serve.")}</p>
         </div>

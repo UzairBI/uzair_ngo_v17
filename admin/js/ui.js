@@ -84,8 +84,9 @@ export function confirmDialog({ title = "Are you sure?", text = "", ok = "Confir
 
 /** Disables a button and shows `label` while the async `fn` runs; restores it afterwards. */
 export async function busy(btn, fn, label = "Saving…") {
-  const text = btn.textContent; btn.disabled = true; btn.textContent = label; btn.classList.add("is-busy");
-  try { return await fn(); } finally { btn.disabled = false; btn.textContent = text; btn.classList.remove("is-busy"); }
+  // the button's own content is put back afterwards (not re-typed), so it stays in the language it was shown in
+  const kids = [...btn.childNodes]; btn.disabled = true; btn.textContent = label; btn.classList.add("is-busy");
+  try { return await fn(); } finally { btn.disabled = false; btn.replaceChildren(...kids); btn.classList.remove("is-busy"); }
 }
 
 /**

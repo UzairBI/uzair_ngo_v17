@@ -80,7 +80,7 @@ export default function Awards() {
         <div className="container-site">
           <p className="eyebrow">{t("Awards & Recognition")}</p>
           <h2 className="h2 mt-2">{t("Awards, Recognition & Recommendation Letters")}</h2>
-          <p className="mt-2 max-w-3xl text-ink/70">Sahara Jan Kalyan Samiti has been recognized and recommended by government departments, educational institutions, hospitals, financial institutions, and community organizations for its contribution to healthcare, education, women empowerment, community development, and social welfare initiatives.</p>
+          <p className="mt-2 text-ink/70">Sahara Jan Kalyan Samiti has been recognized and recommended by government departments, educational institutions, hospitals, financial institutions, and community organizations for its contribution to healthcare, education, women empowerment, community development, and social welfare initiatives.</p>
 
           <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Show">
             <button type="button" className={chip(group === "all")} aria-pressed={group === "all"} onClick={() => setGroup("all")}>{t("All")} <span className="opacity-70">({all.length})</span></button>

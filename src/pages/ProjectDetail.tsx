@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { projects } from "../data/content";
 import { portfolio } from "../data/portfolio";
 import { useTitle } from "../hooks/useTitle";
+import { usePageText } from "../hooks/usePageText";
 import Img from "../components/Img";
 import PageHero from "../components/PageHero";
 import NotFound from "./NotFound";
@@ -11,7 +12,10 @@ import { focusAreas } from "../data/projectFocus";
 
 export default function ProjectDetail() {
   const { slug } = useParams();
-  const p = projects.find((x) => x.slug === slug);
+  const c = usePageText();
+  const found = projects.find((x) => x.slug === slug);
+  // name and description as edited in the admin panel (Website Pages -> Our Projects)
+  const p = found && { ...found, title: c(`project.${found.slug}.title`), text: c(`project.${found.slug}.text`) };
   useTitle(p?.title, p?.text);
   if (!p) return <NotFound />;
   const d = p.detail;

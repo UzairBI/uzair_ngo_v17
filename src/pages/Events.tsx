@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLiveData, todayLocal, type EventItem } from "../hooks/useLiveData";
 import { useTitle } from "../hooks/useTitle";
+import { usePageText } from "../hooks/usePageText";
 import { useLang } from "../i18n/LangContext";
 import PageHero from "../components/PageHero";
 import SmartForm from "../components/SmartForm";
@@ -40,7 +41,7 @@ function Card({ e, past }: { e: EventItem; past?: boolean }) {
           </div>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="whitespace-pre-line text-sm text-ink/80">{e.text}</p>
+          <p className="justified whitespace-pre-line text-sm text-ink/80">{e.text}</p>
           {hasImages && !isMobile && e.images && e.images.length > 1 && (
             <div className="mt-3 flex flex-wrap gap-2">{e.images.slice(1).map((src) => <img key={src} src={src} alt={`${e.title} photo`} loading="lazy" className="h-24 w-[calc(50%-0.25rem)] rounded-lg object-cover sm:h-28 sm:w-32" />)}</div>
           )}
@@ -60,6 +61,7 @@ function Card({ e, past }: { e: EventItem; past?: boolean }) {
 
 export default function Events() {
   const { t } = useLang();
+  const c = usePageText();
   const { events, loaded } = useLiveData();
   useTitle("Events Calendar");
   const today = todayLocal();
@@ -68,14 +70,14 @@ export default function Events() {
   const past = sorted.filter((e) => e.date < today).reverse();
   return (
     <>
-      <PageHero eyebrow={t("Events")} title={t("Events Calendar")} text="Health camps, plantation drives, learning centre days and more." />
-      <section className="container-site max-w-5xl py-16">
-        <h2 className="h2">{t("Upcoming events")}</h2>
+      <PageHero eyebrow={t("Events")} title={c("events.hero.title")} text={c("events.hero.text")} />
+      <section className="container-site py-16">
+        <h2 className="h2">{c("events.upcoming.title")}</h2>
         <div className="mt-6 space-y-4">
           {upcoming.map((e) => <Card key={e.id} e={e} />)}
-          {loaded && upcoming.length === 0 && <p className="rounded-2xl bg-brand-light p-6 text-ink/80">{t("No upcoming events yet. Verified drives will be listed here as soon as the dates are confirmed.")}</p>}
+          {loaded && upcoming.length === 0 && <p className="justified rounded-2xl bg-brand-light p-6 text-ink/80">{c("events.upcoming.empty")}</p>}
         </div>
-        {past.length > 0 && (<><h2 className="h2 mt-14">{t("Past events")}</h2><div className="mt-6 space-y-4 opacity-80">{past.map((e) => <Card key={e.id} e={e} past />)}</div></>)}
+        {past.length > 0 && (<><h2 className="h2 mt-14">{c("events.past.title")}</h2><div className="mt-6 space-y-4 opacity-80">{past.map((e) => <Card key={e.id} e={e} past />)}</div></>)}
       </section>
       <Steps eyebrow="What to expect" title="Our events, in a few words"
         steps={[["Health camps", "Free check-ups, awareness talks and referrals for families in nearby villages."], ["Learning days", "Activities, books and learning kits for children at our centres."], ["Plantation drives", "Community tree planting with follow-up care for the saplings."], ["Relief and awareness", "Distribution drives and sessions on hygiene, nutrition and rights."]]} />

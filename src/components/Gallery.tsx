@@ -2,7 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Img from "./Img";
 import { useLang } from "../i18n/LangContext";
 
-export interface Photo { file: string; alt: string; cat: string }
+export interface Photo { /** a file in /assets/images/, or a full address starting with / or https:// (photos listed in the admin panel) */ file: string; alt: string; cat: string }
+const isFull = (file: string) => /^(https:\/\/|\/)/.test(file);
+/** Address of a photo: a full address is used as it is, anything else is a file in /assets/images/. */
+const photoSrc = (file: string) => (isFull(file) ? file : `/assets/images/${file}`);
 
 /** Filterable bento photo grid with a full-screen lightbox (arrows, Esc, arrow keys, thumbnail strip, and left / right swipe on touch screens). */
 export default function Gallery({ photos }: { photos: Photo[] }) {

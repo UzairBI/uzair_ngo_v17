@@ -107,7 +107,7 @@ export default function Journey() {
         <div className="container-site max-w-3xl">
           <p className="inline-flex rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest backdrop-blur">{t("The Journey Continues")}</p>
           <h2 className="mt-5 font-[Merriweather,Georgia,serif] text-3xl font-bold leading-tight sm:text-4xl md:text-[2.6rem]">{t("The Journey Continues")}</h2>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/90">{t("2004 was the beginning. Two decades later, the mission remains the same — to stand with communities, empower lives and build a better future.")}</p>
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/90">{t("2004 was the beginning. Two decades later, the mission remains the same: to stand with communities, empower lives and build a better future.")}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <DonateButton to="/donate" size="lg">{t("Support Our Cause")}</DonateButton>
             <Link to="/get-involved" className="btn-light btn-light-lg">{t("Volunteer & CSR Partnerships")} <span aria-hidden="true">→</span></Link>
