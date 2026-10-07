@@ -14,10 +14,13 @@ export function Steps({ eyebrow, title, intro, steps }: { eyebrow: string; title
       <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map(([h, p], i) => (
           <Reveal key={h} delay={i * 80}>
-            <li className="relative h-full rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-ink/5">
-              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-dark to-brand font-bold text-white">{i + 1}</span>
-              <h3 className="mt-4 font-serif text-lg font-bold text-brand-dark">{h}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink/70">{p}</p>
+            <li className="group relative h-full rounded-2xl border border-ink/10 bg-white p-6 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg">
+              {i < steps.length - 1 && <span aria-hidden="true" className="absolute -right-5 top-[3.4rem] hidden h-px w-5 border-t border-dashed border-brand/40 lg:block" />}
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand/10 font-serif text-lg font-bold text-brand-dark ring-4 ring-brand/5 transition duration-300 group-hover:bg-brand group-hover:text-white">{i + 1}</span>
+              <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/40">Step {String(i + 1).padStart(2, "0")}</p>
+              <h3 className="mt-1 font-serif text-lg font-bold text-ink">{h}</h3>
+              <span aria-hidden="true" className="mx-auto mt-3 block h-px w-8 bg-brand/40 transition-all duration-300 group-hover:w-14" />
+              <p className="mt-3 text-sm leading-relaxed text-ink/65">{p}</p>
             </li>
           </Reveal>
         ))}
