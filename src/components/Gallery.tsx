@@ -32,11 +32,8 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
   const cur = open !== null ? list[open] : null;
   return (
     <>
-      <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div className="mt-4 flex flex-col gap-4">
         <p className="max-w-xl text-ink/65 max-md:text-center">Moments from our field work: classrooms, health camps, villages and the people we serve.</p>
-        <p className="inline-flex items-center gap-2 self-center rounded-full bg-brand-light px-4 py-1.5 text-sm font-semibold text-brand-dark md:self-auto">
-          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-brand" />{list.length} {list.length === 1 ? "photo" : "photos"}
-        </p>
       </div>
 
       <div className="-mx-4 mt-6 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
