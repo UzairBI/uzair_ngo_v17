@@ -23,6 +23,7 @@ const partners: { file: string; name: string; url?: string }[] = [
   { file: "Milaap.png", name: "Milaap", url: "https://milaap.org/" },
   { file: "give.do.png", name: "Give.do", url: "https://www.give.do/" },
   { file: "VFS_Global_Logo.png", name: "VFS Global", url: "https://www.vfsglobal.com/" },
+  { file: "google.png", name: "Google", url: "https://www.google.com/" },
   { file: "partner-15.png", name: "Supporter" }
 ];
 
