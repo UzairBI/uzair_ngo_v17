@@ -50,7 +50,8 @@ export default function Projects() {
           {latest.length > 0 ? (
             <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[...latest].sort((x, y) => order(x.status) - order(y.status)).map((p) => (
-                <article key={p.id} className="flex flex-col rounded-2xl border bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                <article key={p.id} className="flex flex-col overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                  {p.image_url && <img src={p.image_url} alt="" loading="lazy" decoding="async" className="-mx-5 -mt-5 mb-4 aspect-[16/10] w-[calc(100%+2.5rem)] max-w-none object-cover" />}
                   <p className="flex flex-wrap items-center gap-2">
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusTone[p.status] ?? statusTone.ongoing}`}>{t(statusLabel[p.status] ?? p.status)}</span>
                     {p.area && <span className="eyebrow">{p.area}</span>}

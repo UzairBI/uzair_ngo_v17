@@ -641,19 +641,32 @@ export async function getProject(id) {
   if (error) throw error;
   return data;
 }
+const PROJECT_PHOTOS_SETUP = "Project photos are not set up yet. Run supabase/migrations/20250122000000_project_photos.sql in the Supabase SQL Editor, then try again.";
+// PGRST204 = the image_url / storage_path columns have not been added yet
+const projectError = (error) => (error.code === "PGRST204" ? new Error(PROJECT_PHOTOS_SETUP) : error);
 export async function createProject(data) {
   const { data: result, error } = await supabase.from("projects").insert([data]).select().single();
-  if (error) throw error;
+  if (error) throw projectError(error);
   return result;
 }
 export async function updateProject(id, data) {
   const { data: result, error } = await supabase.from("projects").update(data).eq("id", id).select().single();
-  if (error) throw error;
+  if (error) throw projectError(error);
   return result;
 }
 export async function deleteProject(id) {
   const { error } = await supabase.from("projects").delete().eq("id", id);
   if (error) throw error;
+}
+/** Uploads a project photo ("project-photos" storage bucket) and returns where it is: { image_url, storage_path }. */
+export async function uploadProjectPhoto(file) {
+  const path = `${Date.now()}-${file.name.replace(/[^A-Za-z0-9._-]+/g, "-")}`;
+  const { error } = await supabase.storage.from("project-photos").upload(path, file, { contentType: file.type });
+  if (error) throw /bucket not found/i.test(error.message) ? new Error(PROJECT_PHOTOS_SETUP) : error;
+  return { image_url: supabase.storage.from("project-photos").getPublicUrl(path).data.publicUrl, storage_path: path };
+}
+export async function removeProjectPhoto(path) {
+  if (path) await supabase.storage.from("project-photos").remove([path]);
 }
 
 export async function getSiteStats() {

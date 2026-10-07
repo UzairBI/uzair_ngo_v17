@@ -72,7 +72,7 @@ export function useLiveData(): Live & { loaded: boolean } {
   return { ...data, loaded };
 }
 
-export interface AdminProject { id: string; name: string; area?: string; location?: string; description?: string; status: string; beneficiaries: number }
+export interface AdminProject { id: string; name: string; area?: string; location?: string; description?: string; status: string; beneficiaries: number; /** photo uploaded in the admin panel */ image_url?: string }
 /** Projects added in the admin panel and marked "show on website". Tries the site's own server first, then Supabase. */
 async function fetchAdminProjects(): Promise<AdminProject[]> {
   try {
@@ -84,9 +84,9 @@ async function fetchAdminProjects(): Promise<AdminProject[]> {
   } catch { /* server not running: fall through to Supabase */ }
   if (!supabaseConfigured || !supabase) return [];
   try {
-    const { data, error } = await supabase.from("projects").select("id, name, area, location, description, status, beneficiaries").eq("published", true).order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("projects").select("*").eq("published", true).order("created_at", { ascending: false });
     if (error || !data) return [];
-    return data.map((p) => ({ ...p, id: String(p.id), area: p.area || undefined, location: p.location || undefined, description: p.description || undefined }));
+    return data.map((p) => ({ ...p, id: String(p.id), area: p.area || undefined, location: p.location || undefined, description: p.description || undefined, image_url: p.image_url || undefined }));
   } catch { return []; }
 }
 /** Projects added in the admin panel and marked "show on website". Empty list if neither source is reachable. */
