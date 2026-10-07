@@ -39,7 +39,7 @@ function StatCard({ s, i, n }: { s: Stat; i: number; n: number }) {
         </span>
       </span>
       <span aria-hidden="true" className="h-4 w-px bg-brand/30" />
-      <div className="relative w-full flex-1 rounded-xl border lg:w-[calc(100%-1rem)] border-ink/10 bg-white px-3 py-4 text-center shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:border-brand/40 group-hover:shadow-lg">
+      <div className="relative w-full flex-1 rounded-xl border lg:w-[calc(100%-1rem)] border-ink/10 bg-white px-3 py-4 text-center shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-lg group-focus-visible:-translate-y-1 group-focus-visible:shadow-lg">
         <p className="flex flex-wrap items-baseline justify-center gap-x-1 font-bold tabular-nums leading-none text-ink">
           <span className="text-2xl sm:text-[1.7rem]"><CountUp stat={num} /></span>
           {unit && <span className="text-xs font-semibold text-brand-dark">{t(unit)}</span>}

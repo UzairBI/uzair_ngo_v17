@@ -230,13 +230,9 @@ button:not(.btn):not(.dbtn):not(.btn-light):not(:disabled):active { transform: s
 .social-icon { transition: transform .25s cubic-bezier(.2,.8,.2,1), background-color .25s, box-shadow .25s; }
 .social-icon:hover, .social-icon:focus-visible { transform: translateY(-4px) scale(1.12); background-color: var(--brand); box-shadow: 0 0 0 3px rgb(255 255 255 / .25), 0 8px 22px -4px var(--brand); }
 
-/* Live impact dashboard cards: grow when the pointer is over them, return to normal when it leaves */
-.impact-card { transition: transform .35s cubic-bezier(.2,.8,.2,1); will-change: transform; }
-.impact-card:hover, .impact-card:focus-visible {
-  transform: scale(1.12) translateY(-4px); z-index: 20;
-}
-.impact-card:active { transform: scale(1.06); }
-@media (prefers-reduced-motion: reduce) { .impact-card, .impact-card:hover, .impact-card:focus-visible { transition: none; transform: none; } }
+/* Live impact dashboard: the figure itself never moves on hover, so the rail joining the icons stays one straight line.
+   Only the icon and the white card react (classes in ImpactShowcase.tsx). No outline when it is clicked or focused. */
+.impact-card:focus, .impact-card:focus-visible { outline: none; }
 
 /* hides the scrollbar on the testimonial slider (still scrolls by swipe, arrows and keyboard) */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
@@ -286,7 +282,6 @@ body { overflow-wrap: break-word; }
 @media (hover: none) {
   .btn:hover, .dbtn:hover, button:not(.btn):not(.dbtn):not(.btn-light):not(:disabled):hover { transform: none; }
   .btn:active, .dbtn:active, button:not(.btn):not(.dbtn):not(.btn-light):not(:disabled):active { transform: scale(.97); }
-  .impact-card:hover { transform: none; }
   .social-icon:hover { transform: none; }
 }
 
