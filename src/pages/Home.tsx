@@ -32,6 +32,14 @@ const usedImages = ["field-3.jpg", "field-6.jpg", "field-9.jpg"];
 const heroImages = homeHeroSlides.map((s) => s.src);
 const heroFocus = Object.fromEntries([homeHeroOpening, ...homeHeroSlides].map((s) => [s.src, s.focus]));
 
+/** Icon + colour for the four "ways to help" cards (Donate, Volunteer, Corporate CSR, Sponsor). */
+const WAY_LOOK: { tone: string; icon: JSX.Element }[] = [
+  { tone: "from-rose-500 to-pink-600", icon: <path d="M12 20s-7-4.400-7-9.600A4 4 0 0112 8a4 4 0 017 2.400C19 15.600 12 20 12 20z" /> },
+  { tone: "from-sky-500 to-blue-600", icon: <><circle cx="9" cy="8" r="3" /><path d="M3 19c0-3 2.700-5 6-5s6 2 6 5" /><path d="M16 5.200a3 3 0 010 5.600M17.500 14.300c2 .6 3.500 2.300 3.500 4.700" /></> },
+  { tone: "from-indigo-500 to-violet-600", icon: <><path d="M4 21V5a1 1 0 011-1h8a1 1 0 011 1v16" /><path d="M14 10h5a1 1 0 011 1v10M2.500 21h19M8 8h2M8 12h2M8 16h2" /></> },
+  { tone: "from-emerald-500 to-green-600", icon: <><rect x="3.500" y="9" width="17" height="5" rx="1" /><path d="M5 14v6h14v-6M12 9v11M12 9c-2.500 0-4-1-4-2.500S9.500 4 12 9zM12 9c2.500 0 4-1 4-2.500S14.500 4 12 9z" /></> }
+];
+
 export default function Home() {
   useTitle(undefined, "Community health, education, women empowerment, tree plantation and disaster relief.");
   const { t } = useLang();
@@ -199,10 +207,19 @@ export default function Home() {
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {ways.map((w, i) => (
               <Reveal key={w.title} delay={i * 90} className="h-full">
-                <Link to={w.href} className="flex h-full flex-col rounded-2xl border p-6 transition hover:-translate-y-1 hover:shadow-lg">
-                  <h3 className="font-serif text-lg font-bold text-brand-dark">{c(`involved.way.${i + 1}.title`)}</h3>
-                  <p className="mt-2 text-sm text-ink/70">{c(`involved.way.${i + 1}.text`)}</p>
-                  <span className="mt-auto inline-block pt-4 text-sm font-semibold text-brand">{w.cta} →</span>
+                <Link to={w.href} className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1.5 hover:border-brand/40 hover:shadow-xl">
+                  <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r ${WAY_LOOK[i % 4].tone} transition-transform duration-300 group-hover:scale-x-100`} />
+                  <span aria-hidden="true" className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${WAY_LOOK[i % 4].tone} opacity-[.08] transition duration-500 group-hover:scale-150 group-hover:opacity-[.16]`} />
+                  <span aria-hidden="true" className={`relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${WAY_LOOK[i % 4].tone} text-white shadow-md transition duration-300 group-hover:-rotate-6 group-hover:scale-110`}>
+                    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{WAY_LOOK[i % 4].icon}</svg>
+                  </span>
+                  <h3 className="relative mt-4 font-serif text-lg font-bold text-ink">{c(`involved.way.${i + 1}.title`)}</h3>
+                  <span aria-hidden="true" className="relative mt-2 block h-px w-8 bg-brand/40 transition-all duration-300 group-hover:w-14" />
+                  <p className="relative mt-3 text-left text-sm leading-relaxed text-ink/65">{c(`involved.way.${i + 1}.text`)}</p>
+                  <span className="relative mt-auto flex items-center justify-between pt-5 text-sm font-semibold text-brand">
+                    {w.cta}
+                    <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 transition duration-300 group-hover:translate-x-1 group-hover:bg-brand group-hover:text-white">→</span>
+                  </span>
                 </Link>
               </Reveal>
             ))}
