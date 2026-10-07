@@ -108,21 +108,30 @@ export default function ProjectDetail() {
         <section className="container-site py-16">
           <p className="eyebrow">Programmes under this area</p>
           <h2 className="h2 mt-2">Our work since 2004</h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {related.map((r) => (
-              <article key={r.no} className="rounded-2xl border p-5">
-                <p className="eyebrow">{r.period ?? "Programme"}</p>
-                <h3 className="mt-1 font-serif text-lg font-bold">{r.name}</h3>
-                <p className="mt-2 text-sm text-ink/70">{r.summary}</p>
-                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-                  <div><dt className="text-ink/50">Location</dt><dd className="font-medium">{r.location}</dd></div>
-                  <div><dt className="text-ink/50">Reach</dt><dd className="font-medium">{r.beneficiaries}</dd></div>
-                  <div><dt className="text-ink/50">Budget</dt><dd className="font-medium">{r.budget}</dd></div>
-                  <div><dt className="text-ink/50">Funding</dt><dd className="font-medium">{r.funding}</dd></div>
-                </dl>
-              </article>
+          <ol className="relative mt-10">
+            <span aria-hidden="true" className="absolute bottom-2 left-[19px] top-2 w-px bg-gradient-to-b from-brand via-brand/40 to-brand/10 md:left-[23px]" />
+            {related.map((r, i) => (
+              <li key={r.no} className="relative pb-8 pl-14 last:pb-0 md:pl-20">
+                <span aria-hidden="true" className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-brand text-sm font-bold text-white shadow-md ring-1 ring-brand/30 md:h-12 md:w-12 md:text-base">{i + 1}</span>
+                <span aria-hidden="true" className="absolute left-10 top-5 hidden h-px w-4 border-t border-dashed border-brand/40 md:left-12 md:block md:w-8" />
+                <article className="group relative overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lg">
+                  <div className="p-5 sm:p-6">
+                    <span className="inline-block rounded-full bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-dark">{r.period ?? "Programme"}</span>
+                    <h3 className="mt-3 font-serif text-lg font-bold leading-snug text-ink sm:text-xl">{r.name}</h3>
+                    <p className="mt-2 text-left text-sm leading-relaxed text-ink/70">{r.summary}</p>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-px border-t border-ink/10 bg-ink/10 text-xs lg:grid-cols-4">
+                    {([["Location", r.location], ["Reach", r.beneficiaries], ["Budget", r.budget], ["Funding", r.funding]] as [string, string][]).map(([k, v]) => (
+                      <div key={k} className="bg-slate-50/80 px-4 py-3 transition-colors group-hover:bg-white sm:px-5">
+                        <dt className="text-[10px] font-semibold uppercase tracking-widest text-ink/45">{k}</dt>
+                        <dd className="mt-0.5 text-left text-[13px] font-semibold leading-snug text-ink">{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </article>
+              </li>
             ))}
-          </div>
+          </ol>
           <p className="mt-6 text-sm"><Link to="/projects#portfolio" className="font-semibold text-brand">See the complete 2004–2025 portfolio →</Link></p>
         </section>
       )}

@@ -18,13 +18,21 @@ import Reveal from "./Reveal";
 
 function Speaker({ item }: { item: Testimonial }) {
   return (
-    <figcaption className="flex items-center gap-3">
-      <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-base font-semibold text-white">{item.initial}</span>
+    <figcaption className="flex items-center gap-3 border-t border-ink/10 pt-5">
+      <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-sky-500 text-base font-semibold text-white ring-4 ring-white shadow-md">{item.initial}</span>
       <span className="min-w-0 text-left">
         <strong className="block text-sm font-semibold leading-snug text-ink">{item.name}</strong>
         <span className="block text-xs leading-snug text-ink/60">{item.program}</span>
       </span>
     </figcaption>
+  );
+}
+
+function QuoteMark({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 32 32" fill="currentColor" className={className}>
+      <path d="M13 6C7.5 8 4 12.5 4 19v7h9v-9H8.5c.2-3 2-5.2 5-6.6L13 6zm15 0c-5.500 2-9 6.500-9 13v7h9v-9h-4.500c.2-3 2-5.200 5-6.600L28 6z" />
+    </svg>
   );
 }
 
@@ -88,12 +96,14 @@ export default function Testimonials() {
           {features.map((f) => {
             const stat = f.statLabel ? stats.find((s) => s.label === f.statLabel) : undefined;
             return (
-              <figure key={f.name} className="flex flex-col justify-between gap-8 rounded-[28px] bg-[#f3f6fa] p-6 sm:min-h-[22rem] sm:gap-10 sm:p-7 md:p-10">
-                <div>
+              <figure key={f.name} className="group relative flex flex-col justify-between gap-8 overflow-hidden rounded-[28px] border border-brand/10 bg-gradient-to-br from-[#eef4fb] via-[#f3f6fa] to-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl sm:min-h-[22rem] sm:gap-10 sm:p-7 md:p-10">
+                <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brand to-sky-400" />
+                <QuoteMark className="pointer-events-none absolute -right-2 top-6 h-24 w-24 text-brand/10 md:h-32 md:w-32" />
+                <div className="relative">
                   {stat && (
                     <>
                       <p className="text-5xl font-semibold leading-none tracking-tight text-brand sm:text-6xl md:text-7xl"><CountUp stat={stat} /></p>
-                      <p className="mt-3 text-sm text-ink/60">{t(stat.label)}</p>
+                      <p className="mt-3 inline-block rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand">{t(stat.label)}</p>
                     </>
                   )}
                   <blockquote className="mt-6 font-quote text-lg italic sm:mt-8 leading-relaxed text-ink/85 md:text-xl">“{f.quote}”</blockquote>
@@ -115,7 +125,9 @@ export default function Testimonials() {
             className="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth"
           >
             {slides.map((s) => (
-              <figure key={s.name} className="flex shrink-0 basis-full snap-start flex-col justify-between gap-8 rounded-3xl border border-ink/10 bg-white p-6 sm:p-7 md:basis-[calc(50%-10px)]">
+              <figure key={s.name} className="relative flex shrink-0 basis-full snap-start flex-col justify-between gap-6 overflow-hidden rounded-3xl border border-ink/10 bg-white p-6 shadow-sm transition duration-300 hover:border-brand/30 hover:shadow-lg sm:p-7 md:basis-[calc(50%-10px)]">
+                <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-brand to-sky-400" />
+                <QuoteMark className="h-8 w-8 text-brand/30" />
                 <blockquote className="font-quote text-base italic leading-relaxed text-ink/85 md:text-lg">“{s.quote}”</blockquote>
                 <Speaker item={s} />
               </figure>

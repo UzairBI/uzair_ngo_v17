@@ -48,40 +48,48 @@ export default function BlogDetail() {
       <PageHero eyebrow={`${t("Blog")} · ${t(p.category)}`} title={p.title} imgClassName="object-[72%_center] md:!left-auto md:!w-auto md:[mask-image:linear-gradient(to_right,transparent,black_38%)]" />
 
       <article className="container-site max-w-3xl py-10 md:py-14">
-        <div className="flex items-center gap-3">
-          <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-lg font-bold text-white">{(p.author || "S").trim()[0].toUpperCase()}</span>
-          <p className="text-sm leading-snug">
-            <span className="block font-semibold text-ink">{p.author || "Sahara Jan Kalyan Samiti"}</span>
-            <span className="text-ink/60">{blogDate(p.published_on)} <span aria-hidden="true">·</span> {readMinutes(p.body)} {t("min read")}</span>
-          </p>
+        {/* byline */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 pb-5">
+          <div className="flex items-center gap-3">
+            <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-lg font-bold text-white ring-4 ring-brand/10">{(p.author || "S").trim()[0].toUpperCase()}</span>
+            <p className="text-sm leading-snug">
+              <span className="block font-semibold text-ink">{p.author || "Sahara Jan Kalyan Samiti"}</span>
+              <span className="text-ink/55">{blogDate(p.published_on)} <span aria-hidden="true">·</span> {readMinutes(p.body)} {t("min read")}</span>
+            </p>
+          </div>
+          <span className="rounded-full bg-brand/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-brand-dark">{t(p.category)}</span>
         </div>
 
-        {cover && <img src={cover} alt="" decoding="async" className="mt-7 aspect-[16/9] w-full rounded-3xl object-cover shadow-[0_24px_50px_-30px_rgba(11,79,156,.6)]" />}
-        {p.excerpt && <p className="mt-8 border-l-4 border-sky pl-5 font-quote text-lg italic leading-relaxed text-ink/80 sm:text-xl">{p.excerpt}</p>}
+        {cover && <img src={cover} alt="" decoding="async" className="mt-7 aspect-[16/9] w-full rounded-2xl object-cover shadow-lg" />}
+        {p.excerpt && <p className="mt-8 rounded-r-xl border-l-4 border-brand bg-brand-light/60 px-5 py-4 text-left text-lg font-medium leading-relaxed text-ink/85 sm:text-xl">{p.excerpt}</p>}
 
-        <div className="mt-8 text-base leading-relaxed text-ink/80 sm:text-lg">
+        <div className="mx-auto mt-8 max-w-[42rem] text-[1.0625rem] leading-[1.85] text-ink/85">
           {blocks.map((b, i) => (
             <div key={i}>
-              {b.kind === "h" ? <h2 className="mb-3 mt-10 font-serif text-xl font-bold text-ink sm:text-2xl">{b.text}</h2>
-                : b.kind === "quote" ? <blockquote className="my-9 rounded-2xl bg-brand-light px-6 py-7 text-center font-quote text-xl italic leading-relaxed text-brand-dark sm:px-10 sm:text-2xl">“{b.text}”</blockquote>
-                : <p className={`mt-5 whitespace-pre-line ${i === firstText ? "first-letter:float-left first-letter:mr-3 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[.85] first-letter:text-brand" : ""}`}>{b.text}</p>}
+              {b.kind === "h" ? <h2 className="mb-3 mt-12 border-l-4 border-brand pl-4 text-left font-serif text-xl font-bold leading-snug text-ink sm:text-2xl">{b.text}</h2>
+                : b.kind === "quote" ? <blockquote className="relative my-10 rounded-2xl border border-brand/15 bg-gradient-to-br from-brand-light to-white px-7 py-8 text-left font-quote text-xl italic leading-relaxed text-brand-dark sm:px-10 sm:text-2xl"><span aria-hidden="true" className="absolute left-5 top-1 font-serif text-6xl leading-none text-brand/25">“</span><span className="relative">{b.text}</span></blockquote>
+                : <p className={`mt-6 whitespace-pre-line text-left ${i === firstText ? "first-letter:float-left first-letter:mr-3 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[.85] first-letter:text-brand" : ""}`}>{b.text}</p>}
               {photo && i === photoAfter && (
-                <figure className="my-9">
+                <figure className="my-10">
                   <img src={photo} alt={p.photo_caption || ""} loading="lazy" decoding="async" className="w-full rounded-2xl object-cover shadow-md" />
-                  {p.photo_caption && <figcaption className="mt-3 text-center text-sm text-ink/60">{p.photo_caption}</figcaption>}
+                  {p.photo_caption && <figcaption className="mt-3 border-l-2 border-brand/40 pl-3 text-left text-sm text-ink/60">{p.photo_caption}</figcaption>}
                 </figure>
               )}
             </div>
           ))}
         </div>
 
-        <div className="mt-10 flex flex-wrap items-center gap-3 border-t pt-6 text-sm">
-          <span className="font-semibold">{t("Share")}:</span>
-          <a className="rounded-full bg-[#25D366] px-4 py-2 font-semibold text-white" target="_blank" rel="noreferrer" href={`https://wa.me/?text=${encodeURIComponent(p.title + " " + url)}`}>WhatsApp</a>
-          <a className="rounded-full bg-[#1877F2] px-4 py-2 font-semibold text-white" target="_blank" rel="noreferrer" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}>Facebook</a>
-          <button type="button" onClick={copy} className="rounded-full border px-4 py-2 font-semibold">{copied ? "Copied ✓" : t("Copy link")}</button>
+        <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-ink/10 pt-6 text-sm">
+          <span className="font-semibold text-ink/70">{t("Share")}:</span>
+          <a className="rounded-full bg-[#25D366] px-4 py-2 font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-md" target="_blank" rel="noreferrer" href={`https://wa.me/?text=${encodeURIComponent(p.title + " " + url)}`}>WhatsApp</a>
+          <a className="rounded-full bg-[#1877F2] px-4 py-2 font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-md" target="_blank" rel="noreferrer" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}>Facebook</a>
+          <button type="button" onClick={copy} className="rounded-full border border-ink/15 px-4 py-2 font-semibold transition hover:border-brand hover:text-brand">{copied ? "Copied ✓" : t("Copy link")}</button>
         </div>
-        <div className="mt-8 flex flex-wrap gap-3"><DonateButton to="/donate">{t("Donate Now")}</DonateButton><Link to="/blog" className="btn btn-brand">← {t("Back to all posts")}</Link></div>
+
+        <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl bg-gradient-to-br from-[#0b2a55] via-[#0d3b7a] to-[#1479d1] p-6 text-center text-white sm:flex-row sm:text-left">
+          <p className="max-w-xs font-serif text-lg font-bold leading-snug">Help us reach more families like these.</p>
+          <div className="flex flex-wrap justify-center gap-3"><DonateButton to="/donate">{t("Donate Now")}</DonateButton><Link to="/blog" className="btn border border-white/40 bg-white/10 text-white hover:bg-white/20">← {t("Back to all posts")}</Link></div>
+        </div>
       </article>
 
       {more.length > 0 && (

@@ -98,23 +98,35 @@ export default function Projects() {
         <div className="mt-6 flex flex-wrap gap-2">
           {(["all", ...core.map((c) => c.slug)] as (Area | "all")[]).map((a) => (
             <button key={a} type="button" aria-pressed={a === area} onClick={() => setArea(a)}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition sm:py-1.5 ${a === area ? "border-brand bg-brand text-white" : "hover:bg-brand-light"}`}>{a === "all" ? t("All") : areaLabel(a)}</button>
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition sm:py-1.5 ${a === area ? "border-brand bg-brand text-white shadow-md shadow-brand/25" : "border-ink/15 bg-white text-ink/75 hover:border-brand/50 hover:bg-brand-light hover:text-brand-dark"}`}>{a === "all" ? t("All") : areaLabel(a)}</button>
           ))}
         </div>
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {list.map((p) => (
-            <article key={p.no} className="flex flex-col rounded-2xl border bg-white p-5 md:[&:last-child:nth-child(odd)]:col-span-2 md:[&:last-child:nth-child(odd)]:w-[calc(50%-0.5rem)] md:[&:last-child:nth-child(odd)]:justify-self-center">
-              <p className="eyebrow">{String(p.no).padStart(2, "0")} · {areaLabel(p.area)}{p.period ? ` · ${p.period}` : ""}</p>
-              <h3 className="mt-1 font-serif text-lg font-bold">{p.name}</h3>
-              <p className="justified mt-2 text-sm text-ink/70">{p.summary}</p>
-              <dl className="mt-auto grid pt-3 grid-cols-2 gap-x-4 gap-y-2 text-xs">
-                <div><dt className="text-ink/50">Location</dt><dd className="font-medium">{p.location}</dd></div>
-                <div><dt className="text-ink/50">Reach</dt><dd className="font-medium">{p.beneficiaries}</dd></div>
-                <div><dt className="text-ink/50">Budget</dt><dd className="font-medium">{p.budget}</dd></div>
-                <div><dt className="text-ink/50">Funding</dt><dd className="font-medium">{p.funding}</dd></div>
-              </dl>
-            </article>
-          ))}
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
+          {list.map((p) => {
+            const facts: [string, string][] = [["Location", p.location], ["Reach", p.beneficiaries], ["Budget", p.budget], ["Funding", p.funding]];
+            return (
+              <article key={p.no} className="group relative flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-xl md:[&:last-child:nth-child(odd)]:col-span-2 md:[&:last-child:nth-child(odd)]:w-[calc(50%-0.625rem)] md:[&:last-child:nth-child(odd)]:justify-self-center">
+                <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 origin-top scale-y-0 bg-gradient-to-b from-brand to-sky-400 transition-transform duration-300 group-hover:scale-y-100" />
+                <div className="flex flex-1 flex-col p-5 sm:p-6">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="flex h-7 min-w-[1.75rem] items-center justify-center rounded-md bg-brand px-1.5 text-xs font-bold text-white">{String(p.no).padStart(2, "0")}</span>
+                    <span className="rounded-full bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-dark">{areaLabel(p.area)}</span>
+                    {p.period && <span className="ml-auto text-xs font-medium text-ink/50">{p.period}</span>}
+                  </div>
+                  <h3 className="mt-4 font-serif text-lg font-bold leading-snug text-ink sm:text-xl">{p.name}</h3>
+                  <p className="mt-2 text-left text-sm leading-relaxed text-ink/70">{p.summary}</p>
+                </div>
+                <dl className="mt-auto grid grid-cols-2 gap-px border-t border-ink/10 bg-ink/10 text-xs">
+                  {facts.map(([k, v]) => (
+                    <div key={k} className="bg-slate-50/80 px-5 py-3 transition-colors group-hover:bg-white sm:px-6">
+                      <dt className="text-[10px] font-semibold uppercase tracking-widest text-ink/45">{k}</dt>
+                      <dd className="mt-0.5 text-left text-[13px] font-semibold leading-snug text-ink">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </article>
+            );
+          })}
         </div>
       </section>
     </>
