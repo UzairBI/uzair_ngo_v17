@@ -22,8 +22,8 @@ function load() {
  * const c = usePageText(); then c("about.hero.title").
  * Gives the wording saved in the admin panel, or the original from src/data/pageContent.ts (in Hindi when a translation exists).
  */
-export function usePageText() {
-  const { t } = useLang();
+/** Only what an admin has changed, by key (no originals). Redraws the component when the saved texts arrive. */
+export function useSavedPageText(): Readonly<Record<string, string>> {
   const [, redraw] = useState(0);
   useEffect(() => {
     const fn = () => redraw((n) => n + 1);
@@ -31,6 +31,12 @@ export function usePageText() {
     load();
     return () => { listeners.delete(fn); };
   }, []);
+  return saved;
+}
+
+export function usePageText() {
+  const { t } = useLang();
+  useSavedPageText();
   return (key: string) => {
     if (import.meta.env.DEV && !(key in pageTextDefaults)) console.warn(`usePageText: unknown key "${key}" (add it to src/data/pageContent.ts)`);
     return saved[key] ?? t(pageTextDefaults[key] ?? "");

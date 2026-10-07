@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { stats as defaultStats, type Stat } from "../data/content";
+import { stats as defaultStats, statFromText, type Stat } from "../data/content";
+import { useSavedPageText } from "./usePageText";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 
 export interface Campaign { id: string; title: string; text: string; goal: number; raised: number; cause?: string; sample?: boolean }
@@ -62,14 +63,20 @@ function useRefresh(fn: () => void) {
   }, []);
 }
 
-/** Loads stats, campaigns and events from live.json (or VITE_LIVE_DATA_URL) plus events published in the admin panel. */
+/**
+ * Loads stats, campaigns and events from live.json (or VITE_LIVE_DATA_URL) plus events published in the admin panel.
+ * A number typed in the admin panel (Website Pages -> Home: Impact Numbers) replaces the one from the file, by position;
+ * `label` stays the original so lookups by label keep working (the wording shown comes from the saved page text).
+ */
 export function useLiveData(): Live & { loaded: boolean } {
   const [data, setData] = useState<Live>(cache ?? { stats: defaultStats, campaigns: [], events: [] });
   const [loaded, setLoaded] = useState(!!cache);
+  const saved = useSavedPageText();
   useRefresh(() => {
     loadAll().then((next) => { cache = next; setData(next); setLoaded(true); }).catch(() => setLoaded(true));
   });
-  return { ...data, loaded };
+  const stats = data.stats.map((s, i) => { const typed = saved[`home.impact.${i + 1}.value`]; return typed ? statFromText(typed, s) : s; });
+  return { ...data, stats, loaded };
 }
 
 export interface AdminProject { id: string; name: string; area?: string; location?: string; description?: string; status: string; beneficiaries: number; /** photo uploaded in the admin panel */ image_url?: string }

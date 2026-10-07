@@ -69,6 +69,16 @@ export const heroSlides = [
 ];
 export const ticker = "🎓 3,000+ children supported · 🏥 2,000+ patients assisted · 👩 1,500+ women in SHGs & livelihoods · ☀️ 50+ families lit up with solar lanterns · 🌱 5,000+ in tree plantation drives";
 export interface Stat { label: string; value?: number; suffix?: string; text?: string; plain?: boolean }
+/** A figure as an admin types it: "25,000+", "2,000+ patients", "2004". */
+export const statText = (s: Stat) => s.value === undefined ? s.text ?? "" : `${s.plain ? s.value : s.value.toLocaleString("en-IN")}${s.suffix ?? ""}`;
+/** The reverse: "2,000+ patients" -> 2000 and "+ patients". A number typed without commas on a `plain` figure (a year) stays plain; text with no number is shown as typed. */
+export function statFromText(text: string, base: Stat): Stat {
+  const m = text.trim().match(/^(\d[\d,]*)(.*)$/);
+  if (!m) return { label: base.label, text: text.trim() };
+  const value = Number(m[1].replace(/,/g, ""));
+  if (!Number.isSafeInteger(value)) return { label: base.label, text: text.trim() };
+  return { label: base.label, value, suffix: m[2].trimEnd(), plain: !!base.plain && !m[1].includes(",") };
+}
 /** Fallback numbers. Live numbers come from public/data/live.json (see README). */
 export const stats: Stat[] = [
   { label: "Direct & indirect beneficiaries", value: 25000, suffix: "+" },

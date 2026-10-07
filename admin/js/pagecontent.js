@@ -3,7 +3,7 @@ import { h, fmtDateTime, msg, tag, toast, busy, confirmDialog, panel } from "./u
 import { pageTexts, PAGE_TEXT_MAX } from "../../src/data/pageContent.ts";
 
 // Website address of each page, for the "View page" link.
-const PATHS = { "About Us": "/about", "Our Projects": "/projects", "Photo & Video Gallery": "/media", "Latest News": "/news", "Events Calendar": "/events",
+const PATHS = { "Home: Impact Numbers": "/", "About Us": "/about", "Our Projects": "/projects", "Photo & Video Gallery": "/media", "Latest News": "/news", "Events Calendar": "/events",
   "Transparency & Reports": "/transparency", "Get Involved": "/get-involved", "Contact Us": "/contact", "Donate": "/donate",
   "Privacy Policy": "/privacy", "Terms of Use": "/terms", "DPDP Compliance Notice": "/dpdp" };
 const pages = [...new Set(pageTexts.map((x) => x.page))];
@@ -12,18 +12,28 @@ const pages = [...new Set(pageTexts.map((x) => x.page))];
 function pageForm(page, saved, reload) {
   const items = pageTexts.filter((x) => x.page === page);
   const save = h("button", { type: "submit" }, "Save changes");
-  const inputs = items.map((x) => {
+  const inputs = items.map((x, n) => {
+    // a number and its text ("...value" then "...label") share one line: no label above each box, just the two boxes
+    const pairOf = x.key.endsWith(".label") && items[n - 1]?.key === x.key.replace(/label$/, "value") ? items[n - 1] : null;
+    const paired = !!pairOf || (x.key.endsWith(".value") && items[n + 1]?.key === x.key.replace(/value$/, "label"));
     const input = x.long
       ? h("textarea", { name: x.key, rows: String(Math.min(8, Math.max(3, Math.ceil(x.text.length / 90)))), maxlength: String(PAGE_TEXT_MAX) }, saved[x.key]?.value ?? x.text)
-      : h("input", { name: x.key, maxlength: String(PAGE_TEXT_MAX), value: saved[x.key]?.value ?? x.text });
+      : h("input", { name: x.key, maxlength: String(PAGE_TEXT_MAX), value: saved[x.key]?.value ?? x.text, ...(paired ? { "aria-label": x.label } : {}) });
     const state = h("span");
     // "Changed" while the box differs from the original wording; the button puts the original back (saved with the page)
     const mark = () => {
       const changed = input.value.trim() !== x.text;
-      state.replaceChildren(changed ? tag("pending", "Changed") : "", changed ? h("button", { type: "button", class: "ghost sm", onclick: () => { input.value = x.text; mark(); } }, "Use original") : "");
+      state.replaceChildren(changed ? (paired ? "" : tag("pending", "Changed")) : "", changed ? h("button", { type: "button", class: "ghost sm", title: `Original: ${x.text}`, onclick: () => { input.value = x.text; mark(); } }, paired ? "Undo" : "Use original") : "");
     };
     input.addEventListener("input", mark); mark();
-    return { x, input, el: h("label", null, h("span", { class: "row nowrap" }, x.label, state), input) };
+    return { x, input, state, paired, pairOf, el: paired ? null : h("label", null, h("span", { class: "row nowrap" }, x.label, state), input) };
+  });
+  // what goes into the form, top to bottom: a small heading where a group starts, then single boxes or number + text lines
+  const body = [];
+  inputs.forEach((i, n) => {
+    if (i.x.section && i.x.section !== items[n - 1]?.section) body.push(h("h4", { class: "pt-head" }, i.x.section), i.paired ? h("div", { class: "pt-pair pt-cols mut" }, h("span", null, "Number"), h("span", null, "Text shown with it")) : "");
+    if (i.pairOf) { const a = inputs[n - 1]; body.push(h("div", { class: "pt-pair" }, a.input, i.input, h("span", { class: "row nowrap" }, a.state, i.state))); }
+    else if (!i.paired) body.push(i.el);
   });
   const f = h("form", { novalidate: true, onsubmit: async (ev) => {
     ev.preventDefault();
@@ -40,7 +50,7 @@ function pageForm(page, saved, reload) {
     try { await busy(save, () => savePageContent(changed, reset)); toast(`${page} saved. The website shows the new text now.`); reload(); }
     catch (err) { toast(err.message, "err"); }
   } },
-    inputs.map((i) => i.el),
+    body,
     h("div", { class: "row end" },
       h("button", { type: "button", class: "ghost", onclick: async () => {
         if (!await confirmDialog({ title: `Put back all original text on ${page}?`, text: "Every text on this page goes back to its original wording. Your changes on this page are removed.", ok: "Put back originals", danger: true })) return;

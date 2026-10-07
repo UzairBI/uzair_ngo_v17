@@ -1,4 +1,5 @@
-import { projects, values, mission, thematicAreas, ways } from "./content";
+import { projects, values, mission, thematicAreas, ways, stats, statText } from "./content";
+import { portfolio } from "./portfolio";
 import { site } from "./site";
 import { legalDocs, type LegalKind } from "./legal";
 
@@ -8,11 +9,31 @@ import { legalDocs, type LegalKind } from "./legal";
  * The website reads these with usePageText() from src/hooks/usePageText.ts; the admin panel builds its form from this list.
  * To make another text editable: add an entry here and show it with c("its.key") on the page.
  */
-export interface PageText { key: string; page: string; label: string; text: string; /** a paragraph (tall box in the admin form) rather than a one-line heading */ long?: boolean }
+export interface PageText { key: string; page: string; label: string; text: string; /** small heading shown in the admin form above the first text of a group */ section?: string; /** a paragraph (tall box in the admin form) rather than a one-line heading */ long?: boolean }
 
 const list: PageText[] = [];
 const add = (page: string, rows: [key: string, label: string, text: string, long?: boolean][]) =>
   rows.forEach(([key, label, text, long]) => list.push({ key, page, label, text, long: long ?? text.length > 90 }));
+
+/** The four figures of the white card under the founder's message (Home page and Impact Report). Shown until an admin types another number. */
+export const keyFigureDefaults = (): [label: string, value: string][] => [
+  ["Years of Service", `${Math.floor((new Date().getFullYear() - 2004) / 5) * 5}+`], // registered 19 October 2004 (site.regDate)
+  ["Children Supported", `${(stats.find((x) => /children/i.test(x.label))?.value ?? 0).toLocaleString("en-IN")}+`],
+  ["Projects Delivered", String(portfolio.length)],
+  ["Core Programmes", String(projects.filter((p) => !p.featured).length)]
+];
+
+// Numbers: typed as they should appear, e.g. 25,000+ or 2,000+ patients. They count up on the website.
+// A "...value" key followed by its "...label" key is one line in the admin form: the number and its text side by side.
+add("Home: Impact Numbers", [
+  ...stats.flatMap((s, i): [string, string, string, boolean][] => [
+    [`home.impact.${i + 1}.value`, `Impact dashboard ${i + 1}: number`, statText(s), false],
+    [`home.impact.${i + 1}.label`, `Impact dashboard ${i + 1}: text`, s.label, false]]),
+  ...keyFigureDefaults().flatMap(([label, value], i): [string, string, string, boolean][] => [
+    [`home.figures.${i + 1}.value`, `Key figure ${i + 1}: number`, value, false],
+    [`home.figures.${i + 1}.label`, `Key figure ${i + 1}: text`, label, false]])
+]);
+list.forEach((x) => { if (x.key.startsWith("home.impact.")) x.section = "Impact dashboard"; else if (x.key.startsWith("home.figures.")) x.section = "Key figures card"; });
 
 add("About Us", [
   ["about.hero.title", "Banner heading", "Community Progress Built on Integrity & Action."],
