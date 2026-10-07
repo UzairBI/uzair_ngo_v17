@@ -9,7 +9,7 @@ import WorkMap from "../components/WorkMap";
 import Reveal from "../components/Reveal";
 import type { ReactNode } from "react";
 
-const card = "group h-full rounded-2xl border-[3px] border-slate-300 bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-[0_14px_30px_-16px_rgba(11,79,156,.45)]";
+const card = "group h-full rounded-2xl border-2 border-slate-200 bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-[0_14px_30px_-16px_rgba(11,79,156,.45)]";
 const tile = "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-light text-brand transition duration-200 group-hover:scale-110 group-hover:bg-brand group-hover:text-white";
 const chip = "rounded-full bg-brand-light px-3 py-1 text-sm font-semibold text-brand-dark transition hover:bg-brand hover:text-white";
 const svg = (d: ReactNode) => <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
@@ -84,7 +84,7 @@ export default function Contact() {
             </Reveal>
           </div>
         </div>
-        <SmartForm dense kind="Contact message" submitLabel="Send Message" className="rounded-2xl border-[3px] border-slate-300 p-5 [&_:is(input,textarea,select)]:border-2 [&_:is(input,textarea,select)]:border-slate-300 sm:p-6 md:flex md:flex-col md:self-stretch lg:grid-rows-[auto_auto_1fr_auto] lg:p-4"
+        <SmartForm dense kind="Contact message" submitLabel="Send Message" className="rounded-2xl border-2 border-slate-200 p-5 [&_:is(input,textarea,select)]:border-[1.5px] [&_:is(input,textarea,select)]:border-slate-200 [&_button[type=submit]]:ml-auto sm:[&_button[type=submit]]:flex sm:[&_button[type=submit]]:w-fit lg:[&_button[type=submit]]:col-span-2 sm:p-6 md:flex md:flex-col md:self-stretch lg:grid-rows-[auto_auto_1fr_auto] lg:p-4"
           fields={[{ name: "name", label: "Name", required: true, placeholder: "Your full name" }, { name: "email", label: "Email", type: "email", required: true, placeholder: "you@example.com" },
             { name: "phone", label: "Phone", type: "tel", placeholder: "98765 43210 (optional)" }, { name: "message", label: "Message", type: "textarea", required: true, placeholder: "How can we help you?" }]} />
         </div>
