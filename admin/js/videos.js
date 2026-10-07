@@ -71,6 +71,7 @@ function videosPane(onCount) {
   load();
   return h("div", null,
     h("p", { class: "mut" }, "YouTube videos shown on the website under Media & Gallery. They appear left to right in this order; a new video goes after the last one. Click a video to edit or remove it."),
+    h("p", { class: "mut" }, "With two or more published videos the website shows them as a tile grid like the photo gallery: video no. 1 is the large tile, and a tile opens the video with its title and description."),
     list.el);
 }
 

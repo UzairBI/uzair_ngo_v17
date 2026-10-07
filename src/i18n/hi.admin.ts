@@ -647,6 +647,7 @@ export const hiAdminMore: Record<string, string> = {
   "The message could not be deleted. Run supabase/migrations/20250118000000_contact_messages_delete.sql in the Supabase SQL Editor, then try again.": "संदेश हटाया नहीं जा सका। Supabase SQL Editor में supabase/migrations/20250118000000_contact_messages_delete.sql चलाएँ, फिर दोबारा प्रयास करें।",
   "Reply by email": "ईमेल से उत्तर दें", "Mark as contacted": "संपर्क किया गया चिह्नित करें", "Back to new": "वापस नया करें", "Close message": "संदेश बंद करें",
   "New": "नया", "Contacted": "संपर्क किया गया", "Closed": "बंद",
+  "With two or more published videos the website shows them as a tile grid like the photo gallery: video no. 1 is the large tile, and a tile opens the video with its title and description.": "दो या अधिक प्रकाशित वीडियो होने पर वेबसाइट उन्हें फोटो गैलरी की तरह टाइल ग्रिड में दिखाती है: वीडियो क्र. 1 बड़ी टाइल होता है, और टाइल पर क्लिक करने से वीडियो अपने शीर्षक और विवरण के साथ खुलता है।",
   // Projects: photo
   "No photo yet.": "अभी कोई फोटो नहीं।", "The photo will be removed when you save.": "सहेजने पर फोटो हटा दी जाएगी।", "Please choose a JPG, PNG or WebP photo.": "कृपया JPG, PNG या WebP फोटो चुनें।",
   "Project photos are not set up yet. Run supabase/migrations/20250122000000_project_photos.sql in the Supabase SQL Editor, then try again.": "परियोजना फोटो अभी सेट नहीं हैं। Supabase SQL Editor में supabase/migrations/20250122000000_project_photos.sql चलाएँ, फिर दोबारा प्रयास करें।",
