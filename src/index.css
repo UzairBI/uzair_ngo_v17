@@ -231,11 +231,9 @@ button:not(.btn):not(.dbtn):not(.btn-light):not(:disabled):active { transform: s
 .social-icon:hover, .social-icon:focus-visible { transform: translateY(-4px) scale(1.12); background-color: var(--brand); box-shadow: 0 0 0 3px rgb(255 255 255 / .25), 0 8px 22px -4px var(--brand); }
 
 /* Live impact dashboard cards: grow when the pointer is over them, return to normal when it leaves */
-.impact-card { transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, background-color .3s ease; will-change: transform; }
+.impact-card { transition: transform .35s cubic-bezier(.2,.8,.2,1); will-change: transform; }
 .impact-card:hover, .impact-card:focus-visible {
   transform: scale(1.12) translateY(-4px); z-index: 20;
-  box-shadow: 0 22px 40px -14px rgb(20 121 209 / .45), 0 0 0 2px rgb(56 189 248 / .7);
-  background-color: #f5fbff;
 }
 .impact-card:active { transform: scale(1.06); }
 @media (prefers-reduced-motion: reduce) { .impact-card, .impact-card:hover, .impact-card:focus-visible { transition: none; transform: none; } }
@@ -288,7 +286,7 @@ body { overflow-wrap: break-word; }
 @media (hover: none) {
   .btn:hover, .dbtn:hover, button:not(.btn):not(.dbtn):not(.btn-light):not(:disabled):hover { transform: none; }
   .btn:active, .dbtn:active, button:not(.btn):not(.dbtn):not(.btn-light):not(:disabled):active { transform: scale(.97); }
-  .impact-card:hover { transform: none; box-shadow: none; background-color: #fff; }
+  .impact-card:hover { transform: none; }
   .social-icon:hover { transform: none; }
 }
 
