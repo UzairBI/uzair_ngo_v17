@@ -25,10 +25,11 @@ export default function Contact() {
   const open = officeOpen();
   return (
     <>
-      <PageHero compact images={contactImages} eyebrow={t("Contact Us")} title={c("contact.hero.title")} />
+      {/* full-height banner; from md up the photo fills the right side only, so the children's faces stay large and whole */}
+      <PageHero images={contactImages} eyebrow={t("Contact Us")} title={c("contact.hero.title")} imgClassName="object-[70%_30%] md:!left-auto md:!w-[62%] md:[mask-image:linear-gradient(to_right,transparent,black_30%)]" />
       <section className="container-site py-12 md:py-16 lg:pt-4">
         <Reveal><h2 className="h2">{c("contact.title")}</h2></Reveal>
-        {/* the form box starts level with the office cards and, on large screens, ends level with the office hours card */}
+        {/* the form box starts level with the office cards and, from tablet width up, ends level with the office hours card */}
         <div className="mt-5 grid gap-10 md:grid-cols-2">
         <div className="min-w-0">
           {/* the two offices */}
@@ -65,7 +66,6 @@ export default function Contact() {
                 <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-widest text-ink/60">Email</p>
                   <p className="mt-1"><a className="break-all font-semibold text-brand hover:text-brand-dark hover:underline" href={`mailto:${site.email}`}>{site.email}</a></p>
-                  <p className="mt-0.5 text-sm text-ink/70">Alternate: {site.altEmails.map((e, i) => <span key={e}>{i > 0 && " · "}<a className="break-all text-brand hover:underline" href={`mailto:${e}`}>{e}</a></span>)}</p>
                 </div>
               </div>
             </Reveal>
@@ -84,7 +84,7 @@ export default function Contact() {
             </Reveal>
           </div>
         </div>
-        <SmartForm dense kind="Contact message" submitLabel="Send Message" className="rounded-2xl border p-5 sm:p-6 md:self-start lg:grid-rows-[auto_auto_1fr_auto] lg:self-stretch lg:p-4"
+        <SmartForm dense kind="Contact message" submitLabel="Send Message" className="rounded-2xl border p-5 sm:p-6 md:flex md:flex-col md:self-stretch lg:grid-rows-[auto_auto_1fr_auto] lg:p-4"
           fields={[{ name: "name", label: "Name", required: true, placeholder: "Your full name" }, { name: "email", label: "Email", type: "email", required: true, placeholder: "you@example.com" },
             { name: "phone", label: "Phone", type: "tel", placeholder: "98765 43210 (optional)" }, { name: "message", label: "Message", type: "textarea", required: true, placeholder: "How can we help you?" }]} />
         </div>

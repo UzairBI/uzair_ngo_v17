@@ -78,7 +78,7 @@ export const hi: Record<string, string> = {
   "Every donation, no matter how big or small, makes a significant difference to our cause. Thank you for doing your part to help.": "हर दान, चाहे बड़ा हो या छोटा, हमारे कार्य में बड़ा बदलाव लाता है। सहयोग के लिए धन्यवाद।",
   "Every child deserves a chance to learn, grow and dream.": "हर बच्चे को सीखने, बढ़ने और सपने देखने का अवसर मिलना चाहिए।",
   "Every contribution counts, whatever the size.": "हर योगदान मायने रखता है, चाहे राशि कितनी भी हो।",
-  "Choose how to pay on the next page": "अगले पेज पर भुगतान का तरीका चुनें",
+  "Choose how to pay on the next page": "अगले पेज पर भुगतान का तरीका चुनें", "Your selected amount": "आपकी चुनी हुई राशि", "Please enter this amount on the payment page that opens next.": "कृपया आगे खुलने वाले भुगतान पेज पर यही राशि दर्ज करें।",
   "UPI": "यूपीआई", "Any UPI app": "कोई भी UPI ऐप", "Bank account": "बैंक खाता", "Net banking": "नेट बैंकिंग",
   "Cards": "कार्ड", "Debit & credit": "डेबिट और क्रेडिट", "Wallets": "वॉलेट", "Popular wallets": "प्रचलित वॉलेट",
   "You enter or confirm your amount on the secure payment page that opens next.": "आगे खुलने वाले सुरक्षित भुगतान पेज पर आप राशि दर्ज या पुष्टि करेंगे।",

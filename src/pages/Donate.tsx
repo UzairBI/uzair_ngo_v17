@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { useSearchParams } from "react-router-dom";
 import { site } from "../data/site";
 import { useTitle } from "../hooks/useTitle";
 import { usePageText } from "../hooks/usePageText";
@@ -13,7 +14,8 @@ import { Highlights, Faq } from "../components/InfoBlocks";
  * Donate page. Layout: full-height photo on the left, light-blue panel on the right with one white card.
  * The "Donate Now" button opens the organisation's payment page (site.razorpayMe in src/data/site.ts),
  * where donors pick UPI, bank account / net banking, cards or wallets.
- * The exact amount is entered on the payment page.
+ * The exact amount is entered on the payment page. An amount picked in the home page impact calculator
+ * (/donate?amount=2500) is shown on the card as a reminder; it is NOT passed on to the payment page.
  */
 /** Donation photos only. Safety net: anything from the featured set is never shown here. */
 const donationSlides = donationImages.filter((src) => !src.includes("/featured/"));
@@ -35,6 +37,9 @@ export default function Donate() {
   const c = usePageText();
   useTitle("Donate");
   const [monthly, setMonthly] = useState(false);
+  // amount picked in the impact calculator; anything that is not a sensible whole rupee amount is ignored
+  const picked = Number(useSearchParams()[0].get("amount"));
+  const amount = Number.isInteger(picked) && picked >= 1 && picked <= 10000000 ? picked : 0;
 
   return (
     <>
@@ -68,6 +73,16 @@ export default function Donate() {
           <div className="flex flex-col rounded-2xl bg-white p-5 shadow-xl shadow-brand-dark/10 sm:p-6 md:p-10 lg:flex-1 lg:p-8">
             <h1 id="donate-title" className="font-serif text-3xl font-bold leading-tight text-ink sm:text-4xl">{c("donate.title")}</h1>
             <p className="justified mt-3 text-sm text-ink/70">{c("donate.text")}</p>
+
+            {amount > 0 && (
+              <div className="mt-5 flex items-center justify-between gap-4 rounded-xl border border-brand/30 bg-brand-light px-4 py-3">
+                <span className="min-w-0 leading-tight">
+                  <strong className="block text-sm font-semibold text-ink">{t("Your selected amount")}</strong>
+                  <span className="text-xs text-ink/60">{t("Please enter this amount on the payment page that opens next.")}</span>
+                </span>
+                <strong className="text-2xl font-bold text-brand-dark">₹{amount.toLocaleString("en-IN")}</strong>
+              </div>
+            )}
 
             <div className="mt-7 lg:mt-5">
               <p className="text-sm font-semibold text-ink">{c("donate.methods.title")}</p>

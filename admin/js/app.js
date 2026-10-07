@@ -8,6 +8,7 @@ import events from "./events.js";
 import projects from "./projects.js";
 import volunteers from "./volunteers.js";
 import newsletter from "./newsletter.js";
+import contacts from "./contacts.js";
 import videos from "./videos.js";
 import annualReports from "./annualreports.js";
 import awards from "./awards.js";
@@ -21,7 +22,7 @@ import { adminPhotoUrl } from "./data.js";
 // [label, page, badge key from Supabase dashboard query]
 const pages = {
   dashboard: ["Dashboard", dashboard], reports: ["Analytics", reports], projects: ["Projects", projects],
-  donations: ["Donations", donations], volunteers: ["Team & Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter],
+  donations: ["Donations", donations], volunteers: ["Team & Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter], messages: ["Contact messages", contacts],
   requests: ["Document requests", requests], events: ["Events", events], videos: ["Media & Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], blog: ["Blog", blog], pagecontent: ["Website Pages", pageContent], broadcast: ["Broadcast", broadcast],
   admins: ["Admins & activity", admins]
 };
@@ -74,21 +75,24 @@ async function start() {
   // "needs attention" counters next to the menu items - fetch from Supabase
   const badges = async () => {
     try {
-      const [reqs, vols, dons] = await Promise.all([
+      const [reqs, vols, dons, msgs] = await Promise.all([
         supabase.from("document_requests").select("id", { count: "exact", head: true }).eq("status", "new"),
         supabase.from("volunteers").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("donations").select("id", { count: "exact", head: true }).eq("status", "pending")
+        supabase.from("donations").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("form_submissions").select("id", { count: "exact", head: true }).eq("kind", "contact").eq("status", "new")
       ]);
       const counts = {
         pendingRequests: reqs.count || 0,
         pendingVolunteers: vols.count || 0,
-        pendingDonations: dons.count || 0
+        pendingDonations: dons.count || 0,
+        newMessages: msgs.count || 0
       };
       links.forEach((a) => {
         let n = 0;
         if (a.dataset.k === "requests") n = counts.pendingRequests;
         if (a.dataset.k === "volunteers") n = counts.pendingVolunteers;
         if (a.dataset.k === "donations") n = counts.pendingDonations;
+        if (a.dataset.k === "messages") n = counts.newMessages;
         const b = a.querySelector(".badge"); b.hidden = !n; b.textContent = n || ""; b.title = n ? `${n} need attention` : "";
       });
     } catch { /* badges are optional */ }

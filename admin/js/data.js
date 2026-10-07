@@ -262,12 +262,37 @@ export async function getContactMessages(limit = 8) {
   if (error) throw error;
   return { rows: data || [], total: count || 0 };
 }
-/** Every contact message (for the Excel export), fetched 1,000 at a time. */
-export async function getAllContactMessages() {
+// Contact messages page: searched, filtered and paged in the database, like the newsletter subscribers.
+const contactQuery = ({ q, status }, cols, opts) => {
+  const query = supabase.from("form_submissions").select(cols, opts).eq("kind", "contact");
+  if (status) query.eq("status", status);
+  if (q) {
+    // escaped twice: once for LIKE (% _ \), once for the quoted value inside or(...)
+    const like = `"%${q.replace(/[\\%_]/g, "\\$&").replace(/[\\"]/g, "\\$&")}%"`;
+    query.or(["name", "email", "phone", "message"].map((col) => `${col}.ilike.${like}`).join(","));
+  }
+  return query.order("created_at", { ascending: false }).order("id", { ascending: false });
+};
+export async function getContactMessagesPage({ q = "", status = "", page = 1, size = 25 } = {}) {
+  const { data, error, count } = await contactQuery({ q, status }, "id, created_at, name, email, phone, message, status", { count: "exact" }).range((page - 1) * size, page * size - 1);
+  if (error?.code === "PGRST103") return { rows: [], total: 0 }; // asked for a page past the last one
+  if (error) throw error;
+  return { rows: data || [], total: count || 0 };
+}
+export async function getContactMessageCounts() {
+  const count = () => supabase.from("form_submissions").select("id", { count: "exact", head: true }).eq("kind", "contact");
+  const since = new Date(Date.now() - 30 * 864e5).toISOString();
+  const res = await Promise.all([count(), count().eq("status", "new"), count().eq("status", "contacted"), count().gte("created_at", since)]);
+  const failed = res.find((r) => r.error);
+  if (failed) throw failed.error;
+  const [total, waiting, contacted, recent] = res.map((r) => r.count || 0);
+  return { total, waiting, contacted, recent };
+}
+/** Every contact message matching the search + filter (for the Excel export), fetched 1,000 at a time. */
+export async function getAllContactMessages({ q = "", status = "" } = {}) {
   const all = [];
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await supabase.from("form_submissions").select("created_at, name, email, phone, message, status")
-      .eq("kind", "contact").order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, from + 999);
+    const { data, error } = await contactQuery({ q, status }, "created_at, name, email, phone, message, status").range(from, from + 999);
     if (error) throw error;
     all.push(...(data || []));
     if (!data || data.length < 1000) return all;

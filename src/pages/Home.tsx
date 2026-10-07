@@ -59,7 +59,7 @@ export default function Home() {
 
         <div className="container-site pb-10 pt-[calc(var(--hero-pad)_-_6svh)] font-hero md:py-14"><div className="max-w-[720px] max-md:mx-auto max-md:flex max-md:flex-col max-md:items-center max-md:text-center">
           {isMobile && <DonateButton to="/donate" size="sm" className="mb-3">{t("Donate")}</DonateButton>}
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-dark shadow-sm backdrop-blur sm:text-sm">
+          <p className="badge-live inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-dark shadow-sm backdrop-blur sm:text-sm">
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-brand" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16" />
               <path d="m7 20 1.6 1.4c.3.4.8.6 1.4.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9" />

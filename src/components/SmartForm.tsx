@@ -46,9 +46,9 @@ export default function SmartForm({ kind, fields, submitLabel, hidden = {}, clas
   return (
     <form onSubmit={submit} noValidate className={`space-y-4 ${dense ? "lg:grid lg:grid-cols-2 lg:gap-x-4 lg:gap-y-3 lg:space-y-0" : ""} ${className}`}>
       {fields.map((f) => (
-        <div key={f.name} className={dense && wide(f) ? `lg:col-span-2 ${f.type === "textarea" ? "lg:flex lg:flex-col" : ""}` : undefined}>
+        <div key={f.name} className={dense && wide(f) ? `lg:col-span-2 ${f.type === "textarea" ? "md:flex md:grow md:flex-col" : ""}` : undefined}>
           <label htmlFor={`${kind}-${f.name}`} className="text-sm font-medium">{t(f.label)}{f.required && <span aria-hidden="true"> *</span>}</label>
-          {f.type === "textarea" ? <textarea id={`${kind}-${f.name}`} name={f.name} required={f.required} rows={4} maxLength={2000} placeholder={f.placeholder} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${kind}-${f.name}-err` : undefined} onBlur={(e) => setErr(f.name, validate(f, e.target.value))} className={`${input} ${dense ? "lg:h-16 lg:grow" : ""}`} />
+          {f.type === "textarea" ? <textarea id={`${kind}-${f.name}`} name={f.name} required={f.required} rows={4} maxLength={2000} placeholder={f.placeholder} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${kind}-${f.name}-err` : undefined} onBlur={(e) => setErr(f.name, validate(f, e.target.value))} className={`${input} ${dense ? "md:grow lg:h-16" : ""}`} />
             : f.type === "select" ? <select id={`${kind}-${f.name}`} name={f.name} required={f.required} className={input}>{f.options?.map((o) => <option key={o}>{o}</option>)}</select>
             : <input id={`${kind}-${f.name}`} name={f.name} type={f.type ?? "text"} required={f.required} placeholder={f.placeholder} autoComplete={f.type === "email" ? "email" : f.type === "tel" ? "tel" : undefined} inputMode={f.type === "tel" ? "tel" : undefined} aria-invalid={!!errors[f.name]} aria-describedby={errors[f.name] ? `${kind}-${f.name}-err` : undefined} maxLength={f.type === "email" ? 160 : 120} onBlur={(e) => setErr(f.name, validate(f, e.target.value))} className={input} />}
           {errors[f.name] && <p id={`${kind}-${f.name}-err`} className="mt-1 text-xs text-red-700">{errors[f.name]}</p>}

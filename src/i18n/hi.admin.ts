@@ -647,6 +647,10 @@ export const hiAdminMore: Record<string, string> = {
   "The message could not be deleted. Run supabase/migrations/20250118000000_contact_messages_delete.sql in the Supabase SQL Editor, then try again.": "संदेश हटाया नहीं जा सका। Supabase SQL Editor में supabase/migrations/20250118000000_contact_messages_delete.sql चलाएँ, फिर दोबारा प्रयास करें।",
   "Reply by email": "ईमेल से उत्तर दें", "Mark as contacted": "संपर्क किया गया चिह्नित करें", "Back to new": "वापस नया करें", "Close message": "संदेश बंद करें",
   "New": "नया", "Contacted": "संपर्क किया गया", "Closed": "बंद",
+  // Contact messages page
+  "Search messages…": "संदेश खोजें…", "No messages match these filters.": "इन फ़िल्टर से कोई संदेश मेल नहीं खाता।", "All contact messages →": "सभी संपर्क संदेश →",
+  "Total messages": "कुल संदेश", "Everything received from the Contact Us page": "संपर्क पृष्ठ से प्राप्त सभी संदेश", "Not answered yet": "अभी उत्तर नहीं दिया गया", "Waiting for a reply": "उत्तर की प्रतीक्षा में",
+  "Already answered": "उत्तर दिया जा चुका है", "New messages": "नए संदेश", "Received in the last 30 days": "पिछले 30 दिनों में प्राप्त",
   // Media & Gallery: videos and photos
   "Media & Gallery": "मीडिया और गैलरी", "Videos": "वीडियो", "Photos": "फोटो", "The videos and photos shown on the website Media & Gallery page.": "वेबसाइट के मीडिया और गैलरी पृष्ठ पर दिखने वाले वीडियो और फोटो।",
   "+ Add photos": "+ फोटो जोड़ें", "Add photos": "फोटो जोड़ें", "Edit photo": "फोटो संपादित करें", "Remove photo": "फोटो हटाएँ", "Remove photo?": "फोटो हटाएँ?", "Photo saved.": "फोटो सहेजा गया।", "Photo removed.": "फोटो हटाया गया।",
