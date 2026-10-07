@@ -30,6 +30,8 @@ function form(v, reload) {
     ev.preventDefault();
     if (!validate(f, { url: (x) => (!x ? "YouTube link is required" : youtubeId(x) ? null : "This does not look like a YouTube video link"), title: rules.max("Title", 160), description: rules.max("Description", 600) })) return;
     const b = { youtube_id: youtubeId(url.value), title: f.title.value.trim(), description: f.description.value.trim(), published: f.published.checked };
+    // only sent when it changes, so saving still works on a database where the column has not been added yet
+    if (f.featured.checked !== !!v.featured) b.featured = f.featured.checked;
     try {
       await busy(save, () => (v.id ? updateVideo(v.id, b) : createVideo(b)));
       close(); toast(v.id ? "Video saved." : "Video added. It now shows after the earlier videos on the website."); reload();
@@ -39,6 +41,7 @@ function form(v, reload) {
     field("Title (shown under the video; optional)", h("input", { name: "title", maxlength: "160", value: v.title || "" })),
     field("Description (shown under the title; optional, up to 600 characters)", h("textarea", { name: "description", rows: "4", maxlength: "600" }, v.description || "")),
     h("label", { class: "chk" }, h("input", { type: "checkbox", name: "published", checked: v.id ? !!v.published : true }), "Published (visible on the website Video Gallery)"),
+    h("label", { class: "chk" }, h("input", { type: "checkbox", name: "featured", checked: !!v.featured }), "Large video (the big tile on the website; replaces the current large video)"),
     h("div", { class: "row end" },
       v.id && h("button", { class: "danger", type: "button", onclick: async () => {
         if (!await confirmDialog({ title: "Remove video?", text: "It will be removed from the website Video Gallery. The video itself stays on YouTube.", ok: "Remove video", danger: true })) return;
@@ -54,7 +57,7 @@ function videosPane(onCount) {
     columns: [
       { label: "Order", cell: (r) => r.n, sort: (r) => r.n, cls: "num" },
       { label: "Video", cell: (r) => h("div", { class: "thumbs" }, h("div", null, h("img", { src: thumb(r.youtube_id), alt: "" }))) },
-      { label: "Title", cell: (r) => h("div", null, h("b", null, r.title || "Untitled"), r.description ? h("div", { class: "mut" }, r.description.length > 110 ? r.description.slice(0, 110) + "…" : r.description) : null, h("div", { class: "mut" }, h("a", { href: link(r.youtube_id), target: "_blank", rel: "noopener" }, "Open on YouTube ↗"))), sort: (r) => (r.title || "").toLowerCase() },
+      { label: "Title", cell: (r) => h("div", null, h("b", null, r.title || "Untitled"), r.featured ? [" ", tag("active", "Large video")] : null, r.description ? h("div", { class: "mut" }, r.description.length > 110 ? r.description.slice(0, 110) + "…" : r.description) : null, h("div", { class: "mut" }, h("a", { href: link(r.youtube_id), target: "_blank", rel: "noopener" }, "Open on YouTube ↗"))), sort: (r) => (r.title || "").toLowerCase() },
       { label: "Added", cell: (r) => fmtDate(r.created_at), sort: (r) => r.created_at },
       { label: "Status", cell: (r) => tag(r.published ? "active" : "pending", r.published ? "Published" : "Hidden"), sort: (r) => (r.published ? 0 : 1) }],
     search: (r) => [r.title, r.description, r.youtube_id].join(" "), searchLabel: "Search videos",
@@ -72,6 +75,7 @@ function videosPane(onCount) {
   return h("div", null,
     h("p", { class: "mut" }, "YouTube videos shown on the website under Media & Gallery. They appear left to right in this order; a new video goes after the last one. Click a video to edit or remove it."),
     h("p", { class: "mut" }, "With two or more published videos the website shows them as a tile grid like the photo gallery: video no. 1 is the large tile, and a tile opens the video with its title and description."),
+    h("p", { class: "mut" }, "To choose the large video, open a video and tick “Large video”. It then becomes no. 1."),
     list.el);
 }
 

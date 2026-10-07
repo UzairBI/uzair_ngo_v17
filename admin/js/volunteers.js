@@ -1,6 +1,7 @@
 import { getVolunteers, createVolunteer, updateVolunteer, deleteVolunteer, volunteerPhotoUrl, setVolunteerPhoto, removeVolunteerPhoto } from "./data.js";
 import { h, fmtDate, field, modal, tag, dataTable, confirmDialog, toast, busy, validate, rules } from "./ui.js";
 import teamPane from "./team.js";
+import { managerField } from "./orgtree.js";
 
 const STATUSES = ["pending", "active", "inactive"];
 const MAX_MB = 5;
@@ -54,6 +55,10 @@ export default async () => {
       h("p", null, tag(r.status), " ", tag(onSite(r) ? "active" : "pending", onSite(r) ? "Shown on website" : r.show_on_website ? "Will show once active" : "Not on website")),
       h("div", { class: "kvs" }, kv("Phone", r.phone), kv("Email", r.email), kv("Area of interest", r.area), kv("Signed up", fmtDate(r.created_at))),
       r.message ? h("div", null, h("h2", null, "Message"), h("p", { class: "pre" }, r.message)) : h("p", { class: "mut" }, "No message."),
+      h("h2", null, "Works under"),
+      managerField(`volunteer:${r.id}`, r.reports_to, async (key) => {
+        try { r = await updateVolunteer(r.id, { reports_to: key }); toast("Saved."); } catch (e) { toast(e.message, "err"); }
+      }).el,
       h("h2", null, "Website photo"), photo, field(`Upload a photo (JPG, PNG or WebP, up to ${MAX_MB} MB)`, picker),
       h("p", { class: "mut" }, "Only the name, area of interest and photo are ever shown on the website (About Us → Our Volunteers). Phone, email and message stay private."),
       h("div", { class: "row end" }, actions(r, () => close()))));
@@ -87,12 +92,14 @@ export default async () => {
   const add = () => {
     const saveBtn = h("button", { type: "submit" }, "Add active volunteer");
     const picker = h("input", { type: "file", accept: "image/jpeg,image/png,image/webp" });
+    const under = managerField(null, null);
     const f = h("form", { novalidate: true, onsubmit: async (e) => {
       e.preventDefault();
       if (!validate(f, { name: rules.required("Name", 120), phone: rules.phone, email: rules.email, area: rules.max("Area of interest", 80) })) return;
       const file = picker.files[0], problem = file && photoProblem(file);
       if (problem) return toast(problem, "err");
       const b = { name: f.name.value.trim(), phone: f.phone.value.trim(), email: f.email.value.trim() || null, area: f.area.value.trim() || null, status: "active", show_on_website: f.show_on_website.checked };
+      if (under.changed()) b.reports_to = under.value();
       try {
         await busy(saveBtn, async () => {
           const created = await createVolunteer(b);
@@ -103,6 +110,7 @@ export default async () => {
     } },
       field("Name *", h("input", { name: "name", required: true, maxlength: "120" })), h("div", { class: "grid2" }, field("Phone", h("input", { name: "phone", inputmode: "tel" })), field("Email", h("input", { name: "email", type: "email" }))),
       field("Area of interest", h("input", { name: "area", maxlength: "80" })),
+      under.el,
       field(`Photo for the website (optional; JPG, PNG or WebP, up to ${MAX_MB} MB)`, picker),
       h("label", { class: "chk" }, h("input", { type: "checkbox", name: "show_on_website", checked: true }), "Show name and photo on the website (About Us → Our Volunteers)"),
       h("div", { class: "row end" }, h("button", { type: "button", class: "ghost", onclick: () => close() }, "Cancel"), saveBtn));

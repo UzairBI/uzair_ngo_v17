@@ -4,21 +4,31 @@ import { h, fmtDate, field, modal, tag, dataTable, confirmDialog, toast, busy, v
 function form(e, reload) {
   e = e || { images: [] };
   const imgs = h("div", { class: "thumbs" });
-  const save = h("button", { type: "submit" }, e.id ? "Save changes" : "Create event");
+  // The main button keeps an event as it is (a new event is published). The second one switches: draft <-> published.
+  // A draft is saved in the admin panel only; the website shows it once it is published.
+  const live = e.id ? !!e.published : true;
+  let publish = live; // what this save does
+  const save = h("button", { type: "submit" }, !e.id ? "Publish event" : live ? "Save changes" : "Save draft");
+  const other = h("button", { type: "button", class: "ghost", onclick: () => { publish = !live; f.requestSubmit(); } }, !e.id ? "Save as draft" : live ? "Move to drafts" : "Publish event");
   const f = h("form", { novalidate: true, onsubmit: async (ev) => {
     ev.preventDefault();
+    const published = publish, btn = published === live ? save : other; publish = live;
     if (!validate(f, { title: rules.required("Event name", 160), event_date: (v) => (!v ? "Date is required" : null), event_time: rules.max("Time", 60), place: rules.max("Place", 200), description: rules.max("Description", 3000) })) return;
-    const b = Object.fromEntries(new FormData(f)); b.published = f.published.checked;
+    const b = Object.fromEntries(new FormData(f)); b.published = published;
     try {
-      const saved = await busy(save, () => (e.id ? updateEvent(e.id, b) : createEvent(b)));
-      close(); toast(e.id ? "Event saved." : "Event created. You can add images now."); reload(); if (!e.id) form(saved, reload); // after creating, reopen so images can be added
+      const saved = await busy(btn, () => (e.id ? updateEvent(e.id, b) : createEvent(b)));
+      close(); toast(!e.id ? (published ? "Event published. You can add images now." : "Draft saved. You can add images now, then publish it.")
+        : published === live ? (live ? "Event saved." : "Draft saved. It is not on the website until you publish it.")
+        : published ? "Event published. It now shows on the website Events page." : "Event moved to drafts. It is no longer on the website.");
+      reload(); if (!e.id) form(saved, reload); // after creating, reopen so images can be added
     } catch (err) { toast(err.message, "err"); }
   } },
     h("div", { class: "grid2" }, field("Event name", h("input", { name: "title", required: true, value: e.title || "" })), field("Date (today or later = Upcoming, earlier = Past events)", h("input", { name: "event_date", type: "date", required: true, value: e.event_date || "" })),
       field("Time (e.g. 10:00 AM - 2:00 PM)", h("input", { name: "event_time", value: e.event_time || "" })), field("Place", h("input", { name: "place", value: e.place || "" }))),
     field("Description", h("textarea", { name: "description", rows: "4" }, e.description || "")),
-    h("label", { class: "chk" }, h("input", { type: "checkbox", name: "published", checked: e.id ? !!e.published : true }), "Published (visible on the website Events page)"),
-    h("div", { class: "row end" }, h("button", { type: "button", class: "ghost", onclick: () => close() }, "Cancel"), save));
+    h("p", { class: "mut" }, !e.id ? "Not ready yet? Save it as a draft: it stays in the admin panel only until you publish it."
+      : live ? "This event is published: it is on the website Events page." : "This event is a draft: it is not on the website until you publish it."),
+    h("div", { class: "row end" }, h("button", { type: "button", class: "ghost", onclick: () => close() }, "Cancel"), other, save));
   const draw = (list) => imgs.replaceChildren(...list.map((img) => h("div", null, h("img", { src: eventImageUrl(img.storage_path), alt: "" }),
     h("button", { class: "danger sm", type: "button", onclick: async () => {
       try { await deleteEventImage(img); e.images = e.images.filter((x) => x.id !== img.id); draw(e.images); reload(); }
@@ -36,7 +46,7 @@ function form(e, reload) {
     try { await deleteEvent(e.id); close(); toast("Event deleted."); reload(); } catch (err) { toast(err.message, "err"); }
   } }, "Delete event");
   const body = h("div", null, f, e.id ? h("div", null, h("h2", null, "Images (JPG/PNG/WebP, up to 6)"), imgs, field("Add image", picker), del) : h("p", { class: "mut" }, "Images can be added right after the event is created."));
-  const close = modal(e.id ? "Edit event" : "New event", body); draw(e.images);
+  const close = modal(!e.id ? "New event" : live ? "Edit event" : "Edit draft", body); draw(e.images);
 }
 
 /** An event from the website file (public/data/live.json): shown as it is, with a button to copy it into a real, editable event. */
@@ -69,10 +79,11 @@ export default async () => {
       { label: "When", options: [["upcoming", "Upcoming"], ["past", "Past"]], test: (r, v) => (v === "upcoming") === (r.event_date >= today) },
       { label: "Status", options: [["published", "Published"], ["draft", "Draft"], ["file", "Sample / website file"]], test: (r, v) => (v === "file" ? !!r.file : !r.file && (v === "published") === !!r.published) }],
     date: { label: "Date", get: (r) => r.event_date }, sort: { i: 0, dir: "desc" }, onRow: (r) => (r.file ? fileEvent(r, load) : form(r, load)),
+    summary: (rows) => h("p", { class: "mut" }, `${rows.length} event(s) · ${rows.filter((r) => !r.file && !r.published).length} draft(s)`),
     empty: "No events yet. Published events appear on the website Events page.",
     tools: [h("button", { onclick: () => form(null, load) }, "+ New event")]
   });
   async function load() { list.loading(); try { const [rows, fromFile] = await Promise.all([getEvents(), getFileEvents()]); list.set([...rows, ...fromFile]); } catch (e) { list.error(e.message); } }
-  wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Events"), h("p", { class: "mut" }, "Click an event to edit it or add images. Events marked “Sample” come from the website file and can be copied into a real event."))), list.el);
+  wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Events"), h("p", { class: "mut" }, "Click an event to edit it, add images or publish a draft. Drafts are not on the website. Events marked “Sample” come from the website file and can be copied into a real event."))), list.el);
   await load(); return wrap;
 };

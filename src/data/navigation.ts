@@ -28,7 +28,7 @@ export const nav: NavItem[] = [
   { label: "Transparency & Reports", href: "/transparency", children: [
     { label: "Impact & Annual Reports", href: "/transparency#annual-reports" },
     { label: "Request Certificates", href: "/transparency?request=certificate#request" } ] },
-  { label: "Blog", href: "/blog" },
+  { label: "Blogs", href: "/blog" },
   { label: "Contact Us", href: "/contact" }
 ];
 export const quickNav = [

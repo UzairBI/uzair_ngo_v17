@@ -24,23 +24,24 @@ export default function Transparency() {
         <h2 className="h2 mt-2">{c("transparency.reports.title")}</h2>
         <p className="justified mt-2 text-ink/70">{c("transparency.reports.text")}</p>
         <div className="mt-8 grid gap-5 md:grid-cols-2">
-          {/* both reports open a page of their own: the impact figures, and the year-by-year annual reports (managed in the admin panel) */}
+          {/* each card has its own colour (green = impact, rose red = annual reports) so the two are told apart at a glance.
+              Both reports open a page of their own: the impact figures, and the year-by-year annual reports (managed in the admin panel) */}
           {reports.slice(0, 1).map((d) => (
             <article key={d.file} className="flex flex-col rounded-2xl border bg-white p-6 shadow-sm">
-              <p className="eyebrow">Impact{d.year ? ` · ${d.year}` : ""}</p>
+              <p className="eyebrow !text-emerald-700">Impact{d.year ? ` · ${d.year}` : ""}</p>
               <h3 className="mt-2 font-serif text-lg font-bold">{d.title}</h3>
               <p className="justified mt-2 flex-1 text-sm text-ink/70">{d.description}</p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Link to="/transparency/impact-report" className="btn btn-brand !px-4 !py-2">{t("View Impact Report")} <span aria-hidden="true">→</span></Link>
+                <Link to="/transparency/impact-report" className="btn btn-brand !bg-emerald-700 !px-4 !py-2 !shadow-[0_2px_6px_rgb(4_120_87/.3)] hover:!bg-emerald-800">{t("View Impact Report")} <span aria-hidden="true">→</span></Link>
               </div>
             </article>
           ))}
           <article className="flex flex-col rounded-2xl border bg-white p-6 shadow-sm">
-            <p className="eyebrow">Year by year · 2004 - 2025</p>
+            <p className="eyebrow !text-rose-700">Year by year · 2004 - 2025</p>
             <h3 className="mt-2 font-serif text-lg font-bold">{c("transparency.annual.title")}</h3>
             <p className="justified mt-2 flex-1 text-sm text-ink/70">{c("transparency.annual.text")}</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Link to="/transparency/annual-reports" className="btn btn-brand !px-4 !py-2">{t("View Annual Reports")} <span aria-hidden="true">→</span></Link>
+              <Link to="/transparency/annual-reports" className="btn btn-brand !bg-rose-700 !px-4 !py-2 !shadow-[0_2px_6px_rgb(190_18_60/.3)] hover:!bg-rose-800">{t("View Annual Reports")} <span aria-hidden="true">→</span></Link>
             </div>
           </article>
         </div>

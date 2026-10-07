@@ -1,5 +1,6 @@
 import { getTeamMembers, createTeamMember, updateTeamMember, deleteTeamMember } from "./data.js";
 import { h, field, modal, tag, dataTable, confirmDialog, toast, busy, validate, rules } from "./ui.js";
+import { managerField } from "./orgtree.js";
 
 // The two blocks of the website About Us page a person can be listed in.
 const TEAMS = [["committee", "Executive Committee"], ["management", "Management Team"]];
@@ -8,6 +9,7 @@ const teamLabel = (k) => (TEAMS.find(([v]) => v === k) || [k, k])[1];
 function form(r, rows, reload) {
   r = r || {};
   const save = h("button", { type: "submit" }, r.id ? "Save changes" : "Add team member");
+  const under = managerField(r.id ? `team:${r.id}` : null, r.reports_to);
   // a new person goes to the end of the chosen block
   const nextOrder = (team) => Math.max(0, ...rows.filter((x) => x.team === team).map((x) => x.sort_order)) + 10;
   const f = h("form", { novalidate: true, onsubmit: async (ev) => {
@@ -15,6 +17,7 @@ function form(r, rows, reload) {
     if (!validate(f, { name: rules.required("Name", 120), post: rules.required("Post", 120), role: rules.max("Description", 400), sort_order: rules.wholeNumber("Position") })) return;
     const b = { team: f.team.value, name: f.name.value.trim(), post: f.post.value.trim(), role: f.role.value.trim(), published: f.published.checked,
       sort_order: f.sort_order.value.trim() === "" ? nextOrder(f.team.value) : Number(f.sort_order.value) };
+    if (under.changed()) b.reports_to = under.value(); // only sent when it changes
     try {
       await busy(save, () => (r.id ? updateTeamMember(r.id, b) : createTeamMember(b)));
       close(); toast(r.id ? "Saved." : `${b.name} added to the ${teamLabel(b.team)}.`); reload();
@@ -25,6 +28,7 @@ function form(r, rows, reload) {
     field("Post *", h("input", { name: "post", required: true, maxlength: "120", placeholder: "e.g. Vice President", value: r.post || "" })),
     field("Description (optional; shown on Management Team cards; up to 400 characters)", h("textarea", { name: "role", rows: "3", maxlength: "400" }, r.role || "")),
     field("Position in the list (lower numbers come first; leave empty to add at the end)", h("input", { name: "sort_order", inputmode: "numeric", value: r.id ? r.sort_order : "" })),
+    under.el,
     h("label", { class: "chk" }, h("input", { type: "checkbox", name: "published", checked: r.id ? !!r.published : true }), "Published (visible on the website)"),
     h("div", { class: "row end" },
       r.id && h("button", { class: "danger", type: "button", onclick: async () => {

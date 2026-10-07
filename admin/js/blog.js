@@ -25,7 +25,12 @@ function photoSlot(label, url) {
 
 function form(r, reload) {
   r = r || {};
-  const save = h("button", { type: "submit" }, r.id ? "Save changes" : "Publish post");
+  // The main button keeps a post as it is (a new post is published). The second one switches: draft <-> published.
+  // A draft is saved in the admin panel only; the website shows it once it is published.
+  const live = r.id ? !!r.published : true;
+  let publish = live; // what this save does
+  const save = h("button", { type: "submit" }, !r.id ? "Publish post" : live ? "Save changes" : "Save draft");
+  const other = h("button", { type: "button", class: "ghost", onclick: () => { publish = !live; f.requestSubmit(); } }, !r.id ? "Save as draft" : live ? "Move to drafts" : "Publish post");
   const cover = photoSlot("Cover photo", r.cover_url), photo = photoSlot("Second photo", r.photo_url);
   const slug = h("input", { name: "slug", required: true, maxlength: "120", placeholder: "a-short-name-for-the-post", value: r.slug || "", oninput: () => { slugTouched = true; } });
   let slugTouched = !!r.id; // a new post takes its address from the title until the address is typed by hand
@@ -33,16 +38,18 @@ function form(r, reload) {
 
   const f = h("form", { novalidate: true, onsubmit: async (ev) => {
     ev.preventDefault();
+    const published = publish, btn = published === live ? save : other; publish = live;
     slug.value = slugify(slug.value);
+    // a draft may be unfinished: the post text is only needed to publish
     if (!validate(f, { title: rules.required("Title", 200), slug: rules.required("Web address", 120), category: rules.required("Group", 60), author: rules.max("Author", 80),
-      published_on: rules.required("Date"), excerpt: rules.max("Summary", 400), body: rules.required("Post", 20000), photo_caption: rules.max("Caption", 300) })) return;
+      published_on: rules.required("Date"), excerpt: rules.max("Summary", 400), body: published ? rules.required("Post", 20000) : rules.max("Post", 20000), photo_caption: rules.max("Caption", 300) })) return;
     const problem = [cover, photo].map((s) => s.file() && imageProblem(s.file())).find(Boolean);
     if (problem) return toast(problem, "err");
     const b = { title: f.title.value.trim(), slug: slug.value, category: f.category.value.trim(), author: f.author.value.trim(), published_on: f.published_on.value,
-      excerpt: f.excerpt.value.trim(), body: f.body.value.trim(), photo_caption: f.photo_caption.value.trim(), published: f.published.checked };
+      excerpt: f.excerpt.value.trim(), body: f.body.value.trim(), photo_caption: f.photo_caption.value.trim(), published };
     const uploading = !!(cover.file() || photo.file());
     try {
-      await busy(save, async () => {
+      await busy(btn, async () => {
         const fresh = [], stale = []; // files uploaded by this save / files no longer used after it
         try {
           for (const [slot, key] of [[cover, "cover"], [photo, "photo"]]) {
@@ -53,7 +60,8 @@ function form(r, reload) {
         } catch (err) { await removeBlogImages(fresh); throw err; } // do not leave orphan uploads behind
         await removeBlogImages(stale);
       }, uploading ? "Uploading…" : "Saving…");
-      close(); toast(r.id ? "Post saved." : b.published ? "Post published. It now shows on the website Blog page." : "Post saved as hidden."); reload();
+      close(); toast(!published ? (r.id && live ? "Post moved to drafts. It is no longer on the website." : "Draft saved. It is not on the website until you publish it.")
+        : r.id && live ? "Post saved." : "Post published. It now shows on the website Blog page."); reload();
     } catch (err) { toast(err.message, "err"); }
   } },
     field("Title *", title),
@@ -68,15 +76,16 @@ function form(r, reload) {
     h("p", { class: "mut" }, "Start a line with ## to make it a heading, or with > to show it as a highlighted quote."),
     cover.el, photo.el,
     field("Caption of the second photo (shown under it inside the post; up to 300 characters)", h("input", { name: "photo_caption", maxlength: "300", value: r.photo_caption || "" })),
-    h("label", { class: "chk" }, h("input", { type: "checkbox", name: "published", checked: r.id ? !!r.published : true }), "Published (visible on the website)"),
+    h("p", { class: "mut" }, !r.id ? "Not ready yet? Save it as a draft: it stays in the admin panel only until you publish it."
+      : live ? "This post is published: it is on the website." : "This post is a draft: it is not on the website until you publish it."),
     h("div", { class: "row end" },
       r.id && h("button", { class: "danger", type: "button", onclick: async () => {
         if (!await confirmDialog({ title: "Remove post?", text: `“${r.title}” and its photos will be removed from the website. This cannot be undone.`, ok: "Remove", danger: true })) return;
         try { await deleteBlogPost(r); close(); toast("Post removed."); reload(); } catch (err) { toast(err.message, "err"); }
       } }, "Remove post"),
       r.id && r.published && h("a", { class: "btn ghost", href: `/blog/${r.slug}`, target: "_blank", rel: "noopener" }, "View on website ↗"),
-      h("div", { class: "grow" }), h("button", { type: "button", class: "ghost", onclick: () => close() }, "Cancel"), save));
-  const close = modal(r.id ? "Edit post" : "New post", f);
+      h("div", { class: "grow" }), h("button", { type: "button", class: "ghost", onclick: () => close() }, "Cancel"), other, save));
+  const close = modal(!r.id ? "New post" : live ? "Edit post" : "Edit draft", f);
 }
 
 export default async () => {
@@ -88,13 +97,13 @@ export default async () => {
       { label: "Group", cell: (r) => r.category, sort: (r) => r.category },
       { label: "Author", cell: (r) => r.author || h("span", { class: "mut" }, "Not set"), sort: (r) => (r.author || "").toLowerCase() },
       { label: "Date", cell: (r) => fmtDate(r.published_on), sort: (r) => r.published_on },
-      { label: "Status", cell: (r) => tag(r.published ? "active" : "pending", r.published ? "Published" : "Hidden"), sort: (r) => (r.published ? 0 : 1) }],
+      { label: "Status", cell: (r) => tag(r.published ? "active" : "pending", r.published ? "Published" : "Draft"), sort: (r) => (r.published ? 0 : 1) }],
     search: (r) => [r.title, r.excerpt, r.category, r.author].join(" "), searchLabel: "Search posts",
     filters: [
       { label: "Group", options: (rs) => [...new Set(rs.map((r) => r.category).filter(Boolean))].sort().map((c) => [c, c]), test: (r, x) => r.category === x },
-      { label: "Status", options: [["published", "Published"], ["hidden", "Hidden"]], test: (r, x) => (x === "published") === !!r.published }],
+      { label: "Status", options: [["published", "Published"], ["draft", "Draft"]], test: (r, x) => (x === "published") === !!r.published }],
     sort: { i: 4, dir: "desc" }, pageSize: 25, onRow: (r) => form(r, load),
-    summary: (rows) => h("p", { class: "mut" }, `${rows.length} post(s) · ${rows.filter((r) => r.published).length} published`),
+    summary: (rows) => h("p", { class: "mut" }, `${rows.length} post(s) · ${rows.filter((r) => r.published).length} published · ${rows.filter((r) => !r.published).length} draft(s)`),
     empty: "No posts yet. Write one and it appears on the website under Blog.",
     tools: [h("button", { onclick: () => form(null, load) }, "+ New post")]
   });
@@ -103,7 +112,7 @@ export default async () => {
     try { list.set(await getBlogPosts()); }
     catch (e) { list.error(e.code === "PGRST205" ? "The blog table does not exist yet. Run supabase/migrations/20250121000000_blog_posts.sql in the Supabase SQL Editor." : e.message); }
   }
-  wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Blog"),
-    h("p", { class: "mut" }, "Posts shown on the website Blog page, newest date first: the newest one is the large story at the top. Click a row to edit it, change its photos, hide it or remove it."))), list.el);
+  wrap.append(h("div", { class: "page-head" }, h("div", { class: "grow" }, h("h1", null, "Blogs"),
+    h("p", { class: "mut" }, "Posts shown on the website Blog page, newest date first: the newest one is the large story at the top. Drafts are saved here only and are not on the website until published. Click a row to edit it, change its photos, publish it or remove it."))), list.el);
   await load(); return wrap;
 };

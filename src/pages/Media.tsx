@@ -80,7 +80,7 @@ function useGalleryPhotos(): Photo[] {
   }, []);
   return list;
 }
-interface Video { youtube_id: string; title: string; description?: string }
+interface Video { youtube_id: string; title: string; description?: string; /** chosen in the admin panel as the large tile */ featured?: boolean }
 const videoFrame = "aspect-video overflow-hidden rounded-2xl border bg-black shadow";
 
 /** Published videos from the admin panel (table gallery_videos). Empty while loading, or when Supabase is not set up / not reachable. */
@@ -91,7 +91,8 @@ function useGalleryVideos(): Video[] {
     let alive = true;
     // "*" rather than a column list, so the gallery keeps working if the description column has not been added yet
     supabase.from("gallery_videos").select("*").eq("published", true).order("created_at").order("id")
-      .then(({ data, error }) => { if (alive && !error && data) setVideos(data as Video[]); });
+      // the video chosen as the large tile goes first; the rest stay oldest first
+      .then(({ data, error }) => { if (alive && !error && data) setVideos([...(data as Video[])].sort((a, b) => Number(!!b.featured) - Number(!!a.featured))); });
     return () => { alive = false; };
   }, []);
   return videos;

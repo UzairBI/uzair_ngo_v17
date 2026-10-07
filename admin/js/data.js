@@ -199,14 +199,18 @@ export async function getVolunteers(status = null) {
   if (error) throw error;
   return data || [];
 }
+// Who works under whom: the reports_to column of volunteers and team_members.
+const TREE_SETUP = "“Works under” is not set up yet. Run supabase/migrations/20250124000000_team_tree.sql in the Supabase SQL Editor, then try again.";
+// PGRST204 / 42703 = the reports_to column has not been added yet, 42501 = admins may not change it yet
+const treeError = (error, data) => (data && "reports_to" in data && ["PGRST204", "42703", "42501"].includes(error.code) ? new Error(TREE_SETUP) : error);
 export async function createVolunteer(data) {
   const { data: result, error } = await supabase.from("volunteers").insert([data]).select().single();
-  if (error) throw error;
+  if (error) throw treeError(error, data);
   return result;
 }
 export async function updateVolunteer(id, data) {
   const { data: result, error } = await supabase.from("volunteers").update(data).eq("id", id).select().single();
-  if (error) throw error;
+  if (error) throw treeError(error, data);
   return result;
 }
 export async function deleteVolunteer(id) {
@@ -242,12 +246,12 @@ export async function getTeamMembers() {
 }
 export async function createTeamMember(data) {
   const { data: result, error } = await supabase.from("team_members").insert([data]).select().single();
-  if (error) throw error;
+  if (error) throw treeError(error, data);
   return result;
 }
 export async function updateTeamMember(id, data) {
   const { data: result, error } = await supabase.from("team_members").update(data).eq("id", id).select().single();
-  if (error) throw error;
+  if (error) throw treeError(error, data);
   return result;
 }
 export async function deleteTeamMember(id) {
@@ -366,21 +370,33 @@ export async function updateSubscriberStatus(id, status) {
   return result;
 }
 
-// Video Gallery (website Media page). Oldest first = the order they appear on the website, left to right.
+// Video Gallery (website Media page). In website order: the video chosen as the large tile first, then oldest first.
 export async function getVideos() {
   const { data, error } = await supabase.from("gallery_videos").select("*").order("created_at").order("id");
   if (error) throw error;
-  return data || [];
+  return (data || []).sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
 }
-const videoError = (error) => (error.code === "23505" ? new Error("This video is already in the gallery.") : error);
+const VIDEO_FEATURED_SETUP = "Choosing the large video is not set up yet. Run supabase/migrations/20250123000000_gallery_video_featured.sql in the Supabase SQL Editor, then try again.";
+// PGRST204 / 42703 = the featured column has not been added yet, 42501 = admins may not change it yet
+const videoError = (error, data) => (error.code === "23505" ? new Error("This video is already in the gallery.")
+  : data && "featured" in data && ["PGRST204", "42703", "42501"].includes(error.code) ? new Error(VIDEO_FEATURED_SETUP) : error);
+/** Only one video is the large tile: choosing one takes the mark off the others first. */
+async function clearFeaturedVideos(exceptId) {
+  const query = supabase.from("gallery_videos").update({ featured: false }).eq("featured", true);
+  if (exceptId) query.neq("id", exceptId);
+  const { error } = await query;
+  if (error) throw videoError(error, { featured: false });
+}
 export async function createVideo(data) {
+  if (data.featured) await clearFeaturedVideos();
   const { data: result, error } = await supabase.from("gallery_videos").insert([data]).select().single();
-  if (error) throw videoError(error);
+  if (error) throw videoError(error, data);
   return result;
 }
 export async function updateVideo(id, data) {
+  if (data.featured) await clearFeaturedVideos(id);
   const { data: result, error } = await supabase.from("gallery_videos").update(data).eq("id", id).select().single();
-  if (error) throw videoError(error);
+  if (error) throw videoError(error, data);
   return result;
 }
 export async function deleteVideo(id) {

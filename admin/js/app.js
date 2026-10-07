@@ -18,12 +18,13 @@ import admins from "./admins.js";
 import pageContent from "./pagecontent.js";
 import { langSwitch } from "./lang.js";
 import { adminPhotoUrl } from "./data.js";
+import { notificationBell } from "./notifications.js";
 
 // [label, page, badge key from Supabase dashboard query]
 const pages = {
   dashboard: ["Dashboard", dashboard], reports: ["Analytics", reports], projects: ["Projects", projects],
   donations: ["Donations", donations], volunteers: ["Team & Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter], messages: ["Contact messages", contacts],
-  requests: ["Document requests", requests], events: ["Events", events], videos: ["Media & Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], blog: ["Blog", blog], pagecontent: ["Website Pages", pageContent], broadcast: ["Broadcast", broadcast],
+  requests: ["Document requests", requests], events: ["Events", events], videos: ["Media & Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], blog: ["Blogs", blog], pagecontent: ["Website Pages", pageContent], broadcast: ["Broadcast", broadcast],
   admins: ["Admins & activity", admins]
 };
 const app = document.getElementById("app");
@@ -69,11 +70,13 @@ async function start() {
   const nav = h("nav", { class: "side", "aria-label": "Admin" }, h("div", { class: "side-top" }, h("a", { href: "#/dashboard", class: "brand" }, h("img", { src: "/assets/images/logo.png", alt: "", onerror: (e) => e.target.remove() }), h("b", null, "NGO Admin")), toggle), menu,
     h("div", { class: "side-card" }, h("img", { src: "/assets/images/field-9.jpg", alt: "", onerror: (e) => e.target.remove() }), h("strong", null, "Creating Brighter Futures"), h("span", null, "Your work helps empower communities.")));
   const crumb = h("span", { class: "crumb" });
-  const topbar = h("header", { class: "topbar" }, crumb, h("div", { class: "grow" }), langSwitch(), h("div", { class: "who" }, (me.photo_path ? h("img", { class: "avatar", alt: "", src: adminPhotoUrl(me.photo_path), onerror: (e) => e.target.replaceWith(h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())) }) : h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())), h("span", null, h("b", null, me.display_name || me.email), h("small", null, me.role === "admin" ? "Administrator" : me.role === "editor" ? "Editor" : "Viewer"))));
+  const bell = notificationBell(me);
+  const topbar = h("header", { class: "topbar" }, crumb, h("div", { class: "grow" }), langSwitch(), bell.el, h("div", { class: "who" }, (me.photo_path ? h("img", { class: "avatar", alt: "", src: adminPhotoUrl(me.photo_path), onerror: (e) => e.target.replaceWith(h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())) }) : h("span", { class: "avatar", "aria-hidden": "true" }, (me.email || "A")[0].toUpperCase())), h("span", null, h("b", null, me.display_name || me.email), h("small", null, me.role === "admin" ? "Administrator" : me.role === "editor" ? "Editor" : "Viewer"))));
   app.replaceChildren(h("div", { class: "shell" }, nav, h("div", { class: "content" }, topbar, main)));
 
   // "needs attention" counters next to the menu items - fetch from Supabase
   const badges = async () => {
+    bell.refresh(); // the bell follows the same changes (a message answered, a sign-up approved, a draft published)
     try {
       const [reqs, vols, dons, msgs] = await Promise.all([
         supabase.from("document_requests").select("id", { count: "exact", head: true }).eq("status", "new"),
