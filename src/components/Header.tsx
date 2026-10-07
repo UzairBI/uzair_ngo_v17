@@ -51,9 +51,13 @@ export default function Header() {
             <DonateButton to="/donate" size="sm" className="shrink-0">{t("Donate")}</DonateButton>
           </nav>
 
-          <button className="flex h-11 w-11 items-center justify-center rounded-full text-ink lg:hidden" aria-label="Toggle menu" aria-expanded={open} aria-controls="mobile-nav" onClick={() => setOpen(!open)}>
-            <span className="block text-2xl leading-none">{open ? "✕" : "☰"}</span>
-          </button>
+          {/* phones / tablets: Donate sits right next to the menu button */}
+          <div className="flex shrink-0 items-center gap-1 lg:hidden">
+            <DonateButton to="/donate" size="sm" className="shrink-0">{t("Donate")}</DonateButton>
+            <button className="flex h-11 w-11 items-center justify-center rounded-full text-ink" aria-label="Toggle menu" aria-expanded={open} aria-controls="mobile-nav" onClick={() => setOpen(!open)}>
+              <span className="block text-2xl leading-none">{open ? "✕" : "☰"}</span>
+            </button>
+          </div>
         </div>
 
         {/* Phones / tablets: the menu is a full page. The arrow on a section opens its options underneath it, like the dropdowns on desktop. */}
