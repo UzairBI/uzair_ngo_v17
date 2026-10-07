@@ -82,10 +82,10 @@ export default function Footer() {
           </a>
           <p>© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
-            <Link to="/privacy" className="underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white">Privacy Policy</Link>
-            <Link to="/terms" className="underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white">Terms of Use</Link>
-            <Link to="/dpdp" className="underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white">DPDP Compliance Notice</Link>
-            <a href={`${API_BASE}/admin`} rel="nofollow" className="underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white">Admin</a>
+            <Link to="/privacy" className="no-underline hover:text-white">Privacy Policy</Link>
+            <Link to="/terms" className="no-underline hover:text-white">Terms of Use</Link>
+            <Link to="/dpdp" className="no-underline hover:text-white">DPDP Compliance Notice</Link>
+            <a href={`${API_BASE}/admin`} rel="nofollow" className="no-underline hover:text-white">Admin</a>
           </div>
         </div>
       </div>
