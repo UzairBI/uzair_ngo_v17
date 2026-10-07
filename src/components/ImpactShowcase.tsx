@@ -1,4 +1,4 @@
-import { projects } from "../data/content";
+import { projects, type Stat } from "../data/content";
 import { portfolio } from "../data/portfolio";
 import { useLiveData } from "../hooks/useLiveData";
 import { useLang } from "../i18n/LangContext";
@@ -9,6 +9,47 @@ import CountUp from "./CountUp";
  * The two impact blocks shared by the Home page and the Impact Report page, so both always show the same numbers.
  */
 
+/** Icon + colour for a figure, picked from its label. */
+const statLook = (label: string) => {
+  const l = label.toLowerCase();
+  const svg = (c: JSX.Element) => c;
+  if (/direct|benefic/.test(l)) return { tone: "from-sky-500 to-blue-600", icon: svg(<><circle cx="9" cy="8" r="3" /><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5" /><path d="M16 5.2a3 3 0 010 5.6M17.5 14.3c2 .6 3.5 2.3 3.5 4.7" /></>) };
+  if (/child|educat/.test(l)) return { tone: "from-indigo-500 to-blue-600", icon: svg(<><path d="M2.5 9.5L12 5l9.5 4.5L12 14 2.5 9.5z" /><path d="M6.5 11.5V16c1.5 1.4 3.4 2 5.5 2s4-.6 5.5-2v-4.5" /></>) };
+  if (/patient|health/.test(l)) return { tone: "from-rose-500 to-pink-600", icon: svg(<path d="M12 20s-7-4.4-7-9.6A4 4 0 0112 8a4 4 0 017 2.4C19 15.6 12 20 12 20z" />) };
+  if (/women|shg|livelihood/.test(l)) return { tone: "from-amber-500 to-orange-600", icon: svg(<><circle cx="12" cy="7" r="3" /><path d="M12 10v6M8.5 13h7M9 21l3-5 3 5" /></>) };
+  if (/environ|tree|green/.test(l)) return { tone: "from-emerald-500 to-green-600", icon: svg(<><path d="M12 21v-7" /><path d="M12 14c-4 0-6-3-6-6 4 0 6 2 6 6zM12 12c0-4 2-7 6-7 0 4-2 7-6 7z" /></>) };
+  return { tone: "from-teal-500 to-cyan-600", icon: svg(<><circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3 2" /></>) };
+};
+
+function StatCard({ s, i, n }: { s: Stat; i: number; n: number }) {
+  const { t } = useLang();
+  const { tone, icon } = statLook(s.label);
+  // "+ patients" -> keep the "+" with the number and show the word as a small unit beside it
+  const m = (s.suffix ?? "").match(/^(\+?)\s*(.*)$/);
+  const unit = m?.[2] ?? "";
+  const num: Stat = unit ? { ...s, suffix: m?.[1] ?? "" } : s;
+  return (
+    <div className="impact-card group relative flex h-full cursor-pointer flex-col items-center" tabIndex={0}>
+      {/* the chain: a rail through every node (desktop), starting and ending at the first / last node */}
+      <span aria-hidden="true" className="absolute top-6 hidden h-0.5 bg-gradient-to-r from-brand/60 to-sky-400/60 lg:block" style={{ left: i === 0 ? "50%" : 0, right: i === n - 1 ? "50%" : 0 }} />
+      <span aria-hidden="true" className="relative z-10 flex h-12 w-12 items-center justify-center">
+        <span className={`absolute inset-0 rounded-full bg-gradient-to-br ${tone} opacity-30 animate-ping [animation-duration:2.8s]`} style={{ animationDelay: `${i * 0.35}s` }} />
+        <span className={`relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${tone} text-white shadow-lg ring-4 ring-white transition duration-300 group-hover:scale-110`}>
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
+        </span>
+      </span>
+      <span aria-hidden="true" className="h-4 w-px bg-brand/30" />
+      <div className="relative w-full flex-1 rounded-xl border lg:w-[calc(100%-1rem)] border-ink/10 bg-white px-3 py-4 text-center shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:border-brand/40 group-hover:shadow-lg">
+        <p className="flex flex-wrap items-baseline justify-center gap-x-1 font-bold tabular-nums leading-none text-ink">
+          <span className="text-2xl sm:text-[1.7rem]"><CountUp stat={num} /></span>
+          {unit && <span className="text-xs font-semibold text-brand-dark">{t(unit)}</span>}
+        </p>
+        <p className="mt-2 text-[13px] leading-snug text-ink/60">{t(s.label)}</p>
+      </div>
+    </div>
+  );
+}
+
 /** Live impact dashboard: heading + one card per figure in public/data/live.json. Goes inside a section of its own. */
 export function ImpactDashboard() {
   const { t } = useLang();
@@ -18,16 +59,18 @@ export function ImpactDashboard() {
       <Reveal>
         <p className="eyebrow">{t("Live impact dashboard")}</p>
         <h2 className="h2 mt-2 max-w-2xl">{t("A quick view of the people, communities and green spaces moving forward.")}</h2>
-        <p className="mt-2 text-xs font-semibold text-brand-dark">● {t("Field reports active")}</p>
+        <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-700">
+          <span aria-hidden="true" className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          </span>
+          {t("Field reports active")}
+        </p>
       </Reveal>
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-0 lg:px-0">
         {stats.map((s, i) => (
           <Reveal key={s.label} delay={i * 90}>
-            <div tabIndex={0} className="impact-card group relative h-full cursor-pointer rounded-2xl bg-white p-4 shadow-sm ring-1 ring-transparent sm:p-5">
-              <p className="text-xs text-ink/50 transition-colors group-hover:text-brand">0{i + 1}</p>
-              <p className="mt-1 text-lg font-bold leading-snug text-brand-dark sm:text-xl"><CountUp stat={s} /></p>
-              <p className="mt-0.5 text-left text-[13px] leading-snug text-ink/70 sm:text-sm">{t(s.label)}</p>
-            </div>
+            <StatCard s={s} i={i} n={stats.length} />
           </Reveal>
         ))}
       </div>

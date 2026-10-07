@@ -128,12 +128,12 @@ export default function IndiaNetworkMap() {
             </svg>
           </div>
 
-          <div className="ngo-copy relative z-10 min-w-0">
+          <div className="ngo-copy relative z-10 min-w-0 text-center md:text-left">
             <p className="text-xs font-semibold uppercase tracking-widest text-sky-300">{t("Where we work")}</p>
             <h3 key={s.label} className="ngo-fade mt-1 font-serif text-xl font-bold sm:mt-2 sm:text-2xl md:text-3xl">{t(s.label)}</h3>
-            <p className="mt-1 text-sm text-white/60">{t("Tap a place to see it on the map")}</p>
+            <p className="mx-auto mt-1 text-sm text-white/60 md:mx-0">{t("Tap a place to see it on the map")}</p>
 
-            <div className="mt-4 flex flex-wrap gap-2" role="tablist" aria-label="Locations">
+            <div className="ngo-chips mt-4 flex flex-wrap justify-center gap-2 md:justify-start" role="tablist" aria-label="Locations">
               {steps.map((p, n) => (
                 <button key={p.label} type="button" role="tab" aria-selected={zoomed && n === i} onClick={() => pick(n)}
                   className={`btn-light btn-light-sm shrink-0 ${zoomed && n === i ? "is-active" : ""}`}>{t(p.label)}</button>
@@ -150,6 +150,13 @@ export default function IndiaNetworkMap() {
         .ngo-node{opacity:.8;fill:#00ffff}
         .ngo-stage{--spill:10px;-webkit-mask-image:linear-gradient(to right,transparent,#000 var(--spill),#000 calc(100% - var(--spill)),transparent),linear-gradient(to bottom,transparent,#000 var(--spill),#000 calc(100% - var(--spill)),transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 var(--spill),#000 calc(100% - var(--spill)),transparent),linear-gradient(to bottom,transparent,#000 var(--spill),#000 calc(100% - var(--spill)),transparent);mask-composite:intersect}
         @media (min-width:768px){.ngo-stage{--spill:40px}}
+        .ngo-chips .btn-light{margin:0 !important}
+        @media (max-width:767px){
+          .ngo-chips{display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem}
+          .ngo-chips .btn-light{grid-column:span 2;width:100%;min-width:0;padding:.5rem .25rem;font-size:.8rem;justify-content:center;text-align:center;white-space:nowrap}
+          .ngo-chips .btn-light:nth-child(3n+1):nth-last-child(2){grid-column:2 / span 2}
+          .ngo-chips .btn-light:last-child:nth-child(3n+2){grid-column:4 / span 2}
+        }
         .ngo-copy h3,.ngo-copy p{text-shadow:0 1px 10px rgba(0,10,30,.95),0 0 3px rgba(0,10,30,.9)}
         .ngo-pulse{transform-box:fill-box;transform-origin:center;animation:ngoPulse 2.2s ease-out infinite}
         .ngo-ring{transform-box:fill-box;transform-origin:center;animation:ngoRing 3.6s ease-out infinite;opacity:0}
