@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { stats as defaultStats, statFromText, type Stat } from "../data/content";
 import { defaultMedicalFundings, type MedicalFunding } from "../data/medicalFunding";
+import { defaultMemberOrganizations, type MemberOrganization } from "../data/memberOrganizations";
 import { useSavedPageText } from "./usePageText";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 
@@ -95,6 +96,24 @@ export function useMedicalFundings(): MedicalFunding[] {
   const [list, setList] = useState<MedicalFunding[]>(defaultMedicalFundings);
   useRefresh(() => {
     fetchMedicalFundings().then((rows) => { if (rows) setList(rows); }).catch(() => { /* keep what is shown */ });
+  });
+  return list;
+}
+
+/** Member organisations approved and published in the admin panel (Member Organizations), in the order set there. */
+async function fetchMemberOrganizations(): Promise<MemberOrganization[] | null> {
+  if (!supabaseConfigured || !supabase) return null;
+  try {
+    const { data, error } = await supabase.from("member_organizations").select("id, name, location, description").eq("published", true).eq("status", "approved").order("sort_order").order("id");
+    if (error || !data) return null;
+    return data.map((r) => ({ ...r, id: String(r.id) }));
+  } catch { return null; }
+}
+/** The published member organisations. Until the database answers (or if it cannot be read) the list in src/data/memberOrganizations.ts is shown. */
+export function useMemberOrganizations(): MemberOrganization[] {
+  const [list, setList] = useState<MemberOrganization[]>(defaultMemberOrganizations);
+  useRefresh(() => {
+    fetchMemberOrganizations().then((rows) => { if (rows) setList(rows); }).catch(() => { /* keep what is shown */ });
   });
   return list;
 }

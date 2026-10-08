@@ -33,7 +33,7 @@ export default function Header() {
               {nav.map((item) => (
                 <div key={item.label} className="group relative">
                   <NavLink to={item.href} end={item.href === "/"} className={({ isActive }) =>
-                    `block whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] font-medium transition-colors 2xl:px-4 2xl:text-[15px] ${isActive ? "bg-brand text-white" : "text-ink hover:bg-brand-light hover:text-brand-dark"}`}>
+                    `block whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] font-medium transition-colors 2xl:px-4 2xl:text-[15px] ${isActive || item.children?.some((c) => c.href === pathname) ? "bg-brand text-white" : "text-ink hover:bg-brand-light hover:text-brand-dark"}`}>
                     {t(item.label)}{item.children && <span aria-hidden="true"> ▾</span>}
                   </NavLink>
                   {/* open on hover, and for keyboard users on focus; a mouse click must not leave it open after the pointer has moved away */}

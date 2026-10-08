@@ -107,6 +107,27 @@ add("Medical Facilities", [
   ["medical.facilities.empty", "Medical facilities: text when there are none", "Medical facilities will be listed here soon."]
 ]);
 
+// The organisations themselves are managed in the admin panel under Member Organizations.
+add("Memberships", [
+  ["memberships.hero.title", "Banner heading", "Our Member Organizations"],
+  ["memberships.hero.text", "Banner text", "A strong network of member organizations working at grassroots and institutional levels to create sustainable social impact."],
+  ["memberships.list.eyebrow", "Organizations: small line above the heading", "Our network"],
+  ["memberships.list.title", "Organizations: heading", "Partners in Lasting Change"],
+  ["memberships.list.text", "Organizations: text", "Our partners actively contribute in healthcare, education, women empowerment, child welfare and community development, building an inclusive ecosystem for long-term change."],
+  ["memberships.list.empty", "Organizations: text when there are none", "Our member organizations will be listed here soon."],
+  ["memberships.apply.eyebrow", "Application form: small line above the heading", "Become a member"],
+  ["memberships.apply.title", "Application form: heading", "Apply for Organization Membership"],
+  ["memberships.apply.text", "Application form: text", "NGOs, trusts, societies and community organizations can apply to join our network. Fill in the form and our team will review it."],
+  ["memberships.apply.step.1.title", "Application step 1: name", "Apply"],
+  ["memberships.apply.step.1.text", "Application step 1: text", "Tell us about your organization and who we can contact."],
+  ["memberships.apply.step.2.title", "Application step 2: name", "Review"],
+  ["memberships.apply.step.2.text", "Application step 2: text", "Our team checks the registration details and may get in touch."],
+  ["memberships.apply.step.3.title", "Application step 3: name", "Listed"],
+  ["memberships.apply.step.3.text", "Application step 3: text", "Once approved, your organization appears on this page as a member."],
+  ["memberships.join.title", "Join box: heading", "Join Our Network"],
+  ["memberships.join.text", "Join box: text", "We welcome NGOs, institutions and community organizations to collaborate with us for meaningful and sustainable impact across India."]
+]);
+
 add("Photo & Video Gallery", [
   ["media.hero.title", "Banner heading", "Photo & Video Gallery"],
   ["media.hero.text", "Banner text", "Real work. Real people. Real change."],

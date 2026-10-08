@@ -21,6 +21,7 @@ import Awards from "./pages/Awards";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import MemberID from "./pages/MemberID";
+import Memberships from "./pages/Memberships";
 export default function App() {
   return (
     <Routes>
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/transparency/annual-reports" element={<AnnualReports />} />
         <Route path="/transparency/impact-report" element={<ImpactReport />} />
         <Route path="/member-id" element={<MemberID />} />
+        <Route path="/memberships" element={<Memberships />} />
         <Route path="/contact"element={<Contact />} />
         <Route path="/donate" element={<Donate />} />
         <Route path="/get-involved" element={<GetInvolved />} />

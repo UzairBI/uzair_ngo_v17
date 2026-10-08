@@ -545,6 +545,27 @@ export async function deleteMemberCard(r) {
 }
 export function memberPhotoUrl(path) { return supabase.storage.from("member-photos").getPublicUrl(path).data.publicUrl; }
 
+// Member organisations (website Membership -> Memberships). Listed in website order: sort_order, then oldest first.
+export async function getMemberOrganizations() {
+  const { data, error } = await supabase.from("member_organizations").select("*").order("sort_order").order("id");
+  if (error) throw error;
+  return data || [];
+}
+export async function createMemberOrganization(data) {
+  const { data: result, error } = await supabase.from("member_organizations").insert([data]).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function updateMemberOrganization(id, data) {
+  const { data: result, error } = await supabase.from("member_organizations").update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function deleteMemberOrganization(id) {
+  const { error } = await supabase.from("member_organizations").delete().eq("id", id);
+  if (error) throw error;
+}
+
 // Blog (website Blog -> /blog). Listed as on the website: newest date first.
 export async function getBlogPosts() {
   const { data, error } = await supabase.from("blog_posts").select("*").order("published_on", { ascending: false }).order("id", { ascending: false });
