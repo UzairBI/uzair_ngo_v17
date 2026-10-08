@@ -7,6 +7,7 @@ import requests from "./requests.js";
 import events from "./events.js";
 import projects from "./projects.js";
 import medical from "./medical.js";
+import members from "./members.js";
 import volunteers from "./volunteers.js";
 import newsletter from "./newsletter.js";
 import contacts from "./contacts.js";
@@ -24,7 +25,7 @@ import { notificationBell } from "./notifications.js";
 // [label, page, badge key from Supabase dashboard query]
 const pages = {
   dashboard: ["Dashboard", dashboard], reports: ["Analytics", reports], projects: ["Projects", projects], medical: ["Medical Funding", medical],
-  donations: ["Donations", donations], volunteers: ["Team & Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter], messages: ["Contact messages", contacts],
+  donations: ["Donations", donations], volunteers: ["Team & Volunteers", volunteers], members: ["Member ID Cards", members], subscribers: ["Newsletter Subscribers", newsletter], messages: ["Contact messages", contacts],
   requests: ["Document requests", requests], events: ["Events", events], videos: ["Media & Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], blog: ["Blogs", blog], pagecontent: ["Website Pages", pageContent], broadcast: ["Broadcast", broadcast],
   admins: ["Admins & activity", admins]
 };
@@ -79,17 +80,19 @@ async function start() {
   const badges = async () => {
     bell.refresh(); // the bell follows the same changes (a message answered, a sign-up approved, a draft published)
     try {
-      const [reqs, vols, dons, msgs] = await Promise.all([
+      const [reqs, vols, dons, msgs, cards] = await Promise.all([
         supabase.from("document_requests").select("id", { count: "exact", head: true }).eq("status", "new"),
         supabase.from("volunteers").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("donations").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("form_submissions").select("id", { count: "exact", head: true }).eq("kind", "contact").eq("status", "new")
+        supabase.from("form_submissions").select("id", { count: "exact", head: true }).eq("kind", "contact").eq("status", "new"),
+        supabase.from("member_cards").select("id", { count: "exact", head: true }).eq("status", "pending")
       ]);
       const counts = {
         pendingRequests: reqs.count || 0,
         pendingVolunteers: vols.count || 0,
         pendingDonations: dons.count || 0,
-        newMessages: msgs.count || 0
+        newMessages: msgs.count || 0,
+        pendingCards: cards.count || 0
       };
       links.forEach((a) => {
         let n = 0;
@@ -97,6 +100,7 @@ async function start() {
         if (a.dataset.k === "volunteers") n = counts.pendingVolunteers;
         if (a.dataset.k === "donations") n = counts.pendingDonations;
         if (a.dataset.k === "messages") n = counts.newMessages;
+        if (a.dataset.k === "members") n = counts.pendingCards;
         const b = a.querySelector(".badge"); b.hidden = !n; b.textContent = n || ""; b.title = n ? `${n} need attention` : "";
       });
     } catch { /* badges are optional */ }

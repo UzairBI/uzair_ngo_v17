@@ -526,6 +526,25 @@ export async function deleteMedicalFunding(id) {
   if (error) throw error;
 }
 
+// Member ID cards (website /member-id). Applications waiting for approval first, then newest first.
+export async function getMemberCards() {
+  const { data, error } = await supabase.from("member_cards").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+/** Approving (status "approved") is what gives the card its number: the database assigns it. */
+export async function updateMemberCard(id, data) {
+  const { data: result, error } = await supabase.from("member_cards").update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function deleteMemberCard(r) {
+  const { error } = await supabase.from("member_cards").delete().eq("id", r.id);
+  if (error) throw error;
+  if (r.photo_path) await supabase.storage.from("member-photos").remove([r.photo_path]);
+}
+export function memberPhotoUrl(path) { return supabase.storage.from("member-photos").getPublicUrl(path).data.publicUrl; }
+
 // Blog (website Blog -> /blog). Listed as on the website: newest date first.
 export async function getBlogPosts() {
   const { data, error } = await supabase.from("blog_posts").select("*").order("published_on", { ascending: false }).order("id", { ascending: false });
