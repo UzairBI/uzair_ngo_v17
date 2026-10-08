@@ -36,8 +36,9 @@ export default function Header() {
                     `block whitespace-nowrap rounded-full px-2.5 py-2 text-[13px] font-medium transition-colors xl:px-4 xl:text-[15px] ${isActive ? "bg-brand text-white" : "text-ink hover:bg-brand-light hover:text-brand-dark"}`}>
                     {t(item.label)}{item.children && <span aria-hidden="true"> ▾</span>}
                   </NavLink>
+                  {/* open on hover, and for keyboard users on focus; a mouse click must not leave it open after the pointer has moved away */}
                   {item.children && (
-                    <div className="invisible absolute left-1/2 top-full min-w-[230px] -translate-x-1/2 pt-3 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                    <div className="invisible absolute left-1/2 top-full min-w-[230px] -translate-x-1/2 pt-3 opacity-0 transition group-hover:visible group-hover:opacity-100 group-has-[:focus-visible]:visible group-has-[:focus-visible]:opacity-100">
                       <div className="rounded-2xl border bg-white py-3 shadow-xl">
                         {item.children.map((c) => (
                           <Link key={c.href} to={c.href} onClick={() => setSub(null)} className="block px-5 py-2 text-center text-sm text-ink transition hover:bg-brand-light hover:text-brand-dark">{t(c.label)}</Link>
