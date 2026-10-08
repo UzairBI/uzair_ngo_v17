@@ -13,6 +13,7 @@ import RotatingWords from "../components/RotatingWords";
 import ProjectSlider from "../components/ProjectSlider";
 import Wave from "../components/Wave";
 import ImpactCalculator from "../components/ImpactCalculator";
+import CornerRibbons from "../components/CornerRibbons";
 import Reveal from "../components/Reveal";
 import { ImpactDashboard, KeyFigures } from "../components/ImpactShowcase";
 import Testimonials from "../components/Testimonials";
@@ -165,8 +166,9 @@ export default function Home() {
       )}
 
       {/* Calculator */}
-      <section className="bg-brand-dark py-16 text-white">
-        <div className="container-site text-center">
+      <section className="relative overflow-hidden bg-brand-dark py-16 text-white">
+        <CornerRibbons />
+        <div className="container-site relative text-center">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-widest text-white/80">{t("Interactive Impact Calculator")}</p>
             <h2 className="h2 mt-2">{t("See How Your Contribution Changes Lives")}</h2>
