@@ -505,6 +505,27 @@ export async function removeAwardCertificate(path) {
   if (path) await supabase.storage.from("award-certificates").remove([path]);
 }
 
+// Medical Funding (website Our Projects -> Medical Facilities). Listed as on the website: hospitals, then facilities, largest amount first.
+export async function getMedicalFundings() {
+  const { data, error } = await supabase.from("medical_fundings").select("*").order("kind", { ascending: false }).order("amount", { ascending: false }).order("name");
+  if (error) throw error;
+  return data || [];
+}
+export async function createMedicalFunding(data) {
+  const { data: result, error } = await supabase.from("medical_fundings").insert([data]).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function updateMedicalFunding(id, data) {
+  const { data: result, error } = await supabase.from("medical_fundings").update(data).eq("id", id).select().single();
+  if (error) throw error;
+  return result;
+}
+export async function deleteMedicalFunding(id) {
+  const { error } = await supabase.from("medical_fundings").delete().eq("id", id);
+  if (error) throw error;
+}
+
 // Blog (website Blog -> /blog). Listed as on the website: newest date first.
 export async function getBlogPosts() {
   const { data, error } = await supabase.from("blog_posts").select("*").order("published_on", { ascending: false }).order("id", { ascending: false });

@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { projects } from "../data/content";
 import { portfolio } from "../data/portfolio";
 import { useTitle } from "../hooks/useTitle";
@@ -9,6 +9,7 @@ import NotFound from "./NotFound";
 import DonateButton from "../components/DonateButton";
 import { Steps, Faq } from "../components/InfoBlocks";
 import { focusAreas } from "../data/projectFocus";
+import MedicalFunding from "../components/MedicalFunding";
 
 export default function ProjectDetail() {
   const { slug } = useParams();
@@ -17,9 +18,16 @@ export default function ProjectDetail() {
   // name and description as edited in the admin panel (Website Pages -> Our Projects)
   const p = found && { ...found, title: c(`project.${found.slug}.title`), text: c(`project.${found.slug}.text`) };
   useTitle(p?.title, p?.text);
+  if (slug === "health-nutrition") return <Navigate to="/projects/medical-facilities" replace />; // the programme's earlier address
   if (!p) return <NotFound />;
   const d = p.detail;
-  const focus = focusAreas[p.slug];
+  const medical = p.slug === "medical-facilities";
+  const base = focusAreas[p.slug];
+  // the Medical Facilities boxes and steps are edited in the admin panel (Website Pages -> Medical Facilities)
+  const focus = base && medical ? {
+    points: base.points.map((_, i): [string, string] => [c(`medical.point.${i + 1}.title`), c(`medical.point.${i + 1}.text`)]),
+    steps: base.steps.map((_, i): [string, string] => [c(`medical.step.${i + 1}.title`), c(`medical.step.${i + 1}.text`)])
+  } : base;
   const related = portfolio.filter((x) => x.area === p.slug);
   const donateTo = `/donate${d?.donateCause ? `?cause=${encodeURIComponent(d.donateCause)}` : ""}`;
   return (
@@ -34,8 +42,8 @@ export default function ProjectDetail() {
           {d?.paragraphs ? d.paragraphs.map((t, i) => <p key={i} className="mt-4 text-ink/75">{t}</p>) : <p className="mt-4 text-ink/70">{p.text}</p>}
           {focus && !d?.paragraphs && (
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-              {focus.points.map(([h, x]) => (
-                <li key={h} className="rounded-2xl bg-brand-light p-4">
+              {focus.points.map(([h, x], i) => (
+                <li key={i} className="rounded-2xl bg-brand-light p-4">
                   <p className="font-semibold text-brand-dark">{h}</p>
                   <p className="mt-1 text-sm leading-snug text-ink/70">{x}</p>
                 </li>
@@ -50,7 +58,9 @@ export default function ProjectDetail() {
         </div>
       </section>
 
-      {focus && !d && <Steps eyebrow="How it works" title={`How the ${p.category.toLowerCase()} programme runs`} steps={focus.steps} />}
+      {focus && !d && <Steps eyebrow="How it works" title={medical ? c("medical.steps.title") : `How the ${p.category.toLowerCase()} programme runs`} steps={focus.steps} />}
+
+      {medical && <MedicalFunding />}
 
       {d?.stats && (
         <section className="bg-brand-light py-10">

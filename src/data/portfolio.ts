@@ -1,8 +1,8 @@
 /**
  * Complete project portfolio 2004-2025, taken from the "Comprehensive Impact Report 2004-2025".
- * `area` links each programme to one of the five core project pages (see content.ts -> projects[].slug).
+ * `area` links each programme to one of the core project pages (see content.ts -> projects[].slug).
  */
-export type Area = "women-empowerment" | "health-nutrition" | "child-education" | "environment" | "social-welfare";
+export type Area = "women-empowerment" | "medical-facilities" | "child-education" | "environment" | "social-welfare";
 export interface PortfolioItem {
   no: number; name: string; period?: string; location: string; area: Area;
   summary: string; beneficiaries: string; budget: string; funding: string;
@@ -17,7 +17,7 @@ export const portfolio: PortfolioItem[] = [
   { no: 3, name: "Preschool Education, Nutrition & Food Support Program", period: "2025 - Present", location: "Sagar District, M.P.", area: "child-education",
     summary: "Early childhood education, preschool learning, structured nutrition support, child development services and parental awareness.",
     beneficiaries: "75 children & 125 families", budget: "₹20,00,000+", funding: "JIV Daya Foundation (USA)" },
-  { no: 4, name: "Medical Treatment Assistance & Crowdfunding Support Program", period: "2023 - Present", location: "India (primarily M.P.)", area: "health-nutrition",
+  { no: 4, name: "Medical Treatment Assistance & Crowdfunding Support Program", period: "2023 - Present", location: "India (primarily M.P.)", area: "medical-facilities",
     summary: "Facilitated life-saving medical treatment through crowdfunding, donor mobilisation, FCRA-supported healthcare assistance and hospital partnerships. ₹25 Crore+ mobilised.",
     beneficiaries: "2,000+ patients", budget: "₹25 Crore+ mobilised", funding: "Social Squared Ventures Inc. (USA), individual donors & crowdfunding platforms" },
   { no: 5, name: "Women Empowerment, Skill Development & School Awareness Program", location: "Sagar District, M.P.", area: "women-empowerment",
@@ -35,7 +35,7 @@ export const portfolio: PortfolioItem[] = [
   { no: 9, name: "Total Sanitation Campaign", period: "2007 - 2008", location: "Sagar & Sehore Districts", area: "social-welfare",
     summary: "Community awareness and motivation for household toilet construction; hygiene promotion and open-defecation-free village campaigns.",
     beneficiaries: "4,000+ families", budget: "₹8,00,000+", funding: "Panchayat & Rural Development Dept." },
-  { no: 10, name: "Mental Health & Student Well-being Program", period: "2025 - Present", location: "Sagar District, M.P.", area: "health-nutrition",
+  { no: 10, name: "Mental Health & Student Well-being Program", period: "2025 - Present", location: "Sagar District, M.P.", area: "medical-facilities",
     summary: "Mental health awareness sessions, stress management workshops and student counselling support in schools and colleges.",
     beneficiaries: "2,500+ students", budget: "₹3,00,000+", funding: "Organisation resources" },
   { no: 11, name: "COVID-19 Relief & Humanitarian Support Program", period: "2020 - 2022", location: "Sagar District, M.P.", area: "social-welfare",
@@ -47,12 +47,9 @@ export const portfolio: PortfolioItem[] = [
   { no: 13, name: "Residential Training Program for Girls", location: "Madhya Pradesh", area: "child-education",
     summary: "Residential education, life-skills development, personality building and empowerment for girl students from underserved backgrounds.",
     beneficiaries: "70 girls", budget: "₹5,00,000+", funding: "State Education Centre, Govt. of M.P." },
-  { no: 14, name: "PC&PNDT Awareness Initiative", location: "Madhya Pradesh", area: "health-nutrition",
+  { no: 14, name: "PC&PNDT Awareness Initiative", location: "Madhya Pradesh", area: "medical-facilities",
     summary: "Gender equality promotion and community awareness campaigns against sex-selective practices under the Pre-Conception & Pre-Natal Diagnostic Techniques Act.",
-    beneficiaries: "Community-wide", budget: "₹3,00,000+", funding: "UNFPA & state partners" },
-  { no: 15, name: "Navankur Community Development Program", location: "Madhya Pradesh", area: "social-welfare",
-    summary: "Formation of Village Development Committees and Ward Committees; grassroots governance strengthening and community mobilisation.",
-    beneficiaries: "100+ villages / wards", budget: "₹10,00,000+", funding: "M.P. Jan Abhiyan Parishad" }
+    beneficiaries: "Community-wide", budget: "₹3,00,000+", funding: "UNFPA & state partners" }
 ];
 
 export const partners: { name: string; role: string }[] = [

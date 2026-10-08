@@ -6,6 +6,7 @@ import donations from "./donations.js";
 import requests from "./requests.js";
 import events from "./events.js";
 import projects from "./projects.js";
+import medical from "./medical.js";
 import volunteers from "./volunteers.js";
 import newsletter from "./newsletter.js";
 import contacts from "./contacts.js";
@@ -22,7 +23,7 @@ import { notificationBell } from "./notifications.js";
 
 // [label, page, badge key from Supabase dashboard query]
 const pages = {
-  dashboard: ["Dashboard", dashboard], reports: ["Analytics", reports], projects: ["Projects", projects],
+  dashboard: ["Dashboard", dashboard], reports: ["Analytics", reports], projects: ["Projects", projects], medical: ["Medical Funding", medical],
   donations: ["Donations", donations], volunteers: ["Team & Volunteers", volunteers], subscribers: ["Newsletter Subscribers", newsletter], messages: ["Contact messages", contacts],
   requests: ["Document requests", requests], events: ["Events", events], videos: ["Media & Gallery", videos], annualreports: ["Annual Reports", annualReports], awards: ["Awards & Recognition", awards], blog: ["Blogs", blog], pagecontent: ["Website Pages", pageContent], broadcast: ["Broadcast", broadcast],
   admins: ["Admins & activity", admins]

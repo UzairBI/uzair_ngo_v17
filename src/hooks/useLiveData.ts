@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { stats as defaultStats, statFromText, type Stat } from "../data/content";
+import { defaultMedicalFundings, type MedicalFunding } from "../data/medicalFunding";
 import { useSavedPageText } from "./usePageText";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 
@@ -77,6 +78,25 @@ export function useLiveData(): Live & { loaded: boolean } {
   });
   const stats = data.stats.map((s, i) => { const typed = saved[`home.impact.${i + 1}.value`]; return typed ? statFromText(typed, s) : s; });
   return { ...data, stats, loaded };
+}
+
+/** Hospitals and medical facilities funded, as published in the admin panel (Medical Funding): largest amount first. */
+async function fetchMedicalFundings(): Promise<MedicalFunding[] | null> {
+  if (!supabaseConfigured || !supabase) return null;
+  try {
+    const { data, error } = await supabase.from("medical_fundings").select("id, kind, name, location, purpose, amount, period").eq("published", true)
+      .order("amount", { ascending: false }).order("name");
+    if (error || !data) return null;
+    return data.map((r) => ({ ...r, id: String(r.id), amount: Number(r.amount) || 0 }));
+  } catch { return null; }
+}
+/** The published funding list. Until the database answers (or if it cannot be read) the list in src/data/medicalFunding.ts is shown. */
+export function useMedicalFundings(): MedicalFunding[] {
+  const [list, setList] = useState<MedicalFunding[]>(defaultMedicalFundings);
+  useRefresh(() => {
+    fetchMedicalFundings().then((rows) => { if (rows) setList(rows); }).catch(() => { /* keep what is shown */ });
+  });
+  return list;
 }
 
 export interface AdminProject { id: string; name: string; area?: string; location?: string; description?: string; status: string; beneficiaries: number; /** photo uploaded in the admin panel */ image_url?: string }

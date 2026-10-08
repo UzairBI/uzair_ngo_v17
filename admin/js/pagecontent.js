@@ -3,7 +3,7 @@ import { h, fmtDateTime, msg, tag, toast, busy, confirmDialog, panel } from "./u
 import { pageTexts, PAGE_TEXT_MAX } from "../../src/data/pageContent.ts";
 
 // Website address of each page, for the "View page" link.
-const PATHS = { "Home: Impact Numbers": "/", "About Us": "/about", "Our Projects": "/projects", "Photo & Video Gallery": "/media", "Latest News": "/news", "Events Calendar": "/events",
+const PATHS = { "Home: Impact Numbers": "/", "About Us": "/about", "Our Projects": "/projects", "Medical Facilities": "/projects/medical-facilities", "Photo & Video Gallery": "/media", "Latest News": "/news", "Events Calendar": "/events",
   "Transparency & Reports": "/transparency", "Get Involved": "/get-involved", "Contact Us": "/contact", "Donate": "/donate",
   "Privacy Policy": "/privacy", "Terms of Use": "/terms", "DPDP Compliance Notice": "/dpdp" };
 const pages = [...new Set(pageTexts.map((x) => x.page))];

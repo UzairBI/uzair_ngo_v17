@@ -3,7 +3,7 @@ import { h, field, modal, tag, fmtDate, dataTable, confirmDialog, toast, busy, v
 
 const STATUSES = ["planned", "ongoing", "completed"];
 const statusTag = (s) => tag(s === "ongoing" ? "active" : s === "completed" ? "completed" : "pending", s);
-const AREA_NAMES = { "child-education": "Child education", "health-nutrition": "Health & nutrition", "women-empowerment": "Women empowerment", environment: "Environment", "social-welfare": "Social welfare" };
+const AREA_NAMES = { "child-education": "Child education", "medical-facilities": "Medical facilities", "women-empowerment": "Women empowerment", environment: "Environment", "social-welfare": "Social welfare" };
 const MAX_MB = 8;
 const imageProblem = (file) => (!/^image\/(jpeg|png|webp)$/.test(file.type) ? "Please choose a JPG, PNG or WebP photo." : file.size > MAX_MB * 1024 * 1024 ? `The photo is larger than ${MAX_MB} MB.` : null);
 const distinct = (rows, key) => [...new Set(rows.map((r) => r[key]).filter(Boolean))].sort().map((v) => [v, AREA_NAMES[v] || v]);

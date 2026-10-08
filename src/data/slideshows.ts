@@ -71,7 +71,7 @@ export const sectionBanners: Record<string, string[]> = {
 /** Banner photo for a page address: the photo of the main menu section the page sits under (none = plain blue banner). */
 export function bannerFor(pathname: string): string[] | undefined {
   const root = `/${pathname.split("/")[1] ?? ""}`;
-  // "/projects/health-nutrition" -> "/projects"; "/news/some-story" -> "/news", which the menu lists under "/media"
+  // "/projects/medical-facilities" -> "/projects"; "/news/some-story" -> "/news", which the menu lists under "/media"
   const section = nav.find((n) => n.href === root) ?? nav.find((n) => n.children?.some((c) => c.href.split(/[?#]/)[0] === root));
   return section && sectionBanners[section.href];
 }

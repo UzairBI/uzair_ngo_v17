@@ -13,7 +13,7 @@ export const nav: NavItem[] = [
   { label: "Our Projects", href: "/projects", children: [
     { label: "Women Empowerment", href: "/projects/women-empowerment" },
     { label: "Upcoming Projects", href: "/projects#upcoming" },
-    { label: "Health & Nutrition", href: "/projects/health-nutrition" },
+    { label: "Medical Facilities", href: "/projects/medical-facilities" },
     { label: "Child Education", href: "/projects/child-education" },
     { label: "Environment & Tree Plantation", href: "/projects/environment" },
     { label: "Social Welfare & Relief", href: "/projects/social-welfare" },
@@ -33,7 +33,7 @@ export const nav: NavItem[] = [
 ];
 export const quickNav = [
   { label: "About Us & Leadership", href: "/about" },
-  { label: "Our 5 Core Projects", href: "/projects" },
+  { label: "Our Projects", href: "/projects" },
   { label: "Photo & Video Gallery", href: "/media" },
   { label: "Latest News", href: "/news" },
   { label: "Events Calendar", href: "/events" },

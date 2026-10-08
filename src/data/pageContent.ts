@@ -1,5 +1,6 @@
 import { projects, values, mission, thematicAreas, ways, stats, statText } from "./content";
 import { portfolio } from "./portfolio";
+import { focusAreas } from "./projectFocus";
 import { site } from "./site";
 import { legalDocs, type LegalKind } from "./legal";
 
@@ -20,7 +21,7 @@ export const keyFigureDefaults = (): [label: string, value: string][] => [
   ["Years of Service", `${Math.floor((new Date().getFullYear() - 2004) / 5) * 5}+`], // registered 19 October 2004 (site.regDate)
   ["Children Supported", `${(stats.find((x) => /children/i.test(x.label))?.value ?? 0).toLocaleString("en-IN")}+`],
   ["Projects Delivered", String(portfolio.length)],
-  ["Core Programmes", String(projects.filter((p) => !p.featured).length)]
+  ["Core Programmes", String(projects.length)]
 ];
 
 // Numbers: typed as they should appear, e.g. 25,000+ or 2,000+ patients. They count up on the website.
@@ -74,7 +75,7 @@ add("About Us", [
 ]);
 
 add("Our Projects", [
-  ["projects.hero.title", "Banner heading", "Our 5 Core Projects"],
+  ["projects.hero.title", "Banner heading", "Our Projects"],
   ["projects.hero.text", "Banner text", "Comprehensive interventions designed for long-term community resilience."],
   // also shown on the Home page slider and on each project's own page
   ...projects.flatMap((p): [string, string, string][] => [
@@ -84,7 +85,26 @@ add("Our Projects", [
   ["projects.upcoming.text", "Upcoming projects: text", "Projects we are preparing or have recently started, as announced by our team."],
   ["projects.upcoming.empty", "Upcoming projects: text when there are none", "New projects will be announced here soon."],
   ["projects.portfolio.title", "Portfolio: heading", "Complete Project Portfolio 2004 – 2025"],
-  ["projects.portfolio.text", "Portfolio: text (the link to the impact report follows it)", "All 15 projects implemented by the Samiti since 2004, with location, reach, budget and funding source, as reported in our"]
+  ["projects.portfolio.text", "Portfolio: text (the link to the impact report follows it)", "All 14 projects implemented by the Samiti since 2004, with location, reach, budget and funding source, as reported in our"]
+]);
+
+// The funding list itself (hospitals, facilities, amounts) is managed in the admin panel under Medical Funding.
+add("Medical Facilities", [
+  // the banner heading and description are under Our Projects (Medical Facilities: project name / description)
+  ...focusAreas["medical-facilities"].points.flatMap(([title, text], i): [string, string, string][] => [
+    [`medical.point.${i + 1}.title`, `About box ${i + 1}: name`, title],
+    [`medical.point.${i + 1}.text`, `About box ${i + 1}: text`, text]]),
+  ["medical.steps.title", "How it works: heading", "How the medical facilities programme runs"],
+  ...focusAreas["medical-facilities"].steps.flatMap(([title, text], i): [string, string, string][] => [
+    [`medical.step.${i + 1}.title`, `Step ${i + 1}: name`, title],
+    [`medical.step.${i + 1}.text`, `Step ${i + 1}: text`, text]]),
+  ["medical.funding.eyebrow", "Funding: small line above the heading", "Where the money went"],
+  ["medical.funding.title", "Funding: heading", "Hospitals & Medical Facilities We Have Funded"],
+  ["medical.funding.text", "Funding: text", "Every contribution made by the Samiti to a hospital or medical facility, with what it was for and the amount donated."],
+  ["medical.hospitals.title", "Hospitals: heading", "Hospital Funding"],
+  ["medical.hospitals.empty", "Hospitals: text when there are none", "Hospital contributions will be listed here soon."],
+  ["medical.facilities.title", "Medical facilities: heading", "NGO Medical Facilities"],
+  ["medical.facilities.empty", "Medical facilities: text when there are none", "Medical facilities will be listed here soon."]
 ]);
 
 add("Photo & Video Gallery", [

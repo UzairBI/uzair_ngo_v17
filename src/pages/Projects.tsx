@@ -30,7 +30,7 @@ export default function Projects() {
     <>
       <PageHero images={projectsImages} eyebrow="Our Projects" title={c("projects.hero.title")} text={c("projects.hero.text")} />
       <section className="container-site grid gap-6 py-12 sm:grid-cols-2 md:py-16 lg:grid-cols-3">
-        {core.map((p, i) => (
+        {projects.map((p, i) => (
           <article key={p.slug} className="flex flex-col overflow-hidden rounded-2xl border shadow-sm">
             <Img file={p.image} alt={c(`project.${p.slug}.title`)} className="h-52 w-full shrink-0" />
             <div className="flex flex-1 flex-col p-5"><p className="eyebrow">0{i + 1} · {p.category}</p>

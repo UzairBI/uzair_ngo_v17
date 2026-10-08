@@ -16,8 +16,8 @@ export interface Project { slug: string; category: string; title: string; text: 
 export const projects: Project[] = [
   { slug: "women-empowerment", category: "Women Empowerment", title: "Self-Reliance Tailoring Center", image: "field-3.jpg",
     text: "Job skills training, Self-Help Groups (SHGs) support, and financial literacy workshops helping rural and urban women achieve financial independence." },
-  { slug: "health-nutrition", category: "Health & Nutrition", title: "Rural Health Checkup Camps", image: "field-6.jpg",
-    text: "Free health check-up camps, preventative awareness drives, maternal care, and basic nutrition kits delivered directly to remote village doorsteps." },
+  { slug: "medical-facilities", category: "Medical Facilities", title: "Medical Facilities & Hospital Funding", image: "field-6.jpg",
+    text: "Funding for hospitals and medical facilities, treatment assistance for patients who cannot afford care, and free health check-up camps in remote villages." },
   { slug: "child-education", category: "Child Education", title: "Shiksha Sahara Child Education Programme", image: "field-9.jpg",
     text: "Free community learning centers, remedial classes, school kits, uniforms, and digital literacy outreach for underprivileged children." },
   { slug: "environment", category: "Environment", title: "Harit Sagar Tree Campaign", image: "plantation-campaign.webp",
