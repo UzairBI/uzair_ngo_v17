@@ -29,6 +29,7 @@ export const nav: NavItem[] = [
     { label: "Impact & Annual Reports", href: "/transparency#annual-reports" },
     { label: "Request Certificates", href: "/transparency?request=certificate#request" } ] },
   { label: "Blogs", href: "/blog" },
+  { label: "Member ID Card", href: "/member-id" },
   { label: "Contact Us", href: "/contact" }
 ];
 export const quickNav = [
