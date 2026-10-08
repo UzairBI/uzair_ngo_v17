@@ -25,15 +25,15 @@ export default function Header() {
         {/* full-width white bar behind everything: logo badge on the left, links in the middle, Donate on the right */}
         <div className="flex h-16 items-center justify-between sm:h-[72px]">
           <Link to="/" aria-label={`${site.name} home`} className="flex h-12 shrink-0 items-center sm:h-14 xl:h-[60px]">
-            <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-11 w-auto max-w-[190px] object-contain sm:h-12 sm:max-w-[220px] xl:h-14 xl:max-w-[260px]" />
+            <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-11 w-auto max-w-[190px] object-contain sm:h-12 sm:max-w-[220px] xl:h-14 xl:max-w-[220px] 2xl:max-w-[260px]" />
           </Link>
 
-          <nav aria-label="Main" className="hidden min-w-0 flex-1 items-center justify-between gap-3 pl-3 lg:flex xl:pl-8">
-            <div className="flex flex-1 items-center justify-center gap-0.5 xl:gap-1.5">
+          <nav aria-label="Main" className="hidden min-w-0 flex-1 items-center justify-between gap-3 pl-3 xl:flex 2xl:pl-8">
+            <div className="flex flex-1 items-center justify-center gap-0.5 2xl:gap-1.5">
               {nav.map((item) => (
                 <div key={item.label} className="group relative">
                   <NavLink to={item.href} end={item.href === "/"} className={({ isActive }) =>
-                    `block whitespace-nowrap rounded-full px-2.5 py-2 text-[13px] font-medium transition-colors xl:px-4 xl:text-[15px] ${isActive ? "bg-brand text-white" : "text-ink hover:bg-brand-light hover:text-brand-dark"}`}>
+                    `block whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] font-medium transition-colors 2xl:px-4 2xl:text-[15px] ${isActive ? "bg-brand text-white" : "text-ink hover:bg-brand-light hover:text-brand-dark"}`}>
                     {t(item.label)}{item.children && <span aria-hidden="true"> ▾</span>}
                   </NavLink>
                   {/* open on hover, and for keyboard users on focus; a mouse click must not leave it open after the pointer has moved away */}
@@ -53,7 +53,7 @@ export default function Header() {
           </nav>
 
           {/* phones / tablets: Donate sits right next to the menu button */}
-          <div className="flex shrink-0 items-center gap-1 lg:hidden">
+          <div className="flex shrink-0 items-center gap-1 xl:hidden">
             <DonateButton to="/donate" size="sm" className="shrink-0">{t("Donate")}</DonateButton>
             <button className="flex h-11 w-11 items-center justify-center rounded-full text-ink" aria-label="Toggle menu" aria-expanded={open} aria-controls="mobile-nav" onClick={() => setOpen(!open)}>
               <span className="block text-2xl leading-none">{open ? "✕" : "☰"}</span>
@@ -63,10 +63,10 @@ export default function Header() {
 
         {/* Phones / tablets: the menu is a full page. The arrow on a section opens its options underneath it, like the dropdowns on desktop. */}
         {open && (
-          <nav id="mobile-nav" aria-label="Mobile" className="fixed inset-0 z-50 flex flex-col bg-white text-ink lg:hidden">
+          <nav id="mobile-nav" aria-label="Mobile" className="fixed inset-0 z-50 flex flex-col bg-white text-ink xl:hidden">
             <div className="flex h-16 shrink-0 items-center justify-between border-b px-3 sm:h-[72px] sm:px-6">
               <Link to="/" onClick={() => setOpen(false)} aria-label={`${site.name} home`} className="flex h-12 items-center sm:h-14">
-                <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-11 w-auto max-w-[190px] object-contain sm:h-12 sm:max-w-[220px] xl:h-14 xl:max-w-[260px]" />
+                <img src="/assets/images/logo.png" alt={`${site.name} logo`} className="h-11 w-auto max-w-[190px] object-contain sm:h-12 sm:max-w-[220px] xl:h-14 xl:max-w-[220px] 2xl:max-w-[260px]" />
               </Link>
               <button className="flex h-11 w-11 items-center justify-center rounded-full text-ink" aria-label="Close menu" onClick={() => setOpen(false)}>
                 <span className="block text-2xl leading-none">✕</span>
