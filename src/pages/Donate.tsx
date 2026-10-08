@@ -58,20 +58,21 @@ export default function Donate() {
   return (
     <>
       {/* banner: light-blue pattern, round organisation badge, title */}
-      <section className="relative isolate overflow-hidden bg-[#b9d8f5] pb-10 pt-10 md:pb-14 md:pt-14" aria-labelledby="donate-title">
-        <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-70" style={{ backgroundImage: "linear-gradient(135deg,#9cc8f0 25%,transparent 25%),linear-gradient(225deg,#d2e6f9 25%,transparent 25%),linear-gradient(45deg,#cfe3f8 25%,transparent 25%),linear-gradient(315deg,#a9d0f3 25%,#bcdaf6 25%)", backgroundSize: "120px 120px" }} />
-        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-10 bg-gradient-to-r from-brand-dark via-brand to-sky" />
-        <div className="container-site flex flex-col items-center gap-6 text-center sm:flex-row sm:text-left">
-          <div className="flex h-36 w-36 shrink-0 items-center justify-center rounded-full bg-white p-4 shadow-xl sm:h-44 sm:w-44"><img src={site.logo} alt={`${site.name} logo`} className="max-h-full max-w-full object-contain" /></div>
+      <section className="relative isolate overflow-hidden pb-16 pt-12 text-white md:pb-24 md:pt-16" aria-labelledby="donate-title">
+        <img src="/images/donation/donate-slide-01.jpg" alt="" loading="eager" decoding="async" className="absolute inset-0 -z-20 h-full w-full object-cover object-[center_38%]" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-[#061a36]/90 via-[#0b3d7a]/70 to-[#0b4f9c]/30" />
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-3 bg-gradient-to-r from-brand-dark via-brand to-sky" />
+        <div className="container-site">
           <div>
-            <h1 id="donate-title" className="text-3xl font-extrabold uppercase leading-tight tracking-tight text-ink sm:text-4xl md:text-5xl">{site.name}</h1>
-            <p className="mt-2 text-lg font-medium uppercase tracking-widest text-ink/80">{t("Fundraiser")}</p>
+            <p className="inline-flex rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest backdrop-blur">{t("Fundraiser")}</p>
+            <h1 id="donate-title" className="mt-3 text-3xl font-extrabold uppercase leading-tight tracking-tight sm:text-4xl md:text-5xl">{site.name}</h1>
+            <p className="mt-2 max-w-2xl text-white/90 md:text-lg">{site.tagline}</p>
           </div>
         </div>
       </section>
 
       <section className="bg-white py-12 md:py-16">
-        <div className="container-site grid items-start gap-10 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-14">
+        <div className="container-site grid items-start gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-12">
           <div>
             <h2 className="text-4xl font-extrabold uppercase tracking-tight text-ink md:text-5xl">{t("About Us")}</h2>
             <div className="mt-6 space-y-5 text-[17px] leading-relaxed text-ink/85">
