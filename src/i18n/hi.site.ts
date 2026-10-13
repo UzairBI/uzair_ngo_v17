@@ -1,6 +1,11 @@
 /** Hindi for the text of the website pages that is not written with t(): programme descriptions, people, partners, reports, legal pages. Key = the exact English text as it appears on the page. Used by src/i18n/domTranslate.ts. */
 export const hiSite: Record<string, string> = {
   "Skip to content": "मुख्य सामग्री पर जाएँ",
+  "children supported": "बच्चों को सहयोग",
+  "patients assisted": "मरीजों की सहायता",
+  "women in SHGs & livelihoods": "महिलाएँ स्वयं सहायता समूहों और आजीविका में",
+  "families lit up with solar lanterns": "परिवार सोलर लालटेन से रोशन",
+  "in tree plantation drives": "लोग वृक्षारोपण अभियानों में",
   "🎓 3,000+ children supported · 🏥 2,000+ patients assisted · 👩 1,500+ women in SHGs & livelihoods · ☀️ 50+ families lit up with solar lanterns · 🌱 5,000+ in tree plantation drives": "🎓 3,000+ बच्चों को सहयोग · 🏥 2,000+ मरीजों की सहायता · 👩 1,500+ महिलाएँ स्वयं सहायता समूहों और आजीविका में · ☀️ 50+ परिवार सोलर लालटेन से रोशन · 🌱 5,000+ लोग वृक्षारोपण अभियानों में",
   "12A · 80G · FCRA · CSR-1 registered": "12A · 80G · FCRA · CSR-1 पंजीकृत",
   "WhatsApp": "व्हाट्सऐप",
