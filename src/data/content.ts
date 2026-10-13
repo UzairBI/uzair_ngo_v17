@@ -67,7 +67,7 @@ export const heroSlides = [
   { image: "field-9.jpg", alt: "Child Education Programme" },
   { image: "plantation-campaign.webp", alt: "Environment Protection & Tree Plantation" }
 ];
-export const ticker = "🎓 3,000+ children supported · 🏥 2,000+ patients assisted · 👩 1,500+ women in SHGs & livelihoods · ☀️ 50+ families lit up with solar lanterns · 🌱 5,000+ in tree plantation drives";
+export const ticker = "3,000+ children supported · 2,000+ patients assisted · 1,500+ women in SHGs & livelihoods · 50+ families lit up with solar lanterns · 5,000+ in tree plantation drives";
 export interface Stat { label: string; value?: number; suffix?: string; text?: string; plain?: boolean }
 /** A figure as an admin types it: "25,000+", "2,000+ patients", "2004". */
 export const statText = (s: Stat) => s.value === undefined ? s.text ?? "" : `${s.plain ? s.value : s.value.toLocaleString("en-IN")}${s.suffix ?? ""}`;
