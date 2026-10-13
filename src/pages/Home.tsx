@@ -154,10 +154,21 @@ export default function Home() {
 
       {/* Campaign progress (hidden until real campaigns exist) */}
       {campaigns.length > 0 && (
-        <section className="py-16">
-          <div className="container-site">
-            <Reveal><p className="eyebrow">{t("Campaigns")}</p><h2 className="h2 mt-2">{t("Our Active Campaigns")}</h2></Reveal>
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
+        <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#eef7ff] to-white py-20">
+          {/* themed background: dotted field, soft colour blobs and a leaf */}
+          <span aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(rgba(20,121,209,.16)_1.2px,transparent_1.2px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]" />
+          <span aria-hidden="true" className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-sky-300/25 blur-3xl" />
+          <span aria-hidden="true" className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-300/25 blur-3xl" />
+          <svg aria-hidden="true" viewBox="0 0 120 120" className="pointer-events-none absolute right-6 top-8 hidden h-28 w-28 text-emerald-500/20 md:block" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M60 110V62" /><path d="M60 62C36 62 24 44 24 24c24 0 36 12 36 38zM60 50c0-24 12-42 36-42 0 24-12 42-36 42z" /></svg>
+          <div className="container-site relative">
+            <Reveal>
+              <div className="mx-auto max-w-2xl text-center">
+                <p className="eyebrow">{t("Campaigns")}</p>
+                <h2 className="h2 mx-auto mt-3">{t("Our Active Campaigns")}</h2>
+                <p className="mt-4 text-ink/70">{t("Every rupee goes straight to the field. Choose a cause and watch it move toward its goal.")}</p>
+              </div>
+            </Reveal>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
               {campaigns.map((c, i) => <Reveal key={c.id} delay={i * 100}><CampaignProgress c={c} /></Reveal>)}
             </div>
           </div>
@@ -280,8 +291,8 @@ export default function Home() {
             {posts.filter((p) => !usedImages.includes(p.image)).slice(0, 3).map((p, i) => (
               <Reveal key={p.slug} delay={i * 90}>
                 <Link to={`/news/${p.slug}`} className="group block h-full overflow-hidden rounded-2xl border bg-white transition hover:shadow-lg">
-                  <Img file={p.image} alt={p.title} className="aspect-[16/10] w-full transition duration-500 group-hover:scale-105" />
-                  <div className="p-4"><p className="eyebrow">{p.category}</p><h4 className="mt-1 font-serif font-bold">{p.title}</h4><span className="mt-2 inline-block text-sm font-semibold text-brand">{t("Read more")} →</span></div>
+                  <Img file={p.image} alt={p.title} className="aspect-[16/10] w-full object-top transition duration-500 group-hover:scale-105" />
+                  <div className="p-4"><h4 className="font-serif font-bold">{p.title}</h4><span className="mt-2 inline-block text-sm font-semibold text-brand">{t("Read more")} →</span></div>
                 </Link>
               </Reveal>
             ))}
