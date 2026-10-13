@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { site } from "../data/site";
 import Reveal from "./Reveal";
 
 /** Numbered "how it works" cards. */
@@ -55,26 +58,54 @@ export function Highlights({ eyebrow, title, items }: { eyebrow: string; title: 
   );
 }
 
-/** Accordion FAQ (native <details>, so it works without JavaScript state). */
+/** Accordion FAQ: centred heading and a single column of question cards (one open at a time). */
 export function Faq({ title = "Frequently asked questions", items, className = "" }: { title?: string; items: [string, string][]; className?: string }) {
+  const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className={`container-site py-14 md:py-16 ${className}`}>
-      <Reveal>
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="eyebrow">FAQ</p>
-          <h2 className="h2 mt-2">{title}</h2>
+    <section className={`relative overflow-hidden bg-gradient-to-b from-white via-[#f1f8ff] to-white py-16 md:py-20 ${className}`}>
+      {/* themed background: dotted field and soft glows */}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(rgba(20,121,209,.14)_1.2px,transparent_1.2px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]" />
+      <span aria-hidden="true" className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-sky-300/25 blur-3xl" />
+      <span aria-hidden="true" className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-emerald-300/20 blur-3xl" />
+      <div className="container-site relative">
+        <Reveal>
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="eyebrow">FAQ</p>
+            <h2 className="h2 mx-auto mt-3">{title}</h2>
+            <p className="mt-4 text-ink/70">Quick answers to the questions we hear most.</p>
+          </div>
+        </Reveal>
+
+        <div className="mx-auto mt-10 max-w-3xl space-y-3">
+          {items.map(([q, a], i) => {
+            const on = open === i;
+            return (
+              <Reveal key={q} delay={i * 70}>
+                <div className={`overflow-hidden rounded-2xl border bg-white transition duration-300 ${on ? "border-brand/40 shadow-[0_18px_40px_-26px_rgba(20,121,209,.55)]" : "border-ink/10 shadow-sm hover:border-brand/30"}`}>
+                  <h3>
+                    <button type="button" aria-expanded={on} aria-controls={`faq-${i}`} id={`faq-q-${i}`} onClick={() => setOpen(on ? null : i)}
+                      className="flex w-full items-center gap-4 px-5 py-4 text-left sm:px-6 sm:py-5">
+                      <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-extrabold tabular-nums transition duration-300 ${on ? "bg-gradient-to-br from-brand to-sky-500 text-white shadow-md" : "bg-brand-light text-brand-dark"}`}>{String(i + 1).padStart(2, "0")}</span>
+                      <span className={`flex-1 text-base font-semibold leading-snug sm:text-[17px] ${on ? "text-brand-dark" : "text-ink"}`}>{q}</span>
+                      <span aria-hidden="true" className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition duration-300 ${on ? "rotate-180 bg-brand text-white" : "bg-brand-light text-brand"}`}>
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                      </span>
+                    </button>
+                  </h3>
+                  {/* the grid-rows trick animates the height without measuring it */}
+                  <div id={`faq-${i}`} role="region" aria-labelledby={`faq-q-${i}`} className={`grid transition-[grid-template-rows] duration-300 ease-out ${on ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                    <div className="overflow-hidden">
+                      <p className="border-t border-ink/5 px-5 pb-5 pt-4 text-sm leading-relaxed text-ink/70 sm:pl-[4.75rem] sm:pr-6">{a}</p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            );
+          })}
+          <p className="pt-4 text-center text-sm text-ink/60">
+            Still have a question? <Link to="/contact" className="font-semibold text-brand underline-offset-4 hover:underline">Contact us</Link> or call <a href={site.phoneHref} className="font-semibold text-brand-dark hover:underline">{site.phone}</a>.
+          </p>
         </div>
-      </Reveal>
-      <div className="mx-auto mt-8 max-w-3xl space-y-3">
-        {items.map(([q, a]) => (
-          <details key={q} className="group rounded-2xl border border-ink/10 bg-white px-5 py-4 open:shadow-md">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink">
-              {q}
-              <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand transition group-open:rotate-45">+</span>
-            </summary>
-            <p className="mt-3 text-sm leading-relaxed text-ink/70">{a}</p>
-          </details>
-        ))}
       </div>
     </section>
   );
