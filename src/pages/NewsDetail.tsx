@@ -20,10 +20,19 @@ export default function NewsDetail() {
   const copy = async () => { try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ } };
   return (
     <>
-      <PageHero eyebrow={`${p.category} · ${fmtDate(p.date)}`} title={p.title} />
+      <PageHero eyebrow={fmtDate(p.date)} title={p.title} />
       <article className="container-site max-w-3xl py-14">
-        <Img file={p.image} alt={p.title} className="aspect-[16/9] w-full rounded-3xl" />
+        <figure>
+          <Img file={p.image} alt={p.title} className="h-auto w-full rounded-3xl border border-ink/10 shadow-sm" />
+          {p.source && <figcaption className="mt-2 text-center text-xs font-medium text-ink/55">{p.source}</figcaption>}
+        </figure>
         <div className="mt-8 space-y-5 text-base leading-relaxed text-ink/80 sm:text-lg">{p.body.map((b, i) => <p key={i}>{b}</p>)}</div>
+        {p.more?.map((m) => (
+          <figure key={m.image} className="mt-8">
+            <Img file={m.image} alt={`${p.title} (${m.source})`} className="h-auto w-full rounded-3xl border border-ink/10 shadow-sm" />
+            <figcaption className="mt-2 text-center text-xs font-medium text-ink/55">{m.source}</figcaption>
+          </figure>
+        ))}
         <div className="mt-8 flex flex-wrap items-center gap-3 border-t pt-6 text-sm">
           <span className="font-semibold">{t("Share")}:</span>
           <a className="rounded-full bg-[#25D366] px-4 py-2 font-semibold text-white" target="_blank" rel="noreferrer" href={`https://wa.me/?text=${encodeURIComponent(p.title + " " + url)}`}>WhatsApp</a>
